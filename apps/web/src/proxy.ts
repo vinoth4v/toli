@@ -15,7 +15,13 @@ export default NextAuth(authConfig).auth
  * broken icon. Any future route that must be reachable without a session
  * (an API other services call, say) needs its own entry here too, or every
  * caller silently gets a redirect instead of the route.
+ *
+ * `track` is the one deliberate hole: the guest tracking link of §4.1 has to
+ * work with no app and no login, because sixty wedding guests are not going
+ * to sign in to find out where the bus is. Its unguessable token is the
+ * credential, and the page behind it is a narrow projection — no price, no
+ * phone numbers, no SOS events.
  */
 export const config = {
-  matcher: ["/((?!api/auth|login|_next/static|_next/image|favicon.ico|icon.svg).*)"],
+  matcher: ["/((?!api/auth|login|track|_next/static|_next/image|favicon.ico|icon.svg).*)"],
 }
