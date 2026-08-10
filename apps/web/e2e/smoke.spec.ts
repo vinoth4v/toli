@@ -9,7 +9,10 @@ test("an unauthenticated visitor is sent to the login page", async ({ page }) =>
   await expect(page.getByLabel("Password")).toBeVisible()
 
   // The gate has to actually withhold the page, not merely change the URL.
-  await expect(page.getByText("Replace this page")).toHaveCount(0)
+  // "The desk" is the heading on `/`, so seeing it here would mean the app
+  // rendered before the redirect rather than instead of it.
+  await expect(page.getByRole("heading", { name: "The desk" })).toHaveCount(0)
+  await expect(page.getByText("Open requirements")).toHaveCount(0)
 })
 
 test("the login page is styled by the token stylesheet", async ({ page }) => {
