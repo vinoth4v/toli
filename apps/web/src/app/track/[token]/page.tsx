@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getPublicTrip } from "@/data/fulfilment"
 import { formatIst, relativeToNow } from "@/domain/format"
+import { mapLink } from "@/domain/geo"
 
 /**
  * The public tracking page — §4.1.
@@ -36,8 +37,18 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
   const trip = await getPublicTrip(token)
   if (!trip) notFound()
 
+  // Ten minutes without a ping while a trip is running is worth saying out
+  // loud rather than papering over with a stale dot.
+  const stale = trip.latest !== null && Date.now() - trip.latest.at.getTime() > 10 * 60_000
+
+  // A page a family keeps open should keep itself current. A meta refresh
+  // rather than a websocket: no client bundle, no reconnect logic, and it
+  // works on the cheap phone the link was forwarded to.
+  const refreshSeconds = trip.status === "in_transit" ? 60 : 300
+
   return (
     <main className="narrow">
+      <meta httpEquiv="refresh" content={String(refreshSeconds)} />
       <section className="track-hero">
         <p className="muted small">{trip.reference}</p>
         <p className="status">{STATUS_TEXT[trip.status] ?? trip.status}</p>
@@ -45,16 +56,27 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
           {trip.city} · departs {formatIst(trip.startAt)}
         </p>
         {trip.latest ? (
-          <p className="small">
-            Last reported {relativeToNow(trip.latest.at)} near{" "}
-            <a
-              href={`https://www.google.com/maps?q=${trip.latest.lat},${trip.latest.lng}`}
-              rel="noreferrer noopener"
-              target="_blank"
-            >
-              {trip.latest.lat}, {trip.latest.lng}
-            </a>
-          </p>
+          <>
+            <p className="small">
+              Last reported {relativeToNow(trip.latest.at)} near{" "}
+              <a
+                href={mapLink({ lat: Number(trip.latest.lat), lng: Number(trip.latest.lng) })}
+                rel="noreferrer noopener"
+                target="_blank"
+              >
+                {Number(trip.latest.lat).toFixed(4)}, {Number(trip.latest.lng).toFixed(4)}
+              </a>
+            </p>
+            {stale ? (
+              // Silence is the thing to be honest about: a phone dies, a box
+              // loses signal, and a map that keeps showing an hour-old dot
+              // implies a certainty nobody has.
+              <p className="small muted">
+                The vehicle has not reported for a while. This can happen where there is no mobile
+                signal; the position above is the last one received.
+              </p>
+            ) : null}
+          </>
         ) : (
           <p className="small muted">
             No position reported yet. Tracking begins when the driver starts the trip.

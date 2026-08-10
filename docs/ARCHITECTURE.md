@@ -77,6 +77,20 @@ Postgres enums:
 | `dispute` | kind, description, resolution, refund |
 | `platform_setting` | one row, id `default`: commission, TCS, TDS, advance %, GST treatment, home state, quote validity |
 
+Migration `0002_integrations` added the tables the external systems write into,
+and four provider columns on `payment`:
+
+| Table | Holds |
+|---|---|
+| `ingest_device` | a driver phone or VLTD box allowed to post positions; only the token's SHA-256 is stored, plus its last four characters |
+| `geo_cache` | geocodes (no expiry) and routes (30 days), keyed on rounded coordinates per §6.2 |
+| `notification` | the outbox: one row per message, written before the API call, with the rendered variables kept |
+| `webhook_event` | every inbound webhook; unique on (provider, event id), which is what stops a retry recording a payment twice |
+
+`payment` gained `provider`, `provider_order_id`, `provider_payment_id` and
+`provider_link_url` — deliberately provider-neutral names, so a second gateway
+sits beside the first without a migration.
+
 Money columns are `bigint` in `number` mode. `integer` would overflow at
 ₹21.4 lakh in paise, which a single 45-seat coach charter can approach and a
 GMV total passes immediately.
@@ -94,12 +108,19 @@ Everything is behind the operator gate unless stated otherwise.
 | `/fleet` | Every vehicle judged against its own paperwork; lifecycle transitions |
 | `/compliance` | Verification queue and expiry ladder, ordered by consequence |
 | `/settings` | Commission, TCS, TDS, advance %, GST treatment, home state — plus the audit log |
+| `/integrations` | What is wired up and what is not, per variable; device enrolment; the outbox |
 | `/login` | The template's gate |
 | **`/track/[token]`** | **Public.** The guest tracking page — no app, no login |
+| **`POST /api/ingest/ping`** | **Public.** Driver-app positions, one or a replayed batch. Device bearer token |
+| **`POST /api/ingest/vltd`** | **Public.** AIS-140 telematics feed. Device bearer token |
+| **`POST /api/webhooks/razorpay`** | **Public.** Payment callbacks. HMAC over the raw body |
 
-`/track` is the one exemption in the proxy matcher. Its token is the only
-credential, so the page reads a deliberately narrow projection: no price, no
-phone number, no commission, and no SOS events.
+Those four are the only exemptions in the proxy matcher, and each carries its
+own credential because none of them can carry the operator's session: an
+unguessable tracking token, a per-device bearer token stored only as a hash,
+and an HMAC verified before the body is parsed. The tracking page reads a
+deliberately narrow projection — no price, no phone number, no commission, and
+no SOS events.
 
 Server actions live beside the routes that use them (`rfqs/actions.ts`,
 `bookings/actions.ts`, `operators/actions.ts`, `settings/actions.ts`). Each
@@ -120,9 +141,18 @@ hold no arithmetic of their own.
 | Auth.js session signing | `AUTH_SECRET` | |
 | The single operator | `WERFT_USER_EMAIL`, `WERFT_PASSWORD_HASH` | |
 | Kompass model gateway | `KOMPASS_BASE_URL`, `KOMPASS_TOKEN` | Present from the template; **nothing in this app calls a model yet** |
+| Razorpay | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `RAZORPAY_BASE_URL` | Payment links and capture webhook. Not configured |
+| Google Places | `GOOGLE_MAPS_API_KEY` | Urban geocoding. Not configured |
+| Mappls | `MAPPLS_REST_KEY` | Village and landmark geocoding, used when Google is unsure. Not configured |
+| OSRM | `OSRM_BASE_URL` | Road distance and duration for quoting. Not configured |
+| WhatsApp Business | `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_API_BASE` | Template messages. Not configured |
+| Verification aggregator | `VEHICLE_VERIFY_BASE_URL`, `VEHICLE_VERIFY_API_KEY`, `VEHICLE_VERIFY_PROVIDER` | VAHAN, Sarathi, GSTN. Not configured |
+| Public origin | `NEXT_PUBLIC_APP_URL` | Only used to build tracking links for outbound messages |
 
-No payment gateway, no maps provider, no SMS or WhatsApp BSP, no government
-API. Each is named in Known gaps below with what it would replace.
+Every integration below Kompass is optional and currently off. `src/integrations/config.ts`
+is the single place that decides whether one is configured, and
+`integrationStatuses()` is what `/integrations` renders — so the app's answer to
+"is this on" comes from one function rather than five scattered env reads.
 
 ## Decisions in force
 
@@ -160,23 +190,52 @@ API. Each is named in Known gaps below with what it would replace.
   under DPDP, and obvious besides.
 - **Percentages are stored as basis points.** 10% commission and 1% TCS are
   both integers that way, and nothing downstream multiplies by a float.
+- **"Not configured" is a first-class state, never a silent fallback.** Four of
+  the five external systems need an account nobody has opened. Each one says
+  which variable is missing, on the screen and in the error, and each degrades
+  to the manual path that worked before it existed. A stub that returns a
+  plausible answer would be worse than the gap, because it would be trusted.
+- **Providers are named in configuration, not in column names.** `payment`
+  records a `provider` string; the verification client takes a base URL. The
+  commercial choice between Razorpay and Cashfree, or between verification
+  aggregators, must not be a migration.
+- **Webhooks verify before they parse, and record before they act.** The HMAC
+  is computed over the raw body, and the unique index on (provider, event id)
+  is what makes a retry a no-op. Without both, anyone who learns a booking
+  reference could mark a ₹40,000 trip paid.
+- **Ingest tokens are stored only as hashes.** A leaked ingest token forges a
+  vehicle's position, and a family watching a tracking link has no way to know.
+- **An unrecognised webhook event is not an error.** A new event type in a
+  provider's roadmap must not become an outage here, so anything unknown is
+  stored and answered 200.
 
 ## Known gaps
 
-- **No payment gateway integration.** Payments are recorded after the fact and
-  marked captured by definition. Razorpay Route or Cashfree Easy Split, with
-  the escrow/split behaviour §8.2 requires, is the Phase 1 job; the payment
-  table already has the shape.
-- **No government verification.** `compliance_check` rows are written by an ops
-  person reading VAHAN or Sarathi. Wiring the real API changes the caller only.
-- **No maps.** Stops are free text, distance is entered by hand, and there is
-  no geocoding, routing or ETA. §6's self-hosted OSRM is a service, not a page
-  in this app.
-- **No live tracking pipeline.** Positions are inserted by hand. The driver app
-  and an AIS-140 VLTD feed both belong upstream of `location_ping`.
+- **Four integrations are written but unproven against a live provider.**
+  Razorpay, Google/Mappls, WhatsApp and the verification aggregator have no
+  account behind them, so their request shapes are built from published API
+  documentation and have never received a real response. What *is* proven is
+  everything that does not need the provider: signature verification, event
+  interpretation, idempotency, template variable order, phone and GSTIN
+  validation, cache keys, and the not-configured path — all unit-tested, and
+  the webhook exercised end to end against a throwaway database with a
+  self-signed payload.
+- **Razorpay Route / Easy Split is not used.** Payment links collect money to
+  the platform's own account, which §8.2 warns against as a routine posture.
+  The split-settlement product is the correct answer and is a Phase 1 job.
+- **Only Razorpay is implemented.** Cashfree is the named alternative and would
+  be a second adapter beside the first.
+- **The VLTD adapter is generic, not vendor-certified.** It reads the field
+  names and shapes common to Indian telematics vendors; a specific vendor may
+  need its own quirk, and that is a small addition to one normaliser rather
+  than a new integration.
 - **No 90-day GPS retention policy**, and no time-series store. Both matter at
   volume; neither matters at a hundred trips a month.
-- **No notifications.** No WhatsApp, no SMS, no push. The ops desk phones.
+- **Deviation is measured to the nearest planned stop, not to the road line.**
+  Coarser than route-geometry matching, and it needs no stored polyline; it
+  still catches the case that matters.
+- **No SMS fallback.** §4.5 wants DLT-registered SMS behind WhatsApp; the
+  outbox has a `channel` column and only one channel is implemented.
 - **Reference numbers come from a row count.** Correct for one desk, racy for
   two. A Postgres sequence is the fix the day a second person is typing.
 - **No rate cards, so no auto-quoting.** §11 Phase 2, and it is the lever that

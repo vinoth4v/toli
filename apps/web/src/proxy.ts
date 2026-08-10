@@ -16,12 +16,23 @@ export default NextAuth(authConfig).auth
  * (an API other services call, say) needs its own entry here too, or every
  * caller silently gets a redirect instead of the route.
  *
- * `track` is the one deliberate hole: the guest tracking link of §4.1 has to
- * work with no app and no login, because sixty wedding guests are not going
- * to sign in to find out where the bus is. Its unguessable token is the
- * credential, and the page behind it is a narrow projection — no price, no
- * phone numbers, no SOS events.
+ * There are three deliberate holes, and each carries its own credential
+ * because none of them can carry the operator's session.
+ *
+ * `track` — the guest tracking link of §4.1, which has to work with no app
+ * and no login, because sixty wedding guests are not going to sign in to find
+ * out where the bus is. Its unguessable token is the credential, and the page
+ * behind it is a narrow projection: no price, no phone numbers, no SOS events.
+ *
+ * `api/ingest` — where the driver app and AIS-140 VLTD boxes post positions.
+ * Authenticated per device by a bearer token whose SHA-256 is all this app
+ * stores, so a device can write a position and reach nothing else.
+ *
+ * `api/webhooks` — where payment providers call back. Authenticated by an
+ * HMAC over the raw body, verified before the body is even parsed.
  */
 export const config = {
-  matcher: ["/((?!api/auth|login|track|_next/static|_next/image|favicon.ico|icon.svg).*)"],
+  matcher: [
+    "/((?!api/auth|api/ingest|api/webhooks|login|track|_next/static|_next/image|favicon.ico|icon.svg).*)",
+  ],
 }

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import type { ReactNode } from "react"
 import { Amount, Badge, Card, Empty, Facts, PageHead, StatusBadge } from "@/components/ui"
 import { getBooking } from "@/data/fulfilment"
+import { listNotifications } from "@/data/notifications"
 import { getSettings } from "@/data/settings"
 import { getOperator } from "@/data/supply"
 import { formatIst, maskPhone } from "@/domain/format"
@@ -11,6 +12,7 @@ import { formatBps, formatPaise } from "@/domain/money"
 import { cancellationCharge, computeSettlement, releaseDueAt } from "@/domain/settlement"
 import { tripTypeLabel } from "@/domain/trip"
 import { vehicleClassLabel } from "@/domain/vehicle"
+import { isConfigured } from "@/integrations/config"
 import {
   addExpenseAction,
   addPingAction,
@@ -25,6 +27,12 @@ import {
   recordPaymentAction,
   releaseSettlementAction,
 } from "../actions"
+import {
+  sendBookingConfirmationAction,
+  sendDriverDetailsAction,
+  sendPaymentLinkAction,
+  sendTrackingLinkAction,
+} from "../integration-actions"
 
 export const dynamic = "force-dynamic"
 
@@ -70,7 +78,14 @@ export default async function BookingPage({
     disputes,
   } = detail
 
-  const [settings, supply] = await Promise.all([getSettings(), getOperator(operator.id)])
+  const [settings, supply, messages] = await Promise.all([
+    getSettings(),
+    getOperator(operator.id),
+    listNotifications(id),
+  ])
+
+  const whatsAppLive = isConfigured("whatsapp")
+  const paymentsLive = isConfigured("payments")
 
   const captured = payments
     .filter((payment) => payment.status === "captured" && payment.kind !== "refund")
@@ -196,6 +211,33 @@ export default async function BookingPage({
               </div>
               <button type="submit">Record</button>
             </form>
+
+            {outstanding > 0 ? (
+              <>
+                <h3>Ask for it instead</h3>
+                <p className="muted small">
+                  {paymentsLive
+                    ? "Creates a Razorpay link for what is outstanding and sends it on WhatsApp. Capture lands here by webhook, without anyone retyping it."
+                    : "Razorpay is not configured, so this will tell you which variables are missing rather than pretend. Until then, money is recorded above once it arrives."}
+                </p>
+                <div className="button-row">
+                  <form action={sendPaymentLinkAction}>
+                    <input type="hidden" name="bookingId" value={booking.id} />
+                    <input type="hidden" name="kind" value="advance" />
+                    <button type="submit" className="quiet">
+                      Payment link for the advance
+                    </button>
+                  </form>
+                  <form action={sendPaymentLinkAction}>
+                    <input type="hidden" name="bookingId" value={booking.id} />
+                    <input type="hidden" name="kind" value="balance" />
+                    <button type="submit" className="quiet">
+                      Link for the full outstanding
+                    </button>
+                  </form>
+                </div>
+              </>
+            ) : null}
           </Card>
 
           <Card title="Assignment">
@@ -457,6 +499,56 @@ export default async function BookingPage({
               No app, no login, works in any browser. For a wedding, sixty guests want to know where
               the bus is — and this page is the best organic acquisition channel Toli has.
             </p>
+
+            <form action={sendTrackingLinkAction} className="inline-form">
+              <input type="hidden" name="bookingId" value={booking.id} />
+              <div>
+                <label htmlFor="toPhone">Send the link to</label>
+                <input id="toPhone" name="toPhone" placeholder="98290 11234" required />
+              </div>
+              <button type="submit" className="quiet">
+                Send on WhatsApp
+              </button>
+            </form>
+          </Card>
+
+          <Card title="Messages">
+            <p className="muted small">
+              {whatsAppLive
+                ? "WhatsApp is configured — these send immediately."
+                : "WhatsApp is not configured, so these queue in the outbox for someone to send by hand. The booking is unaffected either way."}
+            </p>
+
+            <div className="button-row">
+              <form action={sendBookingConfirmationAction}>
+                <input type="hidden" name="bookingId" value={booking.id} />
+                <button type="submit" className="quiet">
+                  Booking confirmation
+                </button>
+              </form>
+              <form action={sendDriverDetailsAction}>
+                <input type="hidden" name="bookingId" value={booking.id} />
+                <button type="submit" className="quiet" disabled={!assignment}>
+                  Driver details
+                </button>
+              </form>
+            </div>
+
+            {messages.length === 0 ? (
+              <p className="muted small">Nothing sent yet.</p>
+            ) : (
+              <ul className="timeline">
+                {messages.map((message) => (
+                  <li key={message.id}>
+                    {message.template} · <StatusBadge status={message.status} />
+                    <time>
+                      {formatIst(message.createdAt)}
+                      {message.error ? ` — ${message.error.slice(0, 80)}` : ""}
+                    </time>
+                  </li>
+                ))}
+              </ul>
+            )}
           </Card>
 
           <Card title="Invoice">

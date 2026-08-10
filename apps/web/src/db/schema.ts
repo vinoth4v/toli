@@ -533,6 +533,13 @@ export const payment = pgTable(
     amountPaise: bigint("amount_paise", { mode: "number" }).notNull(),
     status: paymentStatusEnum("status").notNull().default("pending"),
     gatewayRef: text("gateway_ref"),
+    /** Which gateway, so a second one can be added without rewriting the first. */
+    provider: text("provider"),
+    /** The order a customer was sent to pay against, and the payment that resulted. */
+    providerOrderId: text("provider_order_id"),
+    providerPaymentId: text("provider_payment_id"),
+    /** The link handed to the customer, kept so it can be resent. */
+    providerLinkUrl: text("provider_link_url"),
     collectedAt: timestamp("collected_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -738,6 +745,145 @@ export const platformSetting = pgTable("platform_setting", {
   quoteValidityHours: integer("quote_validity_hours").notNull().default(48),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 })
+
+/* -------------------------------------------------------------------------
+ * Integrations
+ *
+ * Four of the five external systems this app talks to need an account nobody
+ * has yet — a gateway merchant account, a maps billing account, a WhatsApp
+ * BSP, a VAHAN aggregator contract. The tables below are what those systems
+ * write into, and they are deliberately provider-neutral: a `provider` column
+ * rather than a `razorpay_` prefix, because §6.1's rule about never letting a
+ * provider's types leak into the domain applies to columns too.
+ * ---------------------------------------------------------------------- */
+
+/**
+ * A thing allowed to post GPS positions: a driver's phone, or an AIS-140 VLTD
+ * box bolted to a vehicle.
+ *
+ * Only the SHA-256 of the token is stored. The plaintext is shown once, when
+ * the device is enrolled, and never again — a leaked ingest token lets someone
+ * forge a bus's location, which is worse than it sounds when the tracking link
+ * is what a family is watching.
+ */
+export const ingestDeviceKindEnum = pgEnum("ingest_device_kind", ["driver_app", "vltd"])
+
+export const ingestDevice = pgTable(
+  "ingest_device",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    kind: ingestDeviceKindEnum("kind").notNull(),
+    label: text("label").notNull(),
+    operatorId: uuid("operator_id").references(() => operator.id),
+    /** A VLTD box belongs to one vehicle; a driver's phone moves between them. */
+    vehicleId: uuid("vehicle_id").references(() => vehicle.id),
+    driverId: uuid("driver_id").references(() => driver.id),
+    /** The telematics vendor, for a VLTD device. Each speaks a different dialect. */
+    vendor: text("vendor"),
+    tokenHash: text("token_hash").notNull(),
+    tokenLastFour: text("token_last_four").notNull(),
+    active: boolean("active").notNull().default(true),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("ingest_device_token_idx").on(table.tokenHash),
+    index("ingest_device_vehicle_idx").on(table.vehicleId),
+  ],
+)
+
+/**
+ * Geocoding and routing results, cached.
+ *
+ * §6.2 is the reason this table exists rather than a memory map: every RFQ
+ * fans out to a dozen operators and every quote needs a distance, so the same
+ * origin-destination pair is asked for hundreds of times. Geocodes are kept
+ * forever; routes carry an expiry because roads and closures change.
+ */
+export const geoCache = pgTable(
+  "geo_cache",
+  {
+    key: text("key").primaryKey(),
+    kind: text("kind").notNull(),
+    provider: text("provider").notNull(),
+    payload: text("payload").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("geo_cache_expiry_idx").on(table.expiresAt)],
+)
+
+export const notificationStatusEnum = pgEnum("notification_status", [
+  "queued",
+  "sent",
+  "delivered",
+  "failed",
+])
+
+export const notificationChannelEnum = pgEnum("notification_channel", ["whatsapp", "sms"])
+
+/**
+ * The outbox. §4.5: WhatsApp is the primary channel, not push.
+ *
+ * Every message is a row before it is an API call, so a failed send is visible
+ * rather than lost, and so "did the customer ever get the driver's details"
+ * has an answer that does not involve asking the customer.
+ */
+export const notification = pgTable(
+  "notification",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bookingId: uuid("booking_id").references(() => booking.id),
+    channel: notificationChannelEnum("channel").notNull().default("whatsapp"),
+    /** The registered template name — India requires pre-approval, for both DLT SMS and WhatsApp. */
+    template: text("template").notNull(),
+    toPhone: text("to_phone").notNull(),
+    /** The rendered variables, kept so a delivered message can be reproduced. */
+    payload: text("payload").notNull(),
+    status: notificationStatusEnum("status").notNull().default("queued"),
+    provider: text("provider"),
+    providerRef: text("provider_ref"),
+    error: text("error"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("notification_booking_idx").on(table.bookingId),
+    index("notification_status_idx").on(table.status),
+  ],
+)
+
+/**
+ * Every inbound webhook, stored before it is acted on.
+ *
+ * `provider_event_id` is unique, which is the whole point: gateways retry, and
+ * a retried payment-captured event must not record the payment twice. It is
+ * also the only durable record of what a provider actually sent when their
+ * dashboard and this database disagree.
+ */
+export const webhookEvent = pgTable(
+  "webhook_event",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    provider: text("provider").notNull(),
+    providerEventId: text("provider_event_id").notNull(),
+    kind: text("kind").notNull(),
+    payload: text("payload").notNull(),
+    signatureValid: boolean("signature_valid").notNull(),
+    receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+    processedAt: timestamp("processed_at", { withTimezone: true }),
+    error: text("error"),
+  },
+  (table) => [
+    uniqueIndex("webhook_event_provider_id_idx").on(table.provider, table.providerEventId),
+    index("webhook_event_received_idx").on(table.receivedAt),
+  ],
+)
+
+export type IngestDevice = typeof ingestDevice.$inferSelect
+export type GeoCache = typeof geoCache.$inferSelect
+export type Notification = typeof notification.$inferSelect
+export type WebhookEvent = typeof webhookEvent.$inferSelect
 
 export type Operator = typeof operator.$inferSelect
 export type Vehicle = typeof vehicle.$inferSelect
