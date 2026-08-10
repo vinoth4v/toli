@@ -6,8 +6,9 @@ import "@werft/tokens/tokens.css"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Werft app",
-  description: "Scaffolded from werft-template",
+  title: "Toli — ops console",
+  description:
+    "Book a whole van or bus for your whole group. Toli's ops console: RFQs, structured quotes, verified operators, settlements.",
 }
 
 export const viewport: Viewport = {

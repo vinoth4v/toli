@@ -2,16 +2,9 @@
   "name": "toli",
   "title": "toli",
   "description": "India's aggregator marketplace for chartered vans, tempo travellers and buses — transparent quotes, verified operators, live tracking.",
-  "stack": [
-    "next",
-    "typescript",
-    "neon",
-    "drizzle",
-    "next-auth",
-    "vercel"
-  ],
+  "stack": ["next", "typescript", "neon", "drizzle", "next-auth", "vercel"],
   "url": "https://toli-flame.vercel.app",
-  "tags": [],
+  "tags": ["marketplace", "india", "logistics", "ops-console", "gst"],
   "status": "active",
   "private": false
 }
