@@ -10,7 +10,7 @@ export default async function LoginPage({
   const { error } = await searchParams
 
   return (
-    <main>
+    <main className="narrow">
       <h1>Sign in</h1>
 
       {error ? (

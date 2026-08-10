@@ -1,4 +1,7 @@
-/* Every value here comes from @werft/tokens. Add a token rather than a literal. */
+/* Every colour, spacing and font value here comes from @werft/tokens. Add a
+   token rather than a literal. Layout lengths (page width, column widths) are
+   the exception the template already made in `main` below — they describe a
+   line length, not a design decision anyone needs to reuse. */
 
 *,
 *::before,
@@ -16,15 +19,46 @@ body {
 }
 
 main {
-  max-width: 40rem;
+  max-width: 68rem;
   margin: 0 auto;
-  padding: var(--space-12) var(--space-6);
+  padding: var(--space-8) var(--space-6) var(--space-12);
+}
+
+/* The sign-in page is a single column of form, and reads badly at full width. */
+main.narrow {
+  max-width: 26rem;
+  padding-top: var(--space-12);
 }
 
 h1 {
   margin: 0 0 var(--space-6);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-semibold);
+}
+
+h2 {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+h3 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+p {
+  margin: 0 0 var(--space-4);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 label {
@@ -35,7 +69,9 @@ label {
   color: var(--color-muted);
 }
 
-input {
+input,
+select,
+textarea {
   width: 100%;
   padding: var(--space-2) var(--space-3);
   font: inherit;
@@ -45,13 +81,23 @@ input {
   border-radius: var(--radius-md);
 }
 
+textarea {
+  min-height: 4rem;
+  resize: vertical;
+}
+
 input:focus-visible,
-button:focus-visible {
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
-input:hover {
+input:hover,
+select:hover,
+textarea:hover {
   border-color: var(--color-muted);
 }
 
@@ -79,6 +125,16 @@ button:active {
   transform: translateY(1px);
 }
 
+button.secondary {
+  color: var(--color-fg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+button.danger {
+  background: var(--color-danger);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -89,9 +145,308 @@ button:active {
 }
 
 [role="alert"] {
+  margin-bottom: var(--space-6);
   padding: var(--space-3) var(--space-4);
   color: var(--color-danger);
   background: var(--color-surface);
   border: 1px solid var(--color-danger);
   border-radius: var(--radius-md);
+}
+
+/* Header ------------------------------------------------------------------ */
+
+.site-header {
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.site-header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: baseline;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-6);
+}
+
+.brand {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg);
+  letter-spacing: 0.08em;
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-right: auto;
+}
+
+.site-nav a {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
+}
+
+.site-nav a:hover {
+  color: var(--color-fg);
+  text-decoration: none;
+}
+
+.site-header form {
+  display: inline;
+}
+
+.site-header button {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+/* Page furniture ---------------------------------------------------------- */
+
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+
+.page-head h1 {
+  margin-bottom: var(--space-1);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.muted {
+  color: var(--color-muted);
+}
+
+.small {
+  font-size: var(--font-size-sm);
+}
+
+.mono {
+  font-family: var(--font-family-mono);
+}
+
+.right {
+  text-align: right;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.filters {
+  margin-bottom: var(--space-6);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.card {
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.card + .card {
+  margin-top: var(--space-6);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: var(--space-6);
+  align-items: start;
+}
+
+/* Stats ------------------------------------------------------------------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+  padding: 0;
+  list-style: none;
+}
+
+.stat {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.stat-value {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+}
+
+/* Tables ------------------------------------------------------------------ */
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+th {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Definition lists, used for fare breakdowns and trip details -------------- */
+
+.lines {
+  margin: 0;
+}
+
+.lines div {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: space-between;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.lines div:last-child {
+  border-bottom: none;
+}
+
+.lines dt {
+  color: var(--color-muted);
+}
+
+.lines dd {
+  margin: 0;
+  text-align: right;
+}
+
+.lines .total {
+  font-weight: var(--font-weight-semibold);
+}
+
+.lines .total dt {
+  color: var(--color-fg);
+}
+
+/* Badges ------------------------------------------------------------------ */
+
+.badge {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.2;
+  white-space: nowrap;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+.badge-neutral {
+  color: var(--color-muted);
+}
+
+.badge-accent {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.badge-success {
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.badge-danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+/* Forms ------------------------------------------------------------------- */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.field-wide {
+  grid-column: 1 / -1;
+}
+
+.hint {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+}
+
+fieldset {
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  border: none;
+}
+
+legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+  font-weight: var(--font-weight-semibold);
+}
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: flex-end;
+}
+
+.empty {
+  padding: var(--space-8) var(--space-4);
+  color: var(--color-muted);
+  text-align: center;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
 }

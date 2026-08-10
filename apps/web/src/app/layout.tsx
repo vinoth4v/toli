@@ -6,8 +6,9 @@ import "@werft/tokens/tokens.css"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Werft app",
-  description: "Scaffolded from werft-template",
+  title: "TOLI — charter desk",
+  description:
+    "Book a whole van or bus for your whole group: enquiries, operator quotes, bookings and settlement in one place.",
 }
 
 export const viewport: Viewport = {
@@ -17,6 +18,14 @@ export const viewport: Viewport = {
   ],
 }
 
+/**
+ * Deliberately free of anything that reads a session or the environment.
+ *
+ * The 404 page is prerendered at build time against this layout, and `next
+ * build` has to succeed with no AUTH_SECRET and no database. The signed-in
+ * chrome lives in the (app) route group's layout instead, which every real
+ * page passes through and which is dynamic by definition.
+ */
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
