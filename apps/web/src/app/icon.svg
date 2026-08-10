@@ -1,5 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Werft is German for shipyard. -->
-  <title>Werft</title>
-  <text y=".9em" font-size="90">⚓</text>
+  <!-- Toli: a band of people moving together. Three figures, one group — the
+       mark carries the meaning in the markets where the Hindi word does not
+       yet. Drawn in currentColor rather than a hex, for the same reason the
+       stylesheet holds no literal colours: a favicon cannot read a design
+       token, so the honest answer is to use none. -->
+  <title>Toli</title>
+  <g fill="currentColor">
+    <circle cx="26" cy="38" r="10" />
+    <circle cx="50" cy="32" r="12" />
+    <circle cx="74" cy="38" r="10" />
+    <path d="M8 82c0-11 8-19 18-19s18 8 18 19zM30 86c0-13 9-23 20-23s20 10 20 23zM56 82c0-11 8-19 18-19s18 8 18 19z" />
+  </g>
 </svg>
