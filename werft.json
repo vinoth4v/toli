@@ -1,0 +1,17 @@
+{
+  "name": "toli",
+  "title": "toli",
+  "description": "India's aggregator marketplace for chartered vans, tempo travellers and buses — transparent quotes, verified operators, live tracking.",
+  "stack": [
+    "next",
+    "typescript",
+    "neon",
+    "drizzle",
+    "next-auth",
+    "vercel"
+  ],
+  "url": "",
+  "tags": [],
+  "status": "active",
+  "private": false
+}
