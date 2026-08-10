@@ -10,7 +10,7 @@
     "next-auth",
     "vercel"
   ],
-  "url": "",
+  "url": "https://toli-flame.vercel.app",
   "tags": [],
   "status": "active",
   "private": false
