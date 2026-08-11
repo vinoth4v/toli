@@ -6,6 +6,7 @@ import {
   customer,
   driver,
   invoice,
+  locationPing,
   operator,
   payment,
   quote,
@@ -102,8 +103,15 @@ export async function customerTrip(customerId: string, requestId: string) {
           .innerJoin(driver, eq(assignment.driverId, driver.id))
           .where(eq(assignment.bookingId, found.booking.id))
           .limit(1),
+        // The newest position, for the map on the customer's own trip.
+        db()
+          .select()
+          .from(locationPing)
+          .where(eq(locationPing.bookingId, found.booking.id))
+          .orderBy(desc(locationPing.at))
+          .limit(1),
       ])
-    : [[], []]
+    : [[], [], []]
 
   return {
     request,
@@ -113,6 +121,7 @@ export async function customerTrip(customerId: string, requestId: string) {
     operatorName: found?.operatorName ?? null,
     invoice: extras[0]?.[0] ?? null,
     assignment: extras[1]?.[0] ?? null,
+    latestPing: extras[2]?.[0] ?? null,
   }
 }
 

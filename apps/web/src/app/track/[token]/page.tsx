@@ -1,8 +1,9 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { MapEmbed } from "@/components/map"
 import { getPublicTrip } from "@/data/fulfilment"
 import { formatIst, relativeToNow } from "@/domain/format"
-import { mapLink } from "@/domain/geo"
+import { checkPing } from "@/domain/geo"
 
 /**
  * The public tracking page — §4.1.
@@ -46,6 +47,8 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
   // works on the cheap phone the link was forwarded to.
   const refreshSeconds = trip.status === "in_transit" ? 60 : 300
 
+  const position = trip.latest ? checkPing(trip.latest.lat, trip.latest.lng) : null
+
   return (
     <main className="narrow">
       <meta httpEquiv="refresh" content={String(refreshSeconds)} />
@@ -57,16 +60,7 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
         </p>
         {trip.latest ? (
           <>
-            <p className="small">
-              Last reported {relativeToNow(trip.latest.at)} near{" "}
-              <a
-                href={mapLink({ lat: Number(trip.latest.lat), lng: Number(trip.latest.lng) })}
-                rel="noreferrer noopener"
-                target="_blank"
-              >
-                {Number(trip.latest.lat).toFixed(4)}, {Number(trip.latest.lng).toFixed(4)}
-              </a>
-            </p>
+            <p className="small">Last reported {relativeToNow(trip.latest.at)}</p>
             {stale ? (
               // Silence is the thing to be honest about: a phone dies, a box
               // loses signal, and a map that keeps showing an hour-old dot
@@ -83,6 +77,14 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
           </p>
         )}
       </section>
+
+      {position?.ok ? (
+        <MapEmbed
+          point={position.point}
+          label={`${trip.reference} · last reported ${relativeToNow(trip.latest?.at ?? new Date())}`}
+          height={320}
+        />
+      ) : null}
 
       {trip.vehicleRegistration ? (
         <section className="card">

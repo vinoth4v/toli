@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest"
 import {
+  boundsFor,
   checkPing,
   deviationKm,
+  embedUrl,
   geocodeCacheKey,
   hasDeviated,
   haversineKm,
+  navigationLink,
   roundCoordinate,
   routeCacheKey,
   stoppedFor,
@@ -140,5 +143,44 @@ describe("cache keys", () => {
     expect(geocodeCacheKey("  Hotel Germanus,   Madurai ")).toBe(
       geocodeCacheKey("hotel germanus, madurai"),
     )
+  })
+})
+
+describe("embeddable maps", () => {
+  it("frames a marker inside its own bounding box", () => {
+    const url = new URL(embedUrl(madurai))
+    const [west, south, east, north] = (url.searchParams.get("bbox") ?? "").split(",").map(Number)
+
+    expect(url.searchParams.get("marker")).toBe("9.9252,78.1198")
+    expect(madurai.lng).toBeGreaterThan(west as number)
+    expect(madurai.lng).toBeLessThan(east as number)
+    expect(madurai.lat).toBeGreaterThan(south as number)
+    expect(madurai.lat).toBeLessThan(north as number)
+  })
+
+  it("needs no API key, which is the whole reason it is OpenStreetMap", () => {
+    expect(embedUrl(madurai)).not.toContain("key=")
+    expect(embedUrl(madurai)).toContain("openstreetmap.org")
+  })
+
+  it("frames a whole route around its middle", () => {
+    const bounds = boundsFor([madurai, batlagundu, kodaikanal])
+    if (!bounds) throw new Error("bounds expected")
+
+    expect(bounds.centre.lat).toBeGreaterThan(Math.min(madurai.lat, kodaikanal.lat))
+    expect(bounds.centre.lat).toBeLessThan(Math.max(madurai.lat, kodaikanal.lat))
+    expect(bounds.span).toBeGreaterThan(0.05)
+  })
+
+  it("does not zoom to the whole planet for a single stop", () => {
+    // A zero-width box is what a naive min/max gives you, and it renders as
+    // the entire world with a dot somewhere in it.
+    const bounds = boundsFor([madurai])
+    expect(bounds?.span).toBeGreaterThanOrEqual(0.05)
+    expect(boundsFor([])).toBeNull()
+  })
+
+  it("hands navigation to the app the driver already uses", () => {
+    expect(navigationLink(kodaikanal)).toContain("dir/?api=1&destination=")
   })
 })

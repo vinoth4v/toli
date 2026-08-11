@@ -11,6 +11,7 @@ import {
   sosAction,
   startTripAction,
 } from "../actions"
+import { ShareLocation } from "../share-location"
 
 /**
  * One trip, for the person driving it.
@@ -78,6 +79,10 @@ export default async function DriveTripPage({
           <p>{trip.notes}</p>
         </section>
       ) : null}
+
+      <section className="drive-share">
+        <ShareLocation bookingId={trip.bookingId} label={t.driveShareLocation} />
+      </section>
 
       <section className="drive-contact">
         <a href={`tel:+91${trip.customerPhone.replace(/\D/g, "").slice(-10)}`} className="call">

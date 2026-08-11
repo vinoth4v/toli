@@ -2470,3 +2470,60 @@ button.huge.sos {
 .portal-top nav {
   margin-left: var(--space-6);
 }
+
+/* ------------------------------------------------------------------- maps
+
+   An OpenStreetMap iframe: no key, no billing account, and no client
+   bundle in front of a customer on a phone. The link beside it hands
+   navigation to the app they already use.                              */
+
+.map {
+  margin: 0 0 var(--space-6);
+}
+
+.map iframe {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.map figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: baseline;
+  justify-content: space-between;
+  padding-top: var(--space-2);
+}
+
+.map-links {
+  display: flex;
+  gap: var(--space-4);
+  font-size: var(--font-size-sm);
+}
+
+/* --------------------------------------------------- driver location share */
+
+.drive-share {
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+}
+
+.share-location .repeat {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin: var(--space-3) 0 0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-fg);
+}
+
+.share-location .hint {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+}

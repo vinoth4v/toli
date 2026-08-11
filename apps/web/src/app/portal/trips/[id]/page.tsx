@@ -1,10 +1,12 @@
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { auth } from "@/auth"
+import { MapEmbed } from "@/components/map"
 import { shapeOf, termsOf } from "@/data/demand"
 import { customerTrip, tripExpensesFor } from "@/data/scoped"
 import { buildBill, tollNotice } from "@/domain/bill"
 import { formatIst } from "@/domain/format"
+import { checkPing } from "@/domain/geo"
 import { formatPaise } from "@/domain/money"
 import { priceQuote, quoteChips } from "@/domain/quote"
 import { tripTypeLabel } from "@/domain/trip"
@@ -36,6 +38,8 @@ export default async function PortalTripPage({ params }: { params: Promise<{ id:
   // The bill exists only once there is a booking: before that, a quote is a
   // promise and there is nothing to reconcile it against.
   const billing = booking ? await tripExpensesFor(customerId, booking.id) : null
+  const livePosition =
+    booking && trip.latestPing ? checkPing(trip.latestPing.lat, trip.latestPing.lng) : null
   const bill =
     booking && billing
       ? buildBill({
@@ -124,6 +128,10 @@ export default async function PortalTripPage({ params }: { params: Promise<{ id:
             ) : null}
           </div>
         </section>
+      ) : null}
+
+      {livePosition?.ok ? (
+        <MapEmbed point={livePosition.point} label="Where your vehicle is now" height={300} />
       ) : null}
 
       {bill ? (

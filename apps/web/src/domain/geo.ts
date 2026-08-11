@@ -154,3 +154,61 @@ export const ROUTE_CACHE_TTL_MS = 30 * 86_400_000
 export function mapLink(point: Point): string {
   return `https://www.google.com/maps?q=${roundCoordinate(point.lat)},${roundCoordinate(point.lng)}`
 }
+
+/** Turn-by-turn, handed to the app the driver already uses. §6.1: never build this. */
+export function navigationLink(point: Point): string {
+  return `https://www.google.com/maps/dir/?api=1&destination=${roundCoordinate(point.lat)},${roundCoordinate(point.lng)}`
+}
+
+/**
+ * A map to embed, from OpenStreetMap.
+ *
+ * §6.1 gives map *rendering* to Google's mobile SDK, which does not apply to a
+ * web page — and the Maps Embed API needs the billing account this app does
+ * not have yet. OSM's embed needs no key, costs nothing, and shows the one
+ * thing a page like this must show: where the vehicle is, on a map, without a
+ * customer having to leave for another tab.
+ *
+ * The trade is honest and worth writing down: OSM's Indian street data is
+ * thinner than Google's, which is precisely why §6.1 recommends Mappls for
+ * village-level work. This is the free tier of a map, and the "open in Maps"
+ * link beside it is there for when it is not enough.
+ */
+export function embedUrl(point: Point, spanDegrees = 0.08): string {
+  const west = (point.lng - spanDegrees).toFixed(4)
+  const east = (point.lng + spanDegrees).toFixed(4)
+  const south = (point.lat - spanDegrees / 2).toFixed(4)
+  const north = (point.lat + spanDegrees / 2).toFixed(4)
+
+  return (
+    "https://www.openstreetmap.org/export/embed.html" +
+    `?bbox=${west}%2C${south}%2C${east}%2C${north}` +
+    "&layer=mapnik" +
+    `&marker=${roundCoordinate(point.lat)}%2C${roundCoordinate(point.lng)}`
+  )
+}
+
+/**
+ * A box that holds every point given, with a margin.
+ *
+ * Used to frame a whole route rather than a single marker. A single point, or
+ * points very close together, would otherwise produce a zero-width box and a
+ * map zoomed to the whole world.
+ */
+export function boundsFor(points: readonly Point[]): { centre: Point; span: number } | null {
+  if (points.length === 0) return null
+
+  const lats = points.map((point) => point.lat)
+  const lngs = points.map((point) => point.lng)
+  const minLat = Math.min(...lats)
+  const maxLat = Math.max(...lats)
+  const minLng = Math.min(...lngs)
+  const maxLng = Math.max(...lngs)
+
+  return {
+    centre: { lat: (minLat + maxLat) / 2, lng: (minLng + maxLng) / 2 },
+    // A floor, so one stop does not zoom to the whole planet, and a margin so
+    // the outermost markers are not hard against the edge.
+    span: Math.max(0.05, (maxLng - minLng) * 1.4, (maxLat - minLat) * 1.4),
+  }
+}

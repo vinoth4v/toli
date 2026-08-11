@@ -1,12 +1,14 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import type { ReactNode } from "react"
+import { MapEmbed } from "@/components/map"
 import { Amount, Badge, Card, Empty, Facts, PageHead, StatusBadge } from "@/components/ui"
 import { getBooking } from "@/data/fulfilment"
 import { listNotifications } from "@/data/notifications"
 import { getSettings } from "@/data/settings"
 import { getOperator } from "@/data/supply"
 import { formatIst, maskPhone } from "@/domain/format"
+import { checkPing } from "@/domain/geo"
 import { GST_TREATMENTS } from "@/domain/gst"
 import { formatBps, formatPaise } from "@/domain/money"
 import { cancellationCharge, computeSettlement, releaseDueAt } from "@/domain/settlement"
@@ -83,6 +85,9 @@ export default async function BookingPage({
     getOperator(operator.id),
     listNotifications(id),
   ])
+
+  const latest = pings[0]
+  const position = latest ? checkPing(latest.lat, latest.lng) : null
 
   const whatsAppLive = isConfigured("whatsapp")
   const paymentsLive = isConfigured("payments")
@@ -295,6 +300,16 @@ export default async function BookingPage({
               </p>
             ) : null}
           </Card>
+
+          {position?.ok ? (
+            <Card title="Where it is">
+              <MapEmbed
+                point={position.point}
+                label={`Last reported ${formatIst(latest?.at)}`}
+                height={280}
+              />
+            </Card>
+          ) : null}
 
           <Card title="Trip">
             {events.length === 0 ? (

@@ -437,3 +437,40 @@ reading the diff — which is the argument for looking at the screen.
 **Open:** the portal's deeper screens (quote comparison, bill, book-now) are
 still English; the dictionary covers the surfaces a non-English reader meets
 first. The `hi`/`te`/`ml`/`kn` strings still need a native pass.
+
+---
+
+## Maps, and a phone that knows where it is — 11 August 2026
+
+**Asked:** embed maps, and take GPS location from the app itself.
+
+**Changed:**
+
+- **Embedded maps** on the four surfaces where "where is it" is the question:
+  the public tracking page, the customer's trip, the ops booking detail, and
+  the RFQ route once its stops are geocoded. An OpenStreetMap iframe — no key,
+  no billing account, and no mapping library, which the dependency list does
+  not bless and which would put hundreds of kilobytes in front of a customer on
+  a phone to draw a dot.
+- **The driver's phone reports its own position** through a small client
+  component and a server action, authorised by the driver's session rather than
+  an ingest token that would have to live on a phone that gets lost.
+- `embedUrl`, `boundsFor` and `navigationLink` are pure and tested, including
+  that a single stop does not frame the whole planet.
+
+**Decided, and why:**
+
+- **An iframe, not a map library.** The blessed list has no renderer, and the
+  Maps Embed API needs the billing account §6.1 assumes and this app lacks.
+- **Every caption carries the coordinates and a link out.** OSM answers a
+  request without a proper referer with a blank 103-byte tile, so a map that
+  fails must still say where the vehicle is.
+- **Location sharing is foreground-only, and says so.** §6.3 wants a
+  `ForegroundService` at ten-second intervals; a web page stops running when
+  the screen locks. Claiming background tracking would be the dishonest option.
+
+**Not verified:** tiles were blank in the automation browser used to check.
+The embed's structure renders and OSM serves a real 6.9 KB tile to a request
+carrying an `openstreetmap.org` referer — which is what the iframe sends — but
+somebody should open `/track/<token>` in an ordinary browser before the soft
+launch. Recorded in ARCHITECTURE.md rather than assumed away.
