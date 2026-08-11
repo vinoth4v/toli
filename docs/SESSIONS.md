@@ -594,3 +594,66 @@ instant booking on production that morning. The seed data is no longer alone.
 **Open:** avatar upload reports "not configured" on production until the four
 S3 variables are set; the hero scene is one static composition and could grow
 a night mode; `hi`/`te`/`ml`/`kn` strings still lack a native pass.
+
+## Session 15 — 11 August 2026: registration, an accent of its own, two more scenes
+
+**Asked:** fix the dropdowns (raw OS chrome, sentence-length options); the
+language row overflowing its card on `/account`; add a way to register as a
+new customer, operator or driver — "bring right workflow"; more illustrations
+like the hero; and make the design stop reading as an Uber copy.
+
+**Changed:**
+
+- **Selects are now drawn by the app, not the OS**: `appearance: none`, our
+  border and radius, and a chevron built from two gradients in the muted token
+  — no image asset, no literal colour. Options stopped carrying paragraphs:
+  segments say `Premium — AC` (new `short` field beside `promise`), vehicle
+  classes say `9–26 seats` (new `seatRange`). List-style selects keep no
+  chevron, because they have no popup to promise.
+- **Registration, three shapes on purpose.** `/register` mirrors sign-in:
+  who are you, then the form. A customer self-serves and lands signed-in in
+  the portal. An operator *applies* — created `pending_verification`, in the
+  partner app immediately, sellable only after ops verifies, which is
+  machinery that already existed. A driver gets no form: `/partner/team` is
+  where their operator adds them and issues their sign-in — synthetic email
+  from their phone (`d<10 digits>@drivers.toli.in`, an identifier, not a
+  mailbox), generated password shown exactly once, stored only as a hash.
+- **The accent became terracotta** — the colour the hero's gopuram already
+  wore — in one token change. Buttons, links, eyebrows, chips and step
+  numbers all warmed together; ink stays for type, green and red keep their
+  meanings. This is the de-Uber move: same discipline, different owner.
+- **Two more hand-drawn scenes**: the Pamban bridge (bus crossing on a slow
+  loop, gulls, lapping waves) above "How it works", and a night sleeper coach
+  (lit berth windows, headlight beam, twinkling stars) with the fleet owners.
+  Same artwork-palette exception as the hero.
+- The landing page, login chooser and both login forms now point new arrivals
+  at `/register`; the account card and language row wrap instead of clipping.
+
+**Decided, and why:**
+
+- **Drivers do not self-register.** §3's warning is the whole marketplace: a
+  driver is somebody's employee with police verification behind them, not a
+  stranger with a form. The "right workflow" the user asked for is the
+  operator issuing credentials, so that is the only door.
+- **A phone number that already exists refuses to register.** Claiming an
+  ops-created customer row online with nothing but a known phone number would
+  be account takeover of their trip history; linking stays a human's job
+  until OTP exists.
+- **No `revalidatePath` after issuing a driver login** — found live: the
+  refresh replaced the client component holding the password (the only copy
+  that will ever exist) with the server's "login exists" markup. The panel
+  now survives until the operator navigates away.
+
+**Verified in a real browser against a throwaway Neon branch** (created and
+deleted the same hour): customer registration → signed in → portal;
+operator application → partner app; driver added, sign-in issued, and that
+driver's credentials signed into `/drive` — the full three-role loop.
+Also found on screen, not in the diff: the register chooser's call-to-action
+lines rendered muted (`.pick-card span` outranked `.pick-go`), and the team
+form's fieldset wore the browser's default frame with its hint run into the
+legend. Both fixed.
+
+**Open:** password reset is still a call to Toli ops; the operator
+application has no notification to ops beyond appearing in the verification
+queue; `hi`/`te`/`ml`/`kn` strings still await a native speaker; S3 variables
+still unset on production for avatar and vehicle-photo upload.

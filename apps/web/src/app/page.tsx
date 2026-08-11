@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
-import { HeroScene } from "@/components/hero-scene"
+import { HeroScene, NightScene, PambanScene } from "@/components/hero-scene"
 import { ToliLogo } from "@/components/logo"
 import { publicSettings } from "@/data/settings"
 import { tollNotice } from "@/domain/bill"
@@ -136,7 +136,7 @@ export default async function HomePage() {
             messages.
           </p>
           <div className="hero-actions">
-            <Link href="/login?as=customer" className="button-link">
+            <Link href="/register?as=customer" className="button-link">
               Book a vehicle
             </Link>
             <a href="#compare" className="button-link quiet">
@@ -309,6 +309,7 @@ export default async function HomePage() {
 
       <section id="how" className="section">
         <h2 className="section-title">How it works</h2>
+        <PambanScene />
         <ol className="steps">
           <li>
             <span className="step-number">1</span>
@@ -412,6 +413,12 @@ export default async function HomePage() {
             <li>Your documents verified once, tracked to expiry, renewed on a reminder</li>
             <li>Sub-contracting modelled properly, because it happens</li>
           </ul>
+          <p>
+            <Link href="/register?as=operator" className="button-link">
+              Apply as an operator
+            </Link>
+          </p>
+          <NightScene />
         </div>
         <aside className="settlement-card">
           <h3>A settlement, in full</h3>
@@ -457,6 +464,11 @@ export default async function HomePage() {
           A driver is not an operator and an operator is not the ops desk — so Toli is four
           applications behind one sign-in. Pick the one that describes you; your account decides
           where you actually land, so there is nothing to get wrong here.
+        </p>
+
+        <p className="section-lede">
+          No account yet? <Link href="/register">Create one</Link> — groups register themselves,
+          operators apply, and drivers get their sign-in from their operator.
         </p>
 
         <div className="door-grid">

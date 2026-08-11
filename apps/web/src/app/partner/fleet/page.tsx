@@ -7,6 +7,7 @@ import { formatIstDate } from "@/domain/format"
 import { SEGMENT_INFO } from "@/domain/segment"
 import {
   featureLabel,
+  seatRange,
   VEHICLE_CLASS_INFO,
   VEHICLE_FEATURES,
   vehicleClassLabel,
@@ -304,7 +305,7 @@ export default async function PartnerFleet({
               <select id="vehicleClass" name="vehicleClass" required>
                 {Object.values(VEHICLE_CLASS_INFO).map((info) => (
                   <option key={info.key} value={info.key}>
-                    {info.label} ({info.seatOptions.join("/")})
+                    {info.label} · {seatRange(info)}
                   </option>
                 ))}
               </select>

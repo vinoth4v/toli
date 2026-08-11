@@ -44,17 +44,17 @@ export type Theme = {
 export const THEMES = {
   toli: {
     label: "Toli",
-    inspiration: "Mobility-platform monochrome: black on white, one hard accent, no ornament.",
+    inspiration: "Ink and terracotta: monochrome interface, one warm accent, hand-drawn scenes.",
     color: {
       bg: { light: "#ffffff", dark: "#0b0b0b" },
       surface: { light: "#f6f6f6", dark: "#161616" },
       fg: { light: "#0b0b0b", dark: "#f6f6f6" },
       muted: { light: "#5e5e5e", dark: "#a8a8a8" },
       border: { light: "#e8e8e8", dark: "#272727" },
-      /* Accent IS the foreground. Buttons become black (white in dark mode),
-         links become ink, and colour is left to mean something: green for
-         live and settled, red for stop. That restraint is the design. */
-      accent: { light: "#0b0b0b", dark: "#f6f6f6" },
+      /* Terracotta — the colour of the gopuram in the hero art, and the thing
+         that keeps this from reading as an Uber clone. Ink does the talking,
+         terracotta does the pointing, and green/red keep their meanings. */
+      accent: { light: "#c2410c", dark: "#fb923c" },
       danger: { light: "#de1135", dark: "#ff6d60" },
       success: { light: "#0e8345", dark: "#38c793" },
     },

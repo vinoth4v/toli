@@ -77,6 +77,14 @@ export function vehicleClassLabel(vehicleClass: VehicleClass): string {
   return VEHICLE_CLASS_INFO[vehicleClass].label
 }
 
+/** "9–26 seats", for dropdowns. The full ladder stays on cards and guides. */
+export function seatRange(info: VehicleClassInfo): string {
+  const seats = info.seatOptions
+  const min = Math.min(...seats)
+  const max = Math.max(...seats)
+  return min === max ? `${min} seats` : `${min}–${max} seats`
+}
+
 /** §4.6's attribute list, as options rather than free text. */
 export const VEHICLE_FEATURES = [
   { key: "pushback", label: "Push-back seats" },

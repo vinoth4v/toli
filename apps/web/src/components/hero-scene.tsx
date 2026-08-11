@@ -130,3 +130,196 @@ export function HeroScene() {
     </svg>
   )
 }
+
+/**
+ * The Pamban bridge at Rameswaram — the most recognisable road in Toli's
+ * launch corridor, drawn as a wide banner. A bus crosses the whole span on a
+ * slow loop, gulls drift the other way, the sea keeps moving underneath.
+ */
+export function PambanScene() {
+  return (
+    <svg
+      className="scene scene-banner"
+      viewBox="0 0 720 220"
+      role="img"
+      aria-label="A bus crossing the Pamban sea bridge to Rameswaram, gulls overhead"
+    >
+      {/* Sky and a low coastal sun */}
+      <rect width="720" height="220" fill="#eaf4fb" />
+      <circle cx="96" cy="52" r="20" fill="#f6b73c" />
+      <g className="cloud cloud-a" fill="#ffffff">
+        <ellipse cx="300" cy="42" rx="40" ry="12" />
+        <ellipse cx="330" cy="35" rx="24" ry="10" />
+      </g>
+
+      {/* Gulls, drawn as the two strokes every child draws them with */}
+      <g className="gull" stroke="#5b6b7d" strokeWidth="3" strokeLinecap="round" fill="none">
+        <path d="M470 60 q9 -9 18 0" />
+        <path d="M488 60 q9 -9 18 0" />
+      </g>
+      <g
+        className="gull gull-b"
+        stroke="#5b6b7d"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        fill="none"
+      >
+        <path d="M560 84 q7 -7 14 0" />
+        <path d="M574 84 q7 -7 14 0" />
+      </g>
+
+      {/* The sea, with two drifting wave lines */}
+      <rect y="150" width="720" height="70" fill="#8fc3dd" />
+      <g
+        className="wave"
+        stroke="#ffffff"
+        strokeWidth="3"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.6"
+      >
+        <path d="M-40 176 q20 -8 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" />
+      </g>
+      <g
+        className="wave wave-b"
+        stroke="#ffffff"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.4"
+      >
+        <path d="M-60 198 q20 -7 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" />
+      </g>
+
+      {/* The bridge: deck, piers, and the truss posts between them */}
+      <rect x="0" y="132" width="720" height="10" fill="#33333b" />
+      <g fill="#4a4a54">
+        {[40, 130, 220, 310, 400, 490, 580, 670].map((x) => (
+          <rect key={x} x={x} y="142" width="12" height="70" />
+        ))}
+      </g>
+      <g stroke="#4a4a54" strokeWidth="4" fill="none">
+        <path d="M0 132 L720 132" />
+        {[85, 175, 265, 355, 445, 535, 625].map((x) => (
+          <path key={x} d={`M${x - 39} 132 L${x} 112 L${x + 39} 132`} />
+        ))}
+        <path d="M46 112 L674 112" strokeWidth="3" />
+      </g>
+
+      {/* The bus, crossing the whole span on a slow loop */}
+      <g className="pamban-bus">
+        <g transform="translate(0 118)">
+          <rect x="-46" y="-22" width="92" height="34" rx="7" fill="#ffffff" />
+          <rect x="-46" y="-5" width="92" height="7" fill="#f26a21" />
+          <rect x="-38" y="-16" width="15" height="10" rx="2" fill="#bcd7ee" />
+          <rect x="-19" y="-16" width="15" height="10" rx="2" fill="#bcd7ee" />
+          <rect x="0" y="-16" width="15" height="10" rx="2" fill="#bcd7ee" />
+          <rect x="21" y="-16" width="19" height="10" rx="2" fill="#9fc4e4" />
+          <g className="wheel">
+            <circle cx="-26" cy="13" r="8" fill="#1d1d21" />
+            <circle cx="-26" cy="13" r="3" fill="#9a9aa2" />
+          </g>
+          <g className="wheel">
+            <circle cx="27" cy="13" r="8" fill="#1d1d21" />
+            <circle cx="27" cy="13" r="3" fill="#9a9aa2" />
+          </g>
+        </g>
+      </g>
+    </svg>
+  )
+}
+
+/**
+ * A sleeper coach on the night leg — the multi-day-tour image. Stars twinkle,
+ * the windows are lit, the headlight throws a beam up the road. Everything
+ * else holds still, because night does.
+ */
+export function NightScene() {
+  return (
+    <svg
+      className="scene scene-night"
+      viewBox="0 0 440 300"
+      role="img"
+      aria-label="A sleeper coach driving through the hills at night under a starry sky"
+    >
+      <rect width="440" height="300" fill="#16233f" />
+
+      {/* Moon, with its one crater */}
+      <circle cx="368" cy="58" r="22" fill="#f3e3ac" />
+      <circle cx="360" cy="52" r="6" fill="#e2cf90" />
+
+      {/* Stars — each its own element so the twinkle can be staggered */}
+      <g fill="#f6f2df">
+        {(
+          [
+            [40, 40, 2.4],
+            [96, 76, 1.7],
+            [150, 34, 2],
+            [208, 88, 1.5],
+            [258, 46, 2.2],
+            [306, 104, 1.6],
+            [122, 128, 1.5],
+            [420, 130, 1.8],
+            [24, 108, 1.6],
+            [188, 24, 1.4],
+          ] as const
+        ).map(([x, y, r]) => (
+          <circle key={`${x}-${y}`} className="star" cx={x} cy={y} r={r} />
+        ))}
+      </g>
+
+      {/* Hills, darker than the sky */}
+      <path
+        d="M0 190 C90 150 170 180 260 148 C340 122 400 150 440 132 L440 300 L0 300 Z"
+        fill="#101b33"
+      />
+      <path d="M0 240 C120 210 260 250 440 208 L440 300 L0 300 Z" fill="#0b1426" />
+
+      {/* The road and its dashes */}
+      <path
+        className="road"
+        d="M-10 288 C120 268 280 262 450 244"
+        fill="none"
+        stroke="#1d1d29"
+        strokeWidth="34"
+        strokeLinecap="round"
+      />
+      <path
+        className="road-dash"
+        d="M-10 288 C120 268 280 262 450 244"
+        fill="none"
+        stroke="#8d8da0"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeDasharray="14 22"
+      />
+
+      {/* The sleeper coach. Same wrapper-group trick as the hero bus. */}
+      <g transform="translate(200 250) rotate(-3)">
+        <g className="bus">
+          {/* Headlight beam first, so the body sits over its root */}
+          <polygon points="78,-4 190,-26 190,16" fill="#f3e3ac" opacity="0.16" />
+          <rect x="-78" y="-34" width="156" height="52" rx="9" fill="#d9d9e2" />
+          <rect x="-78" y="-8" width="156" height="9" fill="#f26a21" />
+          {/* Two rows of berth windows, lit */}
+          {[-66, -44, -22, 0, 22, 44].map((x) => (
+            <rect key={`up-${x}`} x={x} y="-28" width="16" height="8" rx="2" fill="#f6d06a" />
+          ))}
+          {[-66, -44, -22, 0, 22].map((x) => (
+            <rect key={`lo-${x}`} x={x} y="-16" width="16" height="6" rx="2" fill="#caa84e" />
+          ))}
+          <rect x="62" y="-28" width="14" height="18" rx="2" fill="#9fc4e4" />
+          <circle cx="76" cy="-2" r="3.5" fill="#f6e7b2" />
+          <g className="wheel">
+            <circle cx="-44" cy="22" r="11" fill="#0e0e14" />
+            <circle cx="-44" cy="22" r="4" fill="#6f6f7c" />
+          </g>
+          <g className="wheel">
+            <circle cx="44" cy="22" r="11" fill="#0e0e14" />
+            <circle cx="44" cy="22" r="4" fill="#6f6f7c" />
+          </g>
+        </g>
+      </g>
+    </svg>
+  )
+}

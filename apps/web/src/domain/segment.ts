@@ -21,6 +21,8 @@ export type Segment = (typeof SEGMENTS)[number]
 export type SegmentInfo = {
   key: Segment
   label: string
+  /** Three words for a dropdown. A sentence inside a <select> is unreadable. */
+  short: string
   /** One line, on the card a customer picks from. */
   promise: string
   /** What must be true of a vehicle to sit in this segment. */
@@ -35,6 +37,7 @@ export const SEGMENT_INFO: Record<Segment, SegmentInfo> = {
   economy: {
     key: "economy",
     label: "Economy",
+    short: "Non-AC",
     promise: "Non-AC. The workhorse — gets everyone there, cheapest per seat.",
     requires: { ac: false, features: [] },
     includes: ["Seats everyone", "Luggage carrier", "Verified driver"],
@@ -43,6 +46,7 @@ export const SEGMENT_INFO: Record<Segment, SegmentInfo> = {
   premium: {
     key: "premium",
     label: "Premium",
+    short: "AC",
     promise: "Air conditioned. What most groups actually want in an Indian summer.",
     requires: { ac: true, features: [] },
     includes: ["Air conditioned", "Luggage carrier", "Verified driver", "Newer vehicles"],
@@ -51,6 +55,7 @@ export const SEGMENT_INFO: Record<Segment, SegmentInfo> = {
   luxury: {
     key: "luxury",
     label: "Luxury",
+    short: "AC · push-back",
     promise: "AC with push-back seats — for long drives, weddings and clients you are hosting.",
     requires: { ac: true, features: ["pushback"] },
     includes: [

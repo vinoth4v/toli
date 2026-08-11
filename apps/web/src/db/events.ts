@@ -37,6 +37,9 @@ export type AuditKind =
   | "dispute_resolved"
   | "review_recorded"
   | "settings_updated"
+  | "customer_registered"
+  | "operator_registered"
+  | "driver_login_issued"
 
 /**
  * Write an audit row, swallowing failures.

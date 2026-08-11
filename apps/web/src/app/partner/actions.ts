@@ -14,8 +14,10 @@ import {
   uploadToken,
 } from "@/data/fleet"
 import { saveRate, setRateActive } from "@/data/rates"
+import { createDriverLogin, RegistrationError } from "@/data/register"
 import { operatorQuote } from "@/data/scoped"
 import { getSettings } from "@/data/settings"
+import { createDriver } from "@/data/supply"
 import { recordEvent } from "@/db/events"
 import { DOCUMENT_KINDS } from "@/domain/compliance"
 import { checkRegistration } from "@/domain/identifiers"
@@ -235,6 +237,60 @@ export async function addVehicleAction(formData: FormData): Promise<void> {
 
   await recordEvent("vehicle_created", `operator:${id}`, `${registration.normalised} (${segment})`)
   redirect(`/partner/fleet?saved=${encodeURIComponent(registration.normalised)}`)
+}
+
+export async function addDriverAction(formData: FormData): Promise<void> {
+  const id = await operatorId()
+
+  const name = String(formData.get("name") ?? "").trim()
+  const phone = String(formData.get("phone") ?? "").trim()
+  if (name.length < 2 || phone.replace(/\D/g, "").length < 10) {
+    redirect(
+      `/partner/team?error=${encodeURIComponent("A driver needs a name and a mobile number.")}`,
+    )
+  }
+
+  const languages = formData.getAll("languages").map(String)
+
+  await createDriver({
+    operatorId: id,
+    name,
+    phone,
+    languages: languages.length > 0 ? languages : ["ta"],
+    dlNumber: String(formData.get("dlNumber") ?? "").trim() || null,
+    dlExpiresOn: String(formData.get("dlExpiresOn") ?? "").trim() || null,
+    // The three §8.4 licence conditions are recorded by Toli ops when they
+    // sight the paperwork, not self-declared by the operator here.
+    policeVerifiedOn: null,
+    medicalCheckedOn: null,
+    inductionTrainedOn: null,
+  })
+
+  await recordEvent("driver_created", `operator:${id}`, name)
+  redirect(`/partner/team?saved=${encodeURIComponent(name)}`)
+}
+
+/**
+ * Returns rather than redirects: the password has to land in the component
+ * that shows it once, and must never travel through a URL.
+ */
+export async function issueDriverLoginAction(
+  driverId: string,
+): Promise<{ ok: true; email: string; password: string } | { ok: false; message: string }> {
+  const id = await operatorId()
+
+  try {
+    const issued = await createDriverLogin(id, driverId)
+    await recordEvent("driver_login_issued", `operator:${id}`, issued.driver.name)
+    // Deliberately no revalidatePath here: refreshing this page replaces the
+    // client component that is holding the password — the only copy that will
+    // ever exist — with the server's "login exists" markup. Seen happen. The
+    // next natural navigation shows the row's updated state anyway.
+    return { ok: true, email: issued.email, password: issued.password }
+  } catch (error) {
+    if (error instanceof RegistrationError) return { ok: false, message: error.message }
+    throw error
+  }
 }
 
 /** Removing a vehicle retires it. Bookings and settlements still refer to it. */

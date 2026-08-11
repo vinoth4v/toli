@@ -332,6 +332,8 @@ export async function createDriver(input: {
   operatorId: string
   name: string
   phone: string
+  /** Locale codes; defaults to Tamil in the schema when omitted. */
+  languages?: string[]
   dlNumber: string | null
   dlExpiresOn: string | null
   policeVerifiedOn: string | null

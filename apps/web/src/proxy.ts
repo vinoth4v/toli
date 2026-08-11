@@ -37,7 +37,7 @@ export const config = {
     // purpose. It decides for itself: a visitor sees the marketplace, and a
     // signed-in operator is redirected straight to /console, so nobody has to
     // click past a welcome page to reach the app they run.
-    "/((?!$|api/auth|api/ingest|api/webhooks|login|track|_next/static|_next/image|favicon.ico|icon.svg).*)",
+    "/((?!$|api/auth|api/ingest|api/webhooks|login|register|track|_next/static|_next/image|favicon.ico|icon.svg).*)",
     // Every role surface is matched, so authorisation runs before any of them
     // renders. `authorized` in auth.config.ts decides which role may be where.
   ],
