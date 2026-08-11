@@ -183,7 +183,7 @@ a manual path that names the missing variable.
 | OSRM routing | `OSRM_BASE_URL` | Distance typed in |
 | WhatsApp | `WHATSAPP_*` | Messages queue in the outbox |
 | VAHAN / Sarathi / GSTN | `VEHICLE_VERIFY_*` | Ops reads the portal and records it |
-| S3 photo upload | `S3_BUCKET`, `AWS_*` | Operators link a photo hosted elsewhere |
+| S3 photo upload | `S3_BUCKET`, `AWS_*` — **live in production** (Mumbai) | Operators link a photo hosted elsewhere |
 
 `/console/integrations` shows the live inventory. Position ingest and embedded
 maps need no credentials at all.

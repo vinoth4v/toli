@@ -35,6 +35,12 @@ export const authConfig = {
     },
 
     session({ session, token }) {
+      // v5 does not copy token.sub to session.user.id by itself. Every flow
+      // that reads role/operatorId/driverId/customerId worked without this,
+      // which is exactly how an undefined id hid until the first feature that
+      // needed it — avatar upload bounced to /login in production because
+      // `userId()` saw no id on a perfectly valid session.
+      if (token.sub) session.user.id = token.sub
       session.user.role = (token.role as Role) ?? "admin"
       session.user.operatorId = (token.operatorId as string | null) ?? null
       session.user.driverId = (token.driverId as string | null) ?? null

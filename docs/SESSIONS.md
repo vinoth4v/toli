@@ -697,3 +697,43 @@ fallback carried the page, which is exactly what it is for.
 
 **Open:** unchanged from session 15 — S3 variables, native-speaker pass,
 password reset by phone call.
+
+## Session 16b — 11 August 2026: S3 switched on, and the bug it flushed out
+
+**Asked:** set the S3 variables so photo upload works.
+
+**Changed / provisioned:**
+
+- Bucket `toli-media-vinothkannan`, `ap-south-1` (Mumbai — the app's users
+  are in India). Public read on exactly `avatars/*` and `vehicles/*`; writes
+  are presigned-only; ACLs stay blocked; CORS allows PUT/GET from the
+  production origin, `*.vercel.app` previews and localhost dev. All of it
+  done over curl's `--aws-sigv4` — no AWS SDK, no CLI, matching the app's own
+  hand-signed posture. The four variables set on Vercel (production and
+  preview) and production redeployed.
+- **Deletion commands were executed before being recorded**: a throwaway
+  bucket was created, filled, emptied and deleted with the same command
+  shape, per the never-print-an-untested-cleanup-command rule.
+
+**The bug this flushed out — `session.user.id` was undefined everywhere.**
+The session callback mapped role, operatorId, driverId and customerId onto
+the session but never `token.sub` → `session.user.id`, and NextAuth v5 does
+not do it for you. Nothing ever noticed: every existing flow reads the role
+or a link id, and `avatarUrlFor(undefined)` silently returns initials. The
+first real avatar upload on production bounced a perfectly valid session to
+/login, because the avatar actions are the only code that needs the id
+itself. Fixed with one line in the session callback and a regression test
+that pins the mapping (203 unit tests now). The upload then worked
+end-to-end in a browser: presign → CORS preflight → PUT to Mumbai → public
+GET → face rendered.
+
+**Also found:** the bucket's CORS is origin-exact — the local verify server
+on port 3703 needed its own entry, a reminder that "CORS works" is only ever
+true per-origin.
+
+**Test accounts created while verifying, both harmless and disclosed:**
+`s3check@toli.in` (customer, on production) and `s3local@toli.in` (customer,
+on a throwaway Neon branch deleted the same hour).
+
+**Open:** native-speaker pass on hi/te/ml/kn; password reset is still a
+phone call; stale PR #4 remains for the operator to close.

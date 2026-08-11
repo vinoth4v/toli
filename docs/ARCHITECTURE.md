@@ -288,6 +288,11 @@ is the single place that decides whether one is configured, and
   millisecond. SigV4 is signed by hand rather than by an SDK the dependency
   list does not bless; the signing is pure and tested, because a subtly wrong
   signature fails with an opaque 403 that looks like a credentials problem.
+  Live since 11 Aug 2026: bucket `toli-media-vinothkannan` in `ap-south-1`
+  (Mumbai), public read on exactly `avatars/*` and `vehicles/*`, uploads
+  presigned-only, CORS restricted to the production origin, Vercel previews
+  and localhost dev. Removal, verified command-shape: `curl -X DELETE
+  --aws-sigv4 "aws:amz:ap-south-1:s3"` per object then on the bucket root.
 - **Toli's number is published; the operator's is released on booking.** §10's
   masking is about *when* a customer may reach an operator, not whether. Indian
   customers phone before they pay, and a marketplace with no visible number
