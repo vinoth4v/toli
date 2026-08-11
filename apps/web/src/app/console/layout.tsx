@@ -1,7 +1,9 @@
 import Link from "next/link"
 import type { ReactNode } from "react"
-import { signOutAction } from "@/app/actions"
 import { auth } from "@/auth"
+import { Avatar } from "@/components/avatar"
+import { ToliLogo } from "@/components/logo"
+import { avatarUrlFor } from "@/data/users"
 
 /**
  * The console shell.
@@ -27,13 +29,13 @@ const NAV = [
 
 export default async function ConsoleLayout({ children }: { children: ReactNode }) {
   const session = await auth()
+  const avatar = await avatarUrlFor(session?.user.id)
 
   return (
     <div className="shell">
       <header className="masthead">
-        <Link href="/console" className="wordmark">
-          toli
-          <small>ops console</small>
+        <Link href="/console" className="wordmark-link">
+          <ToliLogo size={30} sub="ops console" />
         </Link>
         <nav>
           {NAV.map((item) => (
@@ -42,11 +44,9 @@ export default async function ConsoleLayout({ children }: { children: ReactNode 
             </Link>
           ))}
         </nav>
-        <form action={signOutAction}>
-          <button type="submit" title={session?.user?.email ?? undefined}>
-            Sign out
-          </button>
-        </form>
+        <Link href="/account" className="avatar-link" aria-label="Your account">
+          <Avatar name={session?.user?.name ?? "Ops"} url={avatar} size={34} />
+        </Link>
       </header>
       <main>{children}</main>
     </div>

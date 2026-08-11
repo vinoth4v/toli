@@ -1,4 +1,4 @@
-import { color } from "@werft/tokens"
+import { THEMES } from "@werft/tokens"
 import type { Metadata, Viewport } from "next"
 import type { ReactNode } from "react"
 // Tokens first: globals.css consumes the custom properties this defines.
@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: color.bg.light },
-    { media: "(prefers-color-scheme: dark)", color: color.bg.dark },
+    { media: "(prefers-color-scheme: light)", color: THEMES.toli.color.bg.light },
+    { media: "(prefers-color-scheme: dark)", color: THEMES.toli.color.bg.dark },
   ],
 }
 

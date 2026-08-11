@@ -105,3 +105,33 @@ export async function setUserPassword(id: string, password: string): Promise<voi
     .set({ passwordHash: hashPassword(password) })
     .where(eq(appUser.id, id))
 }
+
+/** The signed-in person's own row — name, role links, and their face. */
+export async function getUserById(id: string): Promise<AppUser | null> {
+  const rows = await db().select().from(appUser).where(eq(appUser.id, id)).limit(1)
+  return rows[0] ?? null
+}
+
+export async function setAvatar(
+  id: string,
+  url: string | null,
+  storageKey: string | null,
+): Promise<void> {
+  await db()
+    .update(appUser)
+    .set({ avatarUrl: url, avatarStorageKey: storageKey })
+    .where(eq(appUser.id, id))
+}
+
+/**
+ * The avatar for a session, or null.
+ *
+ * The break-glass admin has no row — its id is the literal "break-glass",
+ * which is not a uuid and would make Postgres throw before the query even
+ * ran. Guarded here so four layouts do not each rediscover that.
+ */
+export async function avatarUrlFor(id: string | undefined): Promise<string | null> {
+  if (!id || id === "break-glass") return null
+  const user = await getUserById(id)
+  return user?.avatarUrl ?? null
+}

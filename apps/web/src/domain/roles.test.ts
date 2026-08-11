@@ -32,6 +32,16 @@ describe("mayAccess", () => {
   })
 })
 
+describe("the account page", () => {
+  it("is the one surface every role shares", () => {
+    // A driver has no business in the console, but everyone has a face and a
+    // language, and duplicating that screen four times is how they drift apart.
+    for (const role of ROLES) {
+      expect(mayAccess(role, "/account"), role).toBe(true)
+    }
+  })
+})
+
 describe("homeFor", () => {
   it("sends each role somewhere it is allowed to be", () => {
     for (const role of ROLES) {

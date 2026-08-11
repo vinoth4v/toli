@@ -1,5 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Werft is German for shipyard. -->
-  <title>Werft</title>
-  <text y=".9em" font-size="90">⚓</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><title>Toli</title>
+  <rect x="1.5" y="1.5" width="45" height="45" rx="12" fill="#0b0b0b"/>
+  <circle cx="16" cy="15" r="3.6" fill="#ffffff"/>
+  <path d="M16 15 C 16 28, 32 20, 32 33" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" fill="none"/>
+  <circle cx="32" cy="33" r="6" fill="#ffffff"/>
+  <circle cx="32" cy="33" r="2.4" fill="#0b0b0b"/>
 </svg>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { encodeRfc3986, photoKey, presignPut, publicUrl, signingKey } from "./storage.ts"
+import { avatarKey, encodeRfc3986, photoKey, presignPut, publicUrl, signingKey } from "./storage.ts"
 
 /**
  * A signature that is subtly wrong fails at upload with an opaque 403 that
@@ -95,5 +95,16 @@ describe("publicUrl", () => {
     expect(new URL(presignPut({ config, key, now })).pathname).toBe(
       new URL(publicUrl(config, key)).pathname,
     )
+  })
+})
+
+describe("avatarKey", () => {
+  it("keeps faces and vehicles in different namespaces", () => {
+    expect(avatarKey("user-1", "me.png", "abc")).toBe("avatars/user-1/abc.png")
+    expect(avatarKey("user-1", "me.png", "abc")).not.toBe(photoKey("user-1", "me.png", "abc"))
+  })
+
+  it("normalises unknown extensions the same way", () => {
+    expect(avatarKey("user-1", "selfie.exe", "abc")).toBe("avatars/user-1/abc.jpg")
   })
 })

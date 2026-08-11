@@ -1,8 +1,10 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import type { ReactNode } from "react"
-import { signOutAction } from "@/app/actions"
 import { auth } from "@/auth"
+import { Avatar } from "@/components/avatar"
+import { ToliLogo } from "@/components/logo"
+import { avatarUrlFor } from "@/data/users"
 import { homeFor } from "@/domain/roles"
 
 /**
@@ -21,12 +23,13 @@ export default async function PartnerLayout({ children }: { children: ReactNode 
   const session = await auth()
   if (!session?.user) redirect("/login")
   if (session.user.role !== "operator") redirect(homeFor(session.user.role))
+  const avatar = await avatarUrlFor(session.user.id)
 
   return (
     <div className="shell partner">
       <header className="partner-top">
-        <Link href="/partner" className="wordmark">
-          toli<span className="tag">partner</span>
+        <Link href="/partner" className="wordmark-link">
+          <ToliLogo sub="partner" />
         </Link>
         <nav>
           <Link href="/partner">Quote inbox</Link>
@@ -34,11 +37,9 @@ export default async function PartnerLayout({ children }: { children: ReactNode 
           <Link href="/partner/fleet">Fleet</Link>
           <Link href="/partner/earnings">Earnings</Link>
         </nav>
-        <form action={signOutAction}>
-          <button type="submit" className="quiet">
-            Sign out
-          </button>
-        </form>
+        <Link href="/account" className="avatar-link" aria-label="Your account">
+          <Avatar name={session.user.name ?? "?"} url={avatar} size={36} />
+        </Link>
       </header>
       <main>{children}</main>
     </div>

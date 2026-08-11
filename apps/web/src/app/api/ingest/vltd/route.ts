@@ -94,7 +94,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       : request.headers.get("x-device-token")
 
   const device = await deviceForToken(token)
-  if (!device || device.kind !== "vltd") {
+  if (device?.kind !== "vltd") {
     return NextResponse.json({ error: "Unknown or revoked device token" }, { status: 401 })
   }
 

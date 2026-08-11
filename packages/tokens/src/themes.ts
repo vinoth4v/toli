@@ -42,6 +42,28 @@ export type Theme = {
 }
 
 export const THEMES = {
+  toli: {
+    label: "Toli",
+    inspiration: "Mobility-platform monochrome: black on white, one hard accent, no ornament.",
+    color: {
+      bg: { light: "#ffffff", dark: "#0b0b0b" },
+      surface: { light: "#f6f6f6", dark: "#161616" },
+      fg: { light: "#0b0b0b", dark: "#f6f6f6" },
+      muted: { light: "#5e5e5e", dark: "#a8a8a8" },
+      border: { light: "#e8e8e8", dark: "#272727" },
+      /* Accent IS the foreground. Buttons become black (white in dark mode),
+         links become ink, and colour is left to mean something: green for
+         live and settled, red for stop. That restraint is the design. */
+      accent: { light: "#0b0b0b", dark: "#f6f6f6" },
+      danger: { light: "#de1135", dark: "#ff6d60" },
+      success: { light: "#0e8345", dark: "#38c793" },
+    },
+    fontFamily: {
+      sans: "ui-sans-serif, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+      mono: "ui-monospace, SFMono-Regular, Menlo, monospace",
+    },
+    radius: { sm: "0.25rem", md: "0.5rem", lg: "1rem", full: "9999px" },
+  },
   werft: {
     label: "Werft",
     inspiration: "The default: quiet zinc and workshop blue.",

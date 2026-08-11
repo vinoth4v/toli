@@ -1016,6 +1016,10 @@ export const appUser = pgTable(
     driverId: uuid("driver_id").references(() => driver.id),
     customerId: uuid("customer_id").references(() => customer.id),
 
+    /** A face, uploaded to object storage. Absent means initials. */
+    avatarUrl: text("avatar_url"),
+    avatarStorageKey: text("avatar_storage_key"),
+
     lastSignInAt: timestamp("last_sign_in_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
