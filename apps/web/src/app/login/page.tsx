@@ -3,14 +3,18 @@ import { ROLE_INFO, ROLES, type Role } from "@/domain/roles"
 import { signInAction } from "./actions.ts"
 
 /**
- * One door, four kinds of person behind it.
+ * Two steps: who are you, then prove it.
  *
- * §3 needs four users and this app has four applications, so the honest thing
- * to say on the way in is *which one you are about to enter*. `?as=` picks the
- * wording — nothing more. The role that decides where somebody actually lands
- * comes from their account, so a driver who follows the operator link still
- * ends up at `/drive`, and a curious visitor cannot escalate by editing a
- * query string. It is a signpost, not a gate, and it says so on the page.
+ * The first version put the form first and the four doors underneath, which
+ * asked people to type a password before they knew which application they were
+ * entering — and left three of the four wondering whether they were in the
+ * right place at all. Choosing first is how every multi-tenant product that
+ * works does it, and it costs one tap.
+ *
+ * `?as=` still only changes wording. The role that decides where somebody
+ * lands comes from their account, so a driver who picks the operator card
+ * still ends up at `/drive` and nobody escalates by editing a query string.
+ * It is a signpost, not a gate, and the page says so where it matters.
  */
 
 export const dynamic = "force-dynamic"
@@ -19,7 +23,7 @@ const ENTRY: Record<Role, { title: string; blurb: string; does: string[] }> = {
   customer: {
     title: "Book a vehicle for your group",
     blurb: "Your trips, the quotes operators sent, and the tracking link to share.",
-    does: ["Ask for a vehicle", "Compare quotes side by side", "Watch the trip live"],
+    does: ["Book a vehicle that is free now", "Compare quotes side by side", "Watch the trip live"],
   },
   operator: {
     title: "Toli Partner",
@@ -38,6 +42,9 @@ const ENTRY: Record<Role, { title: string; blurb: string; does: string[] }> = {
   },
 }
 
+/** The order people actually arrive in: most are booking, almost nobody is staff. */
+const ORDER: Role[] = ["customer", "operator", "driver", "admin"]
+
 function isRole(value: string | undefined): value is Role {
   return value !== undefined && (ROLES as readonly string[]).includes(value)
 }
@@ -49,36 +56,72 @@ export default async function LoginPage({
 }) {
   const { error, as } = await searchParams
   const chosen = isRole(as) ? as : null
-  const entry = chosen ? ENTRY[chosen] : null
+
+  // Step one — nobody has said who they are yet, so there is no form to show.
+  if (!chosen) {
+    return (
+      <main className="narrow signin-page">
+        <Link href="/" className="wordmark">
+          toli
+        </Link>
+
+        <h1>Who is signing in?</h1>
+        <p className="muted">
+          Toli is four applications behind one door. Pick yours and we will take you to the right
+          one.
+        </p>
+
+        {error ? <p role="alert">That email and password combination was not accepted.</p> : null}
+
+        <div className="pick-grid">
+          {ORDER.map((role) => (
+            <Link key={role} href={`/login?as=${role}`} className="pick-card">
+              <strong>{ROLE_INFO[role].label}</strong>
+              <span>{ROLE_INFO[role].purpose}</span>
+              <span className="pick-go">Continue →</span>
+            </Link>
+          ))}
+        </div>
+
+        <p className="muted small">
+          Looking for a trip somebody is on? The tracking link you were sent needs no sign-in.{" "}
+          <Link href="/">Back to Toli</Link>.
+        </p>
+      </main>
+    )
+  }
+
+  // Step two — they have said who they are, so ask for the credentials.
+  const entry = ENTRY[chosen]
 
   return (
     <main className="narrow signin-page">
       <Link href="/" className="wordmark">
         toli
-        {chosen ? <small>{ROLE_INFO[chosen].label.toLowerCase()}</small> : null}
+        <small>{ROLE_INFO[chosen].label.toLowerCase()}</small>
       </Link>
 
-      <h1>{entry ? entry.title : "Sign in"}</h1>
-      <p className="muted">
-        {entry
-          ? entry.blurb
-          : "Toli is four applications behind one door — for groups booking a vehicle, for fleet operators, for drivers, and for Toli's own desk. Sign in and you land in yours."}
+      <p className="crumb">
+        <Link href="/login">← Not you? Choose again</Link>
       </p>
+
+      <h1>{entry.title}</h1>
+      <p className="muted">{entry.blurb}</p>
 
       {error ? (
         // Never say which half was wrong.
         <p role="alert">That email and password combination was not accepted.</p>
       ) : null}
 
-      {entry ? (
-        <ul className="entry-does">
-          {entry.does.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      ) : null}
+      <ul className="entry-does">
+        {entry.does.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
 
       <form action={signInAction}>
+        {/* Carried so a failed attempt returns to this step, not the chooser. */}
+        <input type="hidden" name="as" value={chosen} />
         <div>
           <label htmlFor="email">Email</label>
           <input id="email" name="email" type="email" autoComplete="username" required />
@@ -96,25 +139,9 @@ export default async function LoginPage({
         <button type="submit">Sign in</button>
       </form>
 
-      <section className="who">
-        <p className="who-label">{chosen ? "Not you?" : "Who is signing in?"}</p>
-        <div className="who-grid">
-          {ROLES.filter((role) => role !== chosen).map((role) => (
-            <Link key={role} href={`/login?as=${role}`} className="who-card">
-              <strong>{ROLE_INFO[role].label}</strong>
-              <span>{ROLE_INFO[role].purpose}</span>
-            </Link>
-          ))}
-        </div>
-        <p className="muted small">
-          Choosing here only changes what this page says. Where you land is decided by your account,
-          so use whichever link you like — you will end up in the right place.
-        </p>
-      </section>
-
       <p className="muted small">
-        Looking for a trip somebody is on? The tracking link you were sent needs no sign-in.{" "}
-        <Link href="/">Back to Toli</Link>.
+        Your account decides where you land, so if you picked the wrong card here you will still end
+        up in the right place.
       </p>
     </main>
   )

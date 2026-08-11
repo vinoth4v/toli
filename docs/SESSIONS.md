@@ -374,3 +374,27 @@ speaks their language.
 - Instant booking is intra-state only for now.
 - Production still holds the previous Jaipur seed; reseeding to Madurai will
   reissue all four sets of credentials.
+
+---
+
+## Sign-in asks who you are first — 11 August 2026
+
+**Asked:** the sign-in page was confusing — it should ask who is signing in
+*before* letting them sign in.
+
+**Changed:** `/login` is now two steps. Step one is the four doors and nothing
+else; step two is the form, headed with the surface being entered and a "Not
+you? Choose again" way back. A rejected attempt returns to step two rather
+than dumping the person back at the chooser, which is why the form carries the
+chosen role in a hidden field.
+
+**Decided:** the first version put the form first with the doors underneath,
+which asked people to type a password before knowing which application they
+were entering — and left three of the four audiences unsure they were in the
+right place. The chooser still only changes wording; the account decides where
+somebody lands, and the second step says so.
+
+**Verified:** the smoke suite now asserts that `/login` shows no email or
+password field at all, that each role's card reveals the form, and that a junk
+`?as=` falls back to the chooser. The gate test was updated in the same pass —
+it was still asserting a form on a page that no longer has one.

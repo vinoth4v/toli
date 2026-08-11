@@ -22,25 +22,40 @@ test("the front page points every role at the right door", async ({ page }) => {
   }
 })
 
-test("the sign-in page names the surface being entered", async ({ page }) => {
+test("sign-in asks who you are before it asks for a password", async ({ page }) => {
+  // Typing a password before knowing which application you are entering is
+  // the confusion this two-step exists to remove.
+  await page.goto("/login")
+
+  await expect(page.getByRole("heading", { name: "Who is signing in?" })).toBeVisible()
+  await expect(page.getByLabel("Email")).toHaveCount(0)
+  await expect(page.getByLabel("Password")).toHaveCount(0)
+
+  for (const role of ["customer", "operator", "driver", "admin"]) {
+    await expect(page.locator(`a[href="/login?as=${role}"]`), role).toBeVisible()
+  }
+})
+
+test("choosing a role reveals the form, named for that surface", async ({ page }) => {
   await page.goto("/login?as=driver")
   await expect(page.getByRole("heading", { name: "Toli Driver" })).toBeVisible()
+  await expect(page.getByLabel("Email")).toBeVisible()
+  await expect(page.getByLabel("Password")).toBeVisible()
 
   await page.goto("/login?as=operator")
   await expect(page.getByRole("heading", { name: "Toli Partner" })).toBeVisible()
 
-  // A junk value falls back to the neutral page rather than erroring.
+  // A junk value falls back to the chooser rather than erroring.
   await page.goto("/login?as=nonsense")
-  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Who is signing in?" })).toBeVisible()
 })
 
 test("an unauthenticated visitor cannot reach the console", async ({ page }) => {
   await page.goto("/console")
 
+  // Sent to step one of sign-in — the chooser, not a bare form.
   await expect(page).toHaveURL(/\/login/)
-  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible()
-  await expect(page.getByLabel("Email")).toBeVisible()
-  await expect(page.getByLabel("Password")).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Who is signing in?" })).toBeVisible()
 
   // The gate has to actually withhold the console, not merely change the URL.
   await expect(page.getByText("Marketplace health")).toHaveCount(0)
