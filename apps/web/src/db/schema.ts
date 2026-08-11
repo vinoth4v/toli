@@ -880,6 +880,58 @@ export const webhookEvent = pgTable(
   ],
 )
 
+/* -------------------------------------------------------------------------
+ * People who sign in
+ *
+ * §3 names five surfaces and insists the driver is a distinct user from the
+ * operator — merge them and either the driver learns the take rate, or the
+ * operator's app is crippled by background location permissions. So a role is
+ * not a flag on one account; it decides which application a person even sees.
+ *
+ * This replaces the template's single-operator gate, which was one email and
+ * one password hash in the environment. That environment identity survives as
+ * break-glass access only: if this table is empty or unreachable, the operator
+ * can still get in and fix it.
+ * ---------------------------------------------------------------------- */
+
+export const roleEnum = pgEnum("app_role", ["admin", "customer", "operator", "driver"])
+
+export const appUser = pgTable(
+  "app_user",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    email: text("email").notNull(),
+    name: text("name").notNull(),
+    role: roleEnum("role").notNull(),
+    /** scrypt, in the same encoding the template's password helper produces. */
+    passwordHash: text("password_hash").notNull(),
+    active: boolean("active").notNull().default(true),
+
+    /**
+     * What this person is, on the other side of the app.
+     *
+     * An operator user is an operator; a driver user is a driver; a customer
+     * user is a customer. Exactly one of these is set, enforced in code rather
+     * than by a check constraint so the message can explain itself.
+     */
+    operatorId: uuid("operator_id").references(() => operator.id),
+    driverId: uuid("driver_id").references(() => driver.id),
+    customerId: uuid("customer_id").references(() => customer.id),
+
+    lastSignInAt: timestamp("last_sign_in_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    // Addresses are always stored lower-cased, so a unique index is also a
+    // case-insensitive one — and sign-in stays a single indexed lookup.
+    uniqueIndex("app_user_email_idx").on(table.email),
+    index("app_user_role_idx").on(table.role),
+  ],
+)
+
+export type AppUser = typeof appUser.$inferSelect
+export type AppRole = (typeof roleEnum.enumValues)[number]
+
 export type IngestDevice = typeof ingestDevice.$inferSelect
 export type GeoCache = typeof geoCache.$inferSelect
 export type Notification = typeof notification.$inferSelect

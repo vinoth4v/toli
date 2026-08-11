@@ -90,9 +90,23 @@ pnpm create-app --help            # scaffold a new app from this template
   Fix forward with a new one.
 - **Never read secrets at module scope.** Environment access is lazy so that
   `next build` works without a database or an auth secret.
-- **Never add a second user.** The gate is one email and one password hash in
-  the environment. A real multi-user app needs a real user store — that is a
-  decision to raise, not to implement quietly.
+- **Never add a role, or a way to sign in, without saying so.** This app now
+  has a real user store — `app_user`, with four roles, because §3 of the build
+  plan needs four genuinely different people and is explicit that the driver
+  must not be the operator. That reversed the template's original rule ("never
+  add a second user"), and it was reversed *by an explicit decision*, on the
+  record in `docs/SESSIONS.md`, not by an agent deciding it would be
+  convenient. Adding a fifth role, a second authentication method, or a way to
+  self-register is the same size of decision: raise it, do not implement it
+  quietly.
+
+  Two things must not be quietly removed while working in that store. The
+  environment identity (`WERFT_USER_EMAIL`, `WERFT_PASSWORD_HASH`) is
+  break-glass admin access that works when the database does not — an app whose
+  only administrator is a row in an unreachable table has no way back in. And
+  every query a signed-in person makes about their own data goes through
+  `src/data/scoped.ts`, which puts ownership in the WHERE clause; a check
+  written as an `if` after the query is the one that gets forgotten.
 - **Never weaken TypeScript to make an error go away.** No `any`, no
   `@ts-ignore`, no loosening the shared compiler options.
 - **Never commit `.env.local`, or a real secret into `.env.example`.**

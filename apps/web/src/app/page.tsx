@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
+import { homeFor } from "@/domain/roles"
 import { VEHICLE_CLASS_INFO } from "@/domain/vehicle"
 
 /**
@@ -13,9 +14,11 @@ import { VEHICLE_CLASS_INFO } from "@/domain/vehicle"
  * charges nobody showed you. So the centrepiece is not a photograph of a bus —
  * it is two quote cards side by side, with the hidden charges visible.
  *
- * Signed in, this redirects straight to the console. The operator should never
- * have to click past a welcome page to reach their own app, and a marketing
- * page is exactly the sort of thing that quietly becomes that.
+ * Signed in, this redirects to whichever application the person belongs to —
+ * ops to the console, an organiser to their trips, an operator to their quote
+ * inbox, a driver to today. Nobody should have to click past a welcome page to
+ * reach their own app, and a marketing page is exactly the sort of thing that
+ * quietly becomes that.
  */
 
 export const dynamic = "force-dynamic"
@@ -65,7 +68,7 @@ const rupees = (paise: number) =>
 
 export default async function HomePage() {
   const session = await auth()
-  if (session?.user) redirect("/console")
+  if (session?.user) redirect(homeFor(session.user.role))
 
   return (
     <div className="landing">
