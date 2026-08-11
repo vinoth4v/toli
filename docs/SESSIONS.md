@@ -492,3 +492,54 @@ session reading "unverified in production" would either re-do the check or,
 worse, design around a limitation that does not exist — and the coordinates in
 every caption might have looked like scaffolding to remove rather than the
 deliberate fallback they are.
+
+---
+
+## Closing the open list — 11 August 2026
+
+**Asked:** merge everything outstanding, finish the open items, add vehicle
+photo upload, give operators a way to add and remove vehicles, and rewrite the
+README so an agent or a developer can pick this up cold. Plus: Indian customers
+want a number to call before they commit.
+
+**Changed:**
+
+- **Operators run their own fleet.** Add a vehicle, retire one, file documents,
+  upload or link photographs. A vehicle they add lands `pending_verification`
+  and they cannot verify their own paperwork — self-certification would hollow
+  out the rule the whole marketplace rests on. Removing retires rather than
+  deletes, because bookings and settlements still refer to it.
+- **Standing rates are editable** at `/partner/rates`, validated the same way a
+  typed quote is: a rate with no minimum km per day would produce instant
+  offers hiding the charge §7.1 singles out, and worse, nobody would be reading
+  it before it sold.
+- **Instant booking crosses state lines**, with the AITP requirement tightening
+  the filter rather than surprising anyone at a check post.
+- **Photo upload** by presigned S3 PUT, so the image never passes through a
+  function billed by the millisecond. SigV4 written by hand — no SDK is
+  blessed — and pure, so it is tested.
+- **Contact details.** Toli's number, WhatsApp and email on the front page, the
+  tracking link and every trip; the operator's released once a booking exists.
+- **The deeper portal strings** exist in all six languages.
+- **README rewritten** for the two readers who arrive cold: it now opens with
+  where the logic lives, which document answers what, and what to read first.
+
+**Decided, and why:**
+
+- **Toli's number is public; the operator's waits for a booking.** §10's
+  masking is about *when*, not whether. Refusing to publish any number would
+  read as having nobody behind the marketplace, which in this market loses the
+  customer before the price does.
+- **Photos link when storage is unconfigured.** An empty gallery helps nobody;
+  a linked photo is worth more than a missing one, and §4.1 asks for real
+  vehicles rather than for a particular hosting arrangement.
+
+**Not done, and not claimable:** the `hi`/`te`/`ml`/`kn` translations still
+have no native-speaker review. I wrote them; I cannot also be the reviewer, and
+saying otherwise would be the kind of claim this log exists to prevent.
+
+**Not merged, deliberately:** PR #4, an `@claude` branch from before this
+session — a parallel implementation of the whole app with its own README,
+stylesheet and routes at the old paths. Merging it would overwrite the console,
+portal, partner and driver surfaces with an earlier attempt. Raised rather than
+merged.

@@ -2,7 +2,9 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
+import { publicSettings } from "@/data/settings"
 import { tollNotice } from "@/domain/bill"
+import { mailtoLink, telLink, whatsappLink } from "@/domain/contact"
 import { homeFor } from "@/domain/roles"
 import { SEGMENT_INFO, SEGMENTS } from "@/domain/segment"
 import { VEHICLE_CLASS_INFO } from "@/domain/vehicle"
@@ -102,6 +104,10 @@ const rupees = (paise: number) =>
 export default async function HomePage() {
   const session = await auth()
   if (session?.user) redirect(homeFor(session.user.role))
+
+  // A marketplace with no visible number reads as one with nobody behind it,
+  // and in this market people phone before they pay.
+  const settings = await publicSettings()
 
   return (
     <div className="landing">
@@ -433,10 +439,38 @@ export default async function HomePage() {
             for groups travelling anywhere in India.
           </p>
         </div>
-        <p className="muted small">
-          Already with Toli? <Link href="/login">Sign in</Link> — groups, operators, drivers and the
-          Toli desk all start here.
-        </p>
+        <div className="foot-contact">
+          <p className="muted small">
+            Rather talk to someone? Call <strong>{settings.supportPhone}</strong> — a person
+            answers.
+          </p>
+          <p className="contact-actions">
+            {whatsappLink(settings.supportWhatsapp) ? (
+              <a
+                className="button-link"
+                href={whatsappLink(settings.supportWhatsapp) as string}
+                rel="noreferrer noopener"
+                target="_blank"
+              >
+                WhatsApp us
+              </a>
+            ) : null}
+            {telLink(settings.supportPhone) ? (
+              <a className="button-link quiet" href={telLink(settings.supportPhone) as string}>
+                Call
+              </a>
+            ) : null}
+            {mailtoLink(settings.supportEmail) ? (
+              <a className="button-link quiet" href={mailtoLink(settings.supportEmail) as string}>
+                {settings.supportEmail}
+              </a>
+            ) : null}
+          </p>
+          <p className="muted small">
+            Already with Toli? <Link href="/login">Sign in</Link> — groups, operators, drivers and
+            the Toli desk all start here.
+          </p>
+        </div>
       </footer>
     </div>
   )

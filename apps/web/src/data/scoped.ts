@@ -83,8 +83,15 @@ export async function customerTrip(customerId: string, requestId: string) {
         ),
       )
       .orderBy(quote.estimatedTotalPaise),
+    // The operator's contact details come back only with a booking — §10's
+    // masking is about *when*, not whether, a customer may reach them.
     db()
-      .select({ booking, operatorName: operator.name })
+      .select({
+        booking,
+        operatorName: operator.name,
+        operatorPhone: operator.phone,
+        operatorEmail: operator.email,
+      })
       .from(booking)
       .innerJoin(operator, eq(booking.operatorId, operator.id))
       .where(eq(booking.tripRequestId, request.id))
@@ -119,6 +126,8 @@ export async function customerTrip(customerId: string, requestId: string) {
     quotes,
     booking: found?.booking ?? null,
     operatorName: found?.operatorName ?? null,
+    operatorPhone: found?.operatorPhone ?? null,
+    operatorEmail: found?.operatorEmail ?? null,
     invoice: extras[0]?.[0] ?? null,
     assignment: extras[1]?.[0] ?? null,
     latestPing: extras[2]?.[0] ?? null,

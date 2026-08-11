@@ -124,6 +124,26 @@ export type Dictionary = {
   portalBooked: string
   portalYourBill: string
   portalTollNote: string
+  portalQuotes: string
+  portalNoQuotesYet: string
+  portalNoQuotesHint: string
+  portalLowest: string
+  portalYourBooking: string
+  portalCouldReach: string
+  portalWhereMoneyGoes: string
+  portalBookThis: string
+  portalTotal: string
+  portalPaidSoFar: string
+  portalStillToPay: string
+  portalAsQuoted: string
+  portalTrackingLink: string
+  portalShareAnyone: string
+  portalVehicleFree: string
+  portalShowVehicles: string
+  portalNothingFree: string
+  portalBookThisVehicle: string
+  portalDriver: string
+  portalUpTo: string
 }
 
 const en: Dictionary = {
@@ -174,6 +194,26 @@ const en: Dictionary = {
   portalYourBill: "Your bill",
   portalTollNote:
     "Tolls paid on the route are added to this bill, itemised, with the driver's receipts against them.",
+  portalQuotes: "quotes",
+  portalNoQuotesYet: "No quotes yet",
+  portalNoQuotesHint: "Operators usually reply within thirty minutes.",
+  portalLowest: "Lowest quote",
+  portalYourBooking: "Your booking",
+  portalCouldReach: "Could reach",
+  portalWhereMoneyGoes: "Where the money goes",
+  portalBookThis: "Book this one",
+  portalTotal: "Total",
+  portalPaidSoFar: "Paid so far",
+  portalStillToPay: "Still to pay",
+  portalAsQuoted: "Nothing was added after the quote you accepted.",
+  portalTrackingLink: "Live tracking link",
+  portalShareAnyone: "Share it with anyone. No app, no sign-in, and it shows no prices.",
+  portalVehicleFree: "vehicles free",
+  portalShowVehicles: "Show vehicles",
+  portalNothingFree: "Nothing free for that window",
+  portalBookThisVehicle: "Book this vehicle",
+  portalDriver: "Driver",
+  portalUpTo: "up to",
 }
 
 const ta: Dictionary = {
@@ -224,6 +264,26 @@ const ta: Dictionary = {
   portalYourBill: "உங்கள் கட்டணப் பட்டியல்",
   portalTollNote:
     "வழியில் செலுத்திய சுங்கக் கட்டணம் இந்தப் பட்டியலில் தனித்தனியாக, ஓட்டுநரின் ரசீதுகளுடன் சேர்க்கப்படும்.",
+  portalQuotes: "விலைப்புள்ளிகள்",
+  portalNoQuotesYet: "இதுவரை விலைப்புள்ளி இல்லை",
+  portalNoQuotesHint: "வழக்கமாக முப்பது நிமிடங்களுக்குள் பதில் வரும்.",
+  portalLowest: "குறைந்த விலை",
+  portalYourBooking: "உங்கள் பதிவு",
+  portalCouldReach: "அதிகபட்சம்",
+  portalWhereMoneyGoes: "பணம் எங்கே செல்கிறது",
+  portalBookThis: "இதைப் பதிவு செய்",
+  portalTotal: "மொத்தம்",
+  portalPaidSoFar: "இதுவரை செலுத்தியது",
+  portalStillToPay: "இன்னும் செலுத்த வேண்டியது",
+  portalAsQuoted: "நீங்கள் ஒப்புக்கொண்ட விலைக்கு மேல் எதுவும் சேர்க்கப்படவில்லை.",
+  portalTrackingLink: "நேரடி கண்காணிப்பு இணைப்பு",
+  portalShareAnyone: "யாருடனும் பகிரலாம். செயலி தேவையில்லை, உள்நுழைவு தேவையில்லை, விலை தெரியாது.",
+  portalVehicleFree: "வாகனங்கள் காலியாக உள்ளன",
+  portalShowVehicles: "வாகனங்களைக் காட்டு",
+  portalNothingFree: "அந்த நேரத்தில் வாகனம் இல்லை",
+  portalBookThisVehicle: "இந்த வாகனத்தைப் பதிவு செய்",
+  portalDriver: "ஓட்டுநர்",
+  portalUpTo: "அதிகபட்சம்",
 }
 
 /**
@@ -276,6 +336,26 @@ const hi: Dictionary = {
   portalBooked: "बुक हो गया",
   portalYourBill: "आपका बिल",
   portalTollNote: "रास्ते में दिया गया टोल इस बिल में अलग से, ड्राइवर की रसीदों के साथ जोड़ा जाता है।",
+  portalQuotes: "कोटेशन",
+  portalNoQuotesYet: "अभी कोई कोटेशन नहीं",
+  portalNoQuotesHint: "ऑपरेटर आमतौर पर तीस मिनट में जवाब देते हैं।",
+  portalLowest: "सबसे कम कोटेशन",
+  portalYourBooking: "आपकी बुकिंग",
+  portalCouldReach: "अधिकतम हो सकता है",
+  portalWhereMoneyGoes: "पैसा कहाँ जाता है",
+  portalBookThis: "इसे बुक करें",
+  portalTotal: "कुल",
+  portalPaidSoFar: "अब तक भुगतान",
+  portalStillToPay: "अभी देना बाकी",
+  portalAsQuoted: "आपके स्वीकार किए गए कोटेशन के बाद कुछ नहीं जोड़ा गया।",
+  portalTrackingLink: "लाइव ट्रैकिंग लिंक",
+  portalShareAnyone: "किसी के साथ साझा करें। कोई ऐप नहीं, कोई साइन-इन नहीं, और कीमत नहीं दिखती।",
+  portalVehicleFree: "वाहन उपलब्ध",
+  portalShowVehicles: "वाहन दिखाएँ",
+  portalNothingFree: "उस समय कोई वाहन उपलब्ध नहीं",
+  portalBookThisVehicle: "यह वाहन बुक करें",
+  portalDriver: "ड्राइवर",
+  portalUpTo: "अधिकतम",
 }
 
 /** Telugu — Andhra and Telangana groups on the Rameswaram circuit. */
@@ -325,6 +405,26 @@ const te: Dictionary = {
   portalBooked: "బుక్ అయ్యింది",
   portalYourBill: "మీ బిల్లు",
   portalTollNote: "దారిలో చెల్లించిన టోల్ ఈ బిల్లులో విడిగా, డ్రైవర్ రసీదులతో కలుపబడుతుంది.",
+  portalQuotes: "కోట్లు",
+  portalNoQuotesYet: "ఇంకా కోట్లు లేవు",
+  portalNoQuotesHint: "ఆపరేటర్లు సాధారణంగా ముప్పై నిమిషాల్లో స్పందిస్తారు.",
+  portalLowest: "అత్యల్ప కోట్",
+  portalYourBooking: "మీ బుకింగ్",
+  portalCouldReach: "గరిష్టంగా",
+  portalWhereMoneyGoes: "డబ్బు ఎక్కడికి వెళుతుంది",
+  portalBookThis: "దీన్ని బుక్ చేయండి",
+  portalTotal: "మొత్తం",
+  portalPaidSoFar: "ఇప్పటివరకు చెల్లించినది",
+  portalStillToPay: "ఇంకా చెల్లించవలసినది",
+  portalAsQuoted: "మీరు అంగీకరించిన కోట్ తర్వాత ఏమీ కలపబడలేదు.",
+  portalTrackingLink: "లైవ్ ట్రాకింగ్ లింక్",
+  portalShareAnyone: "ఎవరితోనైనా పంచుకోండి. యాప్ అక్కర్లేదు, సైన్-ఇన్ అక్కర్లేదు, ధర కనిపించదు.",
+  portalVehicleFree: "వాహనాలు ఖాళీగా ఉన్నాయి",
+  portalShowVehicles: "వాహనాలు చూపించు",
+  portalNothingFree: "ఆ సమయంలో వాహనం లేదు",
+  portalBookThisVehicle: "ఈ వాహనాన్ని బుక్ చేయండి",
+  portalDriver: "డ్రైవర్",
+  portalUpTo: "గరిష్టంగా",
 }
 
 /** Malayalam — the Munnar and Thekkady runs out of Madurai. */
@@ -374,6 +474,26 @@ const ml: Dictionary = {
   portalBooked: "ബുക്ക് ചെയ്തു",
   portalYourBill: "നിങ്ങളുടെ ബിൽ",
   portalTollNote: "വഴിയിൽ നൽകിയ ടോൾ ഈ ബില്ലിൽ പ്രത്യേകമായി, ഡ്രൈവറുടെ രസീതുകളോടെ ചേർക്കുന്നു.",
+  portalQuotes: "കോട്ടുകൾ",
+  portalNoQuotesYet: "ഇതുവരെ കോട്ടുകൾ ഇല്ല",
+  portalNoQuotesHint: "ഓപ്പറേറ്റർമാർ സാധാരണയായി മുപ്പത് മിനിറ്റിനുള്ളിൽ മറുപടി നൽകും.",
+  portalLowest: "ഏറ്റവും കുറഞ്ഞ കോട്ട്",
+  portalYourBooking: "നിങ്ങളുടെ ബുക്കിംഗ്",
+  portalCouldReach: "പരമാവധി",
+  portalWhereMoneyGoes: "പണം എവിടെ പോകുന്നു",
+  portalBookThis: "ഇത് ബുക്ക് ചെയ്യുക",
+  portalTotal: "ആകെ",
+  portalPaidSoFar: "ഇതുവരെ നൽകിയത്",
+  portalStillToPay: "ഇനി നൽകാനുള്ളത്",
+  portalAsQuoted: "നിങ്ങൾ സ്വീകരിച്ച കോട്ടിന് ശേഷം ഒന്നും ചേർത്തിട്ടില്ല.",
+  portalTrackingLink: "ലൈവ് ട്രാക്കിംഗ് ലിങ്ക്",
+  portalShareAnyone: "ആരുമായും പങ്കിടാം. ആപ്പ് വേണ്ട, സൈൻ-ഇൻ വേണ്ട, വില കാണില്ല.",
+  portalVehicleFree: "വാഹനങ്ങൾ ഒഴിവുണ്ട്",
+  portalShowVehicles: "വാഹനങ്ങൾ കാണിക്കുക",
+  portalNothingFree: "ആ സമയത്ത് വാഹനം ഇല്ല",
+  portalBookThisVehicle: "ഈ വാഹനം ബുക്ക് ചെയ്യുക",
+  portalDriver: "ഡ്രൈവർ",
+  portalUpTo: "പരമാവധി",
 }
 
 /** Kannada — Bengaluru groups coming south for the temple circuit. */
@@ -423,6 +543,26 @@ const kn: Dictionary = {
   portalBooked: "ಬುಕ್ ಆಗಿದೆ",
   portalYourBill: "ನಿಮ್ಮ ಬಿಲ್",
   portalTollNote: "ದಾರಿಯಲ್ಲಿ ಪಾವತಿಸಿದ ಟೋಲ್ ಈ ಬಿಲ್‌ನಲ್ಲಿ ಪ್ರತ್ಯೇಕವಾಗಿ, ಚಾಲಕರ ರಸೀದಿಗಳೊಂದಿಗೆ ಸೇರಿಸಲಾಗುತ್ತದೆ.",
+  portalQuotes: "ದರಪಟ್ಟಿಗಳು",
+  portalNoQuotesYet: "ಇನ್ನೂ ದರಪಟ್ಟಿ ಇಲ್ಲ",
+  portalNoQuotesHint: "ಆಪರೇಟರ್‌ಗಳು ಸಾಮಾನ್ಯವಾಗಿ ಮೂವತ್ತು ನಿಮಿಷಗಳಲ್ಲಿ ಉತ್ತರಿಸುತ್ತಾರೆ.",
+  portalLowest: "ಅತಿ ಕಡಿಮೆ ದರ",
+  portalYourBooking: "ನಿಮ್ಮ ಬುಕಿಂಗ್",
+  portalCouldReach: "ಗರಿಷ್ಠ",
+  portalWhereMoneyGoes: "ಹಣ ಎಲ್ಲಿಗೆ ಹೋಗುತ್ತದೆ",
+  portalBookThis: "ಇದನ್ನು ಬುಕ್ ಮಾಡಿ",
+  portalTotal: "ಒಟ್ಟು",
+  portalPaidSoFar: "ಇಲ್ಲಿಯವರೆಗೆ ಪಾವತಿಸಿದ್ದು",
+  portalStillToPay: "ಇನ್ನೂ ಪಾವತಿಸಬೇಕಾದದ್ದು",
+  portalAsQuoted: "ನೀವು ಒಪ್ಪಿದ ದರದ ನಂತರ ಏನೂ ಸೇರಿಸಿಲ್ಲ.",
+  portalTrackingLink: "ಲೈವ್ ಟ್ರ್ಯಾಕಿಂಗ್ ಲಿಂಕ್",
+  portalShareAnyone: "ಯಾರೊಂದಿಗೂ ಹಂಚಿಕೊಳ್ಳಿ. ಆ್ಯಪ್ ಬೇಡ, ಸೈನ್-ಇನ್ ಬೇಡ, ಬೆಲೆ ಕಾಣಿಸುವುದಿಲ್ಲ.",
+  portalVehicleFree: "ವಾಹನಗಳು ಲಭ್ಯ",
+  portalShowVehicles: "ವಾಹನಗಳನ್ನು ತೋರಿಸಿ",
+  portalNothingFree: "ಆ ಸಮಯದಲ್ಲಿ ವಾಹನ ಇಲ್ಲ",
+  portalBookThisVehicle: "ಈ ವಾಹನವನ್ನು ಬುಕ್ ಮಾಡಿ",
+  portalDriver: "ಚಾಲಕ",
+  portalUpTo: "ಗರಿಷ್ಠ",
 }
 
 const DICTIONARIES: Record<Locale, Dictionary> = { en, ta, hi, te, ml, kn }

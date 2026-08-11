@@ -4,7 +4,9 @@ import { auth } from "@/auth"
 import { MapEmbed } from "@/components/map"
 import { shapeOf, termsOf } from "@/data/demand"
 import { customerTrip, tripExpensesFor } from "@/data/scoped"
+import { getSettings } from "@/data/settings"
 import { buildBill, tollNotice } from "@/domain/bill"
+import { bookingEnquiry, mailtoLink, telLink, whatsappLink } from "@/domain/contact"
 import { formatIst } from "@/domain/format"
 import { checkPing } from "@/domain/geo"
 import { formatPaise } from "@/domain/money"
@@ -37,6 +39,7 @@ export default async function PortalTripPage({ params }: { params: Promise<{ id:
 
   // The bill exists only once there is a booking: before that, a quote is a
   // promise and there is nothing to reconcile it against.
+  const settings = await getSettings()
   const billing = booking ? await tripExpensesFor(customerId, booking.id) : null
   const livePosition =
     booking && trip.latestPing ? checkPing(trip.latestPing.lat, trip.latestPing.lng) : null
@@ -129,6 +132,94 @@ export default async function PortalTripPage({ params }: { params: Promise<{ id:
           </div>
         </section>
       ) : null}
+
+      <section className="contact-strip">
+        {booking && trip.operatorPhone ? (
+          <>
+            <h2>Talk to {operatorName}</h2>
+            <p className="muted small">
+              Confirm pickup, luggage, or anything else directly with the operator running your
+              trip.
+            </p>
+            <div className="contact-actions">
+              {whatsappLink(
+                trip.operatorPhone,
+                bookingEnquiry(
+                  booking.reference,
+                  `${request.city} · ${tripTypeLabel(request.tripType)}`,
+                  formatIst(request.startAt),
+                ),
+              ) ? (
+                <a
+                  className="button-link"
+                  href={
+                    whatsappLink(
+                      trip.operatorPhone,
+                      bookingEnquiry(
+                        booking.reference,
+                        `${request.city} · ${tripTypeLabel(request.tripType)}`,
+                        formatIst(request.startAt),
+                      ),
+                    ) as string
+                  }
+                  rel="noreferrer noopener"
+                  target="_blank"
+                >
+                  WhatsApp
+                </a>
+              ) : null}
+              {telLink(trip.operatorPhone) ? (
+                <a className="button-link quiet" href={telLink(trip.operatorPhone) as string}>
+                  Call {trip.operatorPhone}
+                </a>
+              ) : null}
+              {trip.operatorEmail && mailtoLink(trip.operatorEmail, `Toli ${booking.reference}`) ? (
+                <a
+                  className="button-link quiet"
+                  href={mailtoLink(trip.operatorEmail, `Toli ${booking.reference}`) as string}
+                >
+                  Email
+                </a>
+              ) : null}
+            </div>
+            <p className="muted small">
+              Toli is still responsible for this trip. If anything goes wrong, call us on{" "}
+              {settings.supportPhone} — do not settle it privately, or you lose the invoice, the
+              tracking and the recourse.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2>Questions before you book?</h2>
+            <p className="muted small">
+              Call Toli on {settings.supportPhone} and a person will answer. The operator's own
+              number is shared as soon as you have a booking with them.
+            </p>
+            <div className="contact-actions">
+              {whatsappLink(settings.supportWhatsapp) ? (
+                <a
+                  className="button-link"
+                  href={whatsappLink(settings.supportWhatsapp) as string}
+                  rel="noreferrer noopener"
+                  target="_blank"
+                >
+                  WhatsApp Toli
+                </a>
+              ) : null}
+              {telLink(settings.supportPhone) ? (
+                <a className="button-link quiet" href={telLink(settings.supportPhone) as string}>
+                  Call
+                </a>
+              ) : null}
+              {mailtoLink(settings.supportEmail) ? (
+                <a className="button-link quiet" href={mailtoLink(settings.supportEmail) as string}>
+                  Email
+                </a>
+              ) : null}
+            </div>
+          </>
+        )}
+      </section>
 
       {livePosition?.ok ? (
         <MapEmbed point={livePosition.point} label="Where your vehicle is now" height={300} />

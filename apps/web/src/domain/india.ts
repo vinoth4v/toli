@@ -117,5 +117,15 @@ export const LAUNCH_CITIES = [
   "Coimbatore",
 ] as const
 
+/**
+ * Where a vehicle from this corridor actually crosses to.
+ *
+ * Munnar and Thekkady are the Kerala runs; Bengaluru and Tirupati pull groups
+ * north. Offering all thirty-six states here would be honest about the country
+ * and useless about the fleet — an operator in Madurai does not hold a permit
+ * for Assam.
+ */
+export const NEIGHBOURING_STATES = ["Kerala", "Karnataka", "Andhra Pradesh", "Puducherry"] as const
+
 /** Toli's own registration state — the default place of supply. */
 export const HOME_STATE = "Tamil Nadu"

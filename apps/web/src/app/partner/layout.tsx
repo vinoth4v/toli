@@ -30,6 +30,7 @@ export default async function PartnerLayout({ children }: { children: ReactNode 
         </Link>
         <nav>
           <Link href="/partner">Quote inbox</Link>
+          <Link href="/partner/rates">Rates</Link>
           <Link href="/partner/fleet">Fleet</Link>
           <Link href="/partner/earnings">Earnings</Link>
         </nav>
