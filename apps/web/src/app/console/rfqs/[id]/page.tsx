@@ -1,11 +1,12 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { RouteMap } from "@/components/map"
 import { Amount, Badge, Card, Chip, Empty, Facts, PageHead, StatusBadge } from "@/components/ui"
 import { getRequest, termsOf } from "@/data/demand"
 import { listActiveOperators } from "@/data/supply"
 import { verdict } from "@/domain/fairprice"
 import { formatIst, maskPhone } from "@/domain/format"
-import { mapLink } from "@/domain/geo"
+import { checkPing, mapLink } from "@/domain/geo"
 import { GST_TREATMENTS } from "@/domain/gst"
 import { formatPaise } from "@/domain/money"
 import { quoteChips } from "@/domain/quote"
@@ -47,6 +48,14 @@ export default async function RequestPage({
   const outstanding = quotes.filter((quote) => quote.status === "requested")
   const basis = pricingBasis(request.tripType)
   const mapsLive = isConfigured("maps") && isConfigured("routing")
+
+  // Only stops that have been placed on the map can be drawn on one.
+  const routePoints = stops
+    .map((stop) => (stop.lat && stop.lng ? checkPing(stop.lat, stop.lng) : null))
+    .filter((result): result is { ok: true; point: { lat: number; lng: number } } =>
+      Boolean(result?.ok),
+    )
+    .map((result) => result.point)
 
   return (
     <>
@@ -388,6 +397,14 @@ export default async function RequestPage({
                     </li>
                   ))}
                 </ul>
+
+                {routePoints.length > 0 ? (
+                  <RouteMap
+                    points={routePoints}
+                    labels={stops.filter((stop) => stop.lat && stop.lng).map((stop) => stop.label)}
+                    height={220}
+                  />
+                ) : null}
 
                 <form action={resolveItineraryAction}>
                   <input type="hidden" name="tripRequestId" value={request.id} />

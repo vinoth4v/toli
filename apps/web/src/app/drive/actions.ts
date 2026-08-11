@@ -3,9 +3,10 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
-import { addExpense, addTripEvent } from "@/data/fulfilment"
+import { addExpense, addPing, addTripEvent } from "@/data/fulfilment"
 import { driverOwnsBooking } from "@/data/scoped"
 import { recordEvent } from "@/db/events"
+import { checkPing } from "@/domain/geo"
 import { parseRupeesToPaise } from "@/domain/money"
 
 /**
@@ -26,6 +27,40 @@ async function driverId(): Promise<string> {
 async function assertOwn(bookingId: string): Promise<void> {
   const id = await driverId()
   if (!(await driverOwnsBooking(id, bookingId))) redirect("/drive")
+}
+
+/**
+ * A position from the driver's own phone.
+ *
+ * Takes an object rather than a FormData because it is called from a client
+ * component holding a `GeolocationPosition`, not from a form — and the
+ * driver's session is the credential, so no ingest token has to live on a
+ * phone that gets lost.
+ *
+ * The same plausibility check the ingest endpoint applies runs here: a browser
+ * with no fix reports 0,0 as readily as a cheap GPS chip does.
+ */
+export async function shareLocationAction(input: {
+  bookingId: string
+  lat: string
+  lng: string
+  speedKmph: number | null
+}): Promise<void> {
+  if (!input.bookingId) return
+  await assertOwn(input.bookingId)
+
+  const position = checkPing(input.lat, input.lng)
+  if (!position.ok) return
+
+  await addPing({
+    bookingId: input.bookingId,
+    lat: position.point.lat.toFixed(6),
+    lng: position.point.lng.toFixed(6),
+    speedKmph: input.speedKmph,
+    source: "driver_browser",
+  })
+
+  revalidatePath(`/drive/${input.bookingId}`)
 }
 
 /**

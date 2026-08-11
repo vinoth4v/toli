@@ -312,6 +312,20 @@ is the single place that decides whether one is configured, and
 - **Instant booking assumes intra-state.** The book-now flow does not yet offer
   interstate trips, because those need the AITP check surfaced in the UI rather
   than only enforced.
+- **Maps are an OpenStreetMap iframe, and their tiles are unverified in
+  production.** The embed needs no key and no client bundle, which is why it
+  was chosen over a mapping library the dependency list does not bless. Its
+  structure renders — marker, controls, attribution — and OSM serves a real
+  6.9 KB tile to a request carrying an `openstreetmap.org` referer, which is
+  what the iframe will send. But tiles were blank in the automation browser
+  used to check, so somebody should look at `/track/<token>` in an ordinary
+  browser before the soft launch. Every map caption carries the coordinates in
+  text and a link out, so a grey rectangle still tells you where the vehicle is.
+- **The driver's location sharing is foreground-only.** §6.3 wants a
+  `ForegroundService` pinging every ten seconds; a web page cannot do that,
+  because the browser stops running when the screen locks. The button sends one
+  fix and an optional repeat while the screen stays on, and the UI says so
+  rather than implying background tracking.
 - **No SMS fallback.** §4.5 wants DLT-registered SMS behind WhatsApp; the
   outbox has a `channel` column and only one channel is implemented.
 - **Reference numbers come from a row count.** Correct for one desk, racy for

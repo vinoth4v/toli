@@ -88,6 +88,7 @@ export type Dictionary = {
   driveOpen: string
   drivePassengers: string
   driveSeats: string
+  driveShareLocation: string
   driveInterstate: string
   driveTripRunning: string
   driveStartTrip: string
@@ -135,6 +136,7 @@ const en: Dictionary = {
   driveOpen: "Open",
   drivePassengers: "passengers",
   driveSeats: "seats",
+  driveShareLocation: "Send my location",
   driveInterstate: "interstate",
   driveTripRunning: "Trip running",
   driveStartTrip: "Start trip",
@@ -184,6 +186,7 @@ const ta: Dictionary = {
   driveOpen: "திற",
   drivePassengers: "பயணிகள்",
   driveSeats: "இருக்கைகள்",
+  driveShareLocation: "என் இருப்பிடத்தை அனுப்பு",
   driveInterstate: "மாநிலம் கடக்கும்",
   driveTripRunning: "பயணம் நடக்கிறது",
   driveStartTrip: "பயணத்தைத் தொடங்கு",
@@ -237,6 +240,7 @@ const hi: Dictionary = {
   driveOpen: "खोलें",
   drivePassengers: "यात्री",
   driveSeats: "सीटें",
+  driveShareLocation: "मेरी लोकेशन भेजें",
   driveInterstate: "अंतरराज्यीय",
   driveTripRunning: "ट्रिप चल रही है",
   driveStartTrip: "ट्रिप शुरू करें",
@@ -285,6 +289,7 @@ const te: Dictionary = {
   driveOpen: "తెరవండి",
   drivePassengers: "ప్రయాణికులు",
   driveSeats: "సీట్లు",
+  driveShareLocation: "నా లొకేషన్ పంపు",
   driveInterstate: "అంతర్రాష్ట్ర",
   driveTripRunning: "ప్రయాణం జరుగుతోంది",
   driveStartTrip: "ప్రయాణం ప్రారంభించు",
@@ -333,6 +338,7 @@ const ml: Dictionary = {
   driveOpen: "തുറക്കുക",
   drivePassengers: "യാത്രക്കാർ",
   driveSeats: "സീറ്റുകൾ",
+  driveShareLocation: "എന്റെ ലൊക്കേഷൻ അയയ്ക്കുക",
   driveInterstate: "അന്തർസംസ്ഥാനം",
   driveTripRunning: "യാത്ര നടക്കുന്നു",
   driveStartTrip: "യാത്ര ആരംഭിക്കുക",
@@ -381,6 +387,7 @@ const kn: Dictionary = {
   driveOpen: "ತೆರೆಯಿರಿ",
   drivePassengers: "ಪ್ರಯಾಣಿಕರು",
   driveSeats: "ಆಸನಗಳು",
+  driveShareLocation: "ನನ್ನ ಸ್ಥಳ ಕಳುಹಿಸಿ",
   driveInterstate: "ಅಂತರರಾಜ್ಯ",
   driveTripRunning: "ಪ್ರಯಾಣ ನಡೆಯುತ್ತಿದೆ",
   driveStartTrip: "ಪ್ರಯಾಣ ಪ್ರಾರಂಭಿಸಿ",
