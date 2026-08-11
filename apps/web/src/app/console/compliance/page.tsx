@@ -67,7 +67,9 @@ export default async function CompliancePage() {
                   <tr key={vehicle.id}>
                     <td className="numeric">{vehicle.registrationNumber}</td>
                     <td>
-                      <Link href={`/operators/${vehicle.operatorId}`}>{vehicle.operatorName}</Link>
+                      <Link href={`/console/operators/${vehicle.operatorId}`}>
+                        {vehicle.operatorName}
+                      </Link>
                     </td>
                     <td>{vehicle.compliance.suspensionReason}</td>
                   </tr>
@@ -75,7 +77,7 @@ export default async function CompliancePage() {
               </tbody>
             </table>
           </div>
-          <Link href="/fleet">
+          <Link href="/console/fleet">
             <button type="button">Go to the fleet screen to suspend</button>
           </Link>
         </Card>
@@ -107,7 +109,9 @@ export default async function CompliancePage() {
                       </div>
                     </td>
                     <td>
-                      <Link href={`/operators/${item.operatorId}`}>{item.operatorName}</Link>
+                      <Link href={`/console/operators/${item.operatorId}`}>
+                        {item.operatorName}
+                      </Link>
                     </td>
                     <td>{DOCUMENT_LABELS[item.document.kind]}</td>
                     <td>

@@ -259,7 +259,7 @@ export default async function BookingPage({
             ) : assignableVehicles.length === 0 || (supply?.drivers.length ?? 0) === 0 ? (
               <Empty>
                 {operator.name} has no active vehicle and driver to assign.{" "}
-                <Link href={`/operators/${operator.id}`}>Add them</Link>.
+                <Link href={`/console/operators/${operator.id}`}>Add them</Link>.
               </Empty>
             ) : (
               <form action={assignVehicleAction} className="inline-form">
@@ -476,7 +476,7 @@ export default async function BookingPage({
               items={[
                 [
                   "RFQ",
-                  <Link key="r" href={`/rfqs/${request.id}`}>
+                  <Link key="r" href={`/console/rfqs/${request.id}`}>
                     {request.reference}
                   </Link>,
                 ],

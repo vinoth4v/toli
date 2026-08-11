@@ -53,5 +53,5 @@ export async function updateSettingsAction(formData: FormData): Promise<void> {
     `commission ${parsed.data.defaultCommissionPercent}%, GST ${parsed.data.defaultGstTreatment}`,
   )
 
-  revalidatePath("/settings")
+  revalidatePath("/console/settings")
 }

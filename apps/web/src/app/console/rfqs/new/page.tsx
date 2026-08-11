@@ -30,7 +30,7 @@ export default async function NewRequestPage({
         title="New RFQ"
         intro="Everything an operator needs to quote without a phone call back. Fields left vague here become the arguments that happen at the end of the trip."
         actions={
-          <Link href="/rfqs">
+          <Link href="/console/rfqs">
             <button type="button" className="quiet">
               Back to the desk
             </button>

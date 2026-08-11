@@ -9,9 +9,15 @@ India's aggregator marketplace for chartered vans, tempo travellers and buses �
 
 ## What it does
 
-Toli is an **ops console for running a charter marketplace by hand** — the tool
-for the plan's Phase 0 and Phase 1, where a person on a desk beats an algorithm
-and fifty real bookings teach you more than six months of design.
+**`/` is the marketplace's public front page** — what the business is, the
+comparison that explains why it exists, the fleet it runs and the terms
+operators get. Signed in, it redirects straight to `/console`, so the operator
+never clicks past a welcome page to reach their own app.
+
+Behind the gate, `/console` is an **ops console for running a charter
+marketplace by hand** — the tool for the plan's Phase 0 and Phase 1, where a
+person on a desk beats an algorithm and fifty real bookings teach you more than
+six months of design.
 
 You can, today:
 

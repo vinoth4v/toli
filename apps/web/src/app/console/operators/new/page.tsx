@@ -20,7 +20,7 @@ export default async function NewOperatorPage({
         title="Sign an operator"
         intro="The commercial terms and the KYC identity. Vehicles, drivers and documents go on afterwards, one at a time."
         actions={
-          <Link href="/operators">
+          <Link href="/console/operators">
             <button type="button" className="quiet">
               Back
             </button>

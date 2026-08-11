@@ -16,7 +16,7 @@ export default async function RequestsPage() {
         title="RFQ desk"
         intro="Every requirement a group has asked for, newest first. An RFQ becomes a booking when one of its structured quotes is accepted."
         actions={
-          <Link href="/rfqs/new">
+          <Link href="/console/rfqs/new">
             <button type="button">New RFQ</button>
           </Link>
         }
@@ -25,8 +25,8 @@ export default async function RequestsPage() {
       <Card>
         {requests.length === 0 ? (
           <Empty>
-            No RFQs yet. <Link href="/rfqs/new">Record the first one</Link> — the plan's Phase 0 is
-            fifty real bookings taken by hand, and this is where they go.
+            No RFQs yet. <Link href="/console/rfqs/new">Record the first one</Link> — the plan's
+            Phase 0 is fifty real bookings taken by hand, and this is where they go.
           </Empty>
         ) : (
           <div className="table-wrap">
@@ -45,7 +45,7 @@ export default async function RequestsPage() {
                 {requests.map(({ request, customer }) => (
                   <tr key={request.id}>
                     <td>
-                      <Link href={`/rfqs/${request.id}`}>{request.reference}</Link>
+                      <Link href={`/console/rfqs/${request.id}`}>{request.reference}</Link>
                       <div className="muted small">{relativeToNow(request.createdAt)}</div>
                     </td>
                     <td>

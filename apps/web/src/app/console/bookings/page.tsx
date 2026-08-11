@@ -19,7 +19,8 @@ export default async function BookingsPage() {
       <Card>
         {bookings.length === 0 ? (
           <Empty>
-            No bookings yet. Accept a quote on an <Link href="/rfqs">RFQ</Link> to create one.
+            No bookings yet. Accept a quote on an <Link href="/console/rfqs">RFQ</Link> to create
+            one.
           </Empty>
         ) : (
           <div className="table-wrap">
@@ -39,7 +40,7 @@ export default async function BookingsPage() {
                 {bookings.map(({ booking, request, customer, operator }) => (
                   <tr key={booking.id}>
                     <td>
-                      <Link href={`/bookings/${booking.id}`}>{booking.reference}</Link>
+                      <Link href={`/console/bookings/${booking.id}`}>{booking.reference}</Link>
                     </td>
                     <td>{customer.name}</td>
                     <td>{operator.name}</td>

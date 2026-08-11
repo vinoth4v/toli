@@ -50,6 +50,8 @@ export const space = {
   6: "1.5rem",
   8: "2rem",
   12: "3rem",
+  16: "4rem",
+  24: "6rem",
 } as const
 
 export const radius = {
@@ -60,11 +62,16 @@ export const radius = {
 } as const
 
 export const fontSize = {
+  xs: "0.75rem",
   sm: "0.875rem",
   base: "1rem",
   lg: "1.125rem",
   xl: "1.5rem",
   "2xl": "2rem",
+  /* Display sizes, for a page whose job is to make an argument rather than
+     hold a table. Every theme shares these — only colour and family change. */
+  "3xl": "2.75rem",
+  "4xl": "3.75rem",
 } as const
 
 export const fontWeight = {
