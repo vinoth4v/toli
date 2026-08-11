@@ -111,3 +111,83 @@ Phase 1 actually need.
 - Reference numbers come from a row count; correct for one desk, and a
   Postgres sequence the day there are two.
 - `leakageSuspect` is implemented and tested but has no screen yet.
+
+---
+
+## The five integrations — 10 August 2026
+
+**Asked:** "build these no payment gateway, no VAHAN, no maps, no WhatsApp, no
+GPS ingest" — the five gaps the previous entry listed as deliberately missing.
+
+**Changed:** all five built. One works today; four are complete but need an
+account nobody has opened yet, and say so rather than pretending.
+
+- **Position ingest** (needs nobody): `POST /api/ingest/ping` for a driver app,
+  single or replayed batch; `POST /api/ingest/vltd` for an AIS-140 telematics
+  feed. Per-device bearer tokens, stored only as SHA-256. Implausible positions
+  refused, deviation raised once per trip, `ingest_device` enrolment in the UI.
+- **Payments**: Razorpay payment links over `fetch`, and a webhook that verifies
+  an HMAC over the raw body before parsing it, records every event under a
+  unique (provider, event id), and attributes captures to a booking.
+- **Maps and routing**: a `MapProvider`-shaped module — Google Places first,
+  Mappls when Google's confidence is low, self-hosted OSRM for the road
+  distance every quote needs. Results cached in `geo_cache`, geocodes forever
+  and routes for 30 days, keyed on rounded coordinates.
+- **WhatsApp**: an outbox table plus template composers for booking
+  confirmation, driver details, tracking link, payment reminder and invoice.
+- **Verification**: VAHAN, Sarathi and GSTN through an authorised aggregator,
+  writing into the same `compliance_check` table a person writes to today.
+- Supporting pure code, all tested: GSTIN checksum, PAN, registration
+  normalisation, E.164 phone handling, haversine, deviation, stopped-for,
+  cache keys. Migration `0002_integrations`. A new `/integrations` screen.
+  59 new unit tests, 150 in total.
+
+**Decided, and why:**
+
+- **"Not configured" is a state the app shows, not one it hides.** An ops
+  person needs to know whether the payment-link button will do anything before
+  promising a customer a link. Every integration reports which variable is
+  missing and what the manual path is meanwhile.
+- **Nothing was stubbed.** No mock VAHAN response, no fake capture, no
+  simulated GPS. The previous session's README promised that and it would have
+  been easy to quietly break here — a stub that looks like it works is worse
+  than a gap, because it gets trusted.
+- **Verify before parse, record before act.** The webhook is the only
+  unauthenticated path that can mark money received; without the HMAC, anyone
+  who learns a booking reference could mark a ₹40,000 trip paid.
+- **Provider names live in configuration, not column names.** `payment` carries
+  a `provider` string. Choosing Cashfree later is an adapter, not a migration.
+- **The alias was added to vitest rather than avoided in source.** A test that
+  fails because two resolvers disagree is a test failing for a reason that has
+  nothing to do with the code.
+
+**Rejected:**
+
+- **A `.gitleaks.toml` allowlist** for the two false positives on the previous
+  PR. An allowlist is a permanent hole punched for a temporary embarrassment;
+  renaming a badly-named constant and deleting a redundant field fixed both at
+  the source.
+- **Map rendering in the console.** It would need an unblessed dependency, and
+  the plan says to deep-link out rather than build navigation.
+- **Route-geometry deviation matching.** It needs a stored polyline from a
+  provider that may not be configured; nearest-planned-stop is coarser and
+  works with what is always known.
+- **Retrying a payment webhook on a body that cannot be parsed.** Answering 200
+  and storing it stops a provider retrying a malformed request forever.
+
+**Verified:** the ingest and webhook paths were exercised end to end against a
+throwaway Neon branch created for the purpose and deleted afterwards — bad
+token 401, valid ping accepted, Null Island and out-of-India refused, VLTD
+vendor payload normalised, deviation raised once across two pings, tracking
+page showing the position with no login, unsigned webhook 401, signed 200,
+replay `duplicate`, tampered body 401 with zero forged rows. The four
+credentialled integrations could not be exercised against their providers and
+are marked as such in ARCHITECTURE.md.
+
+**Open:**
+
+- Migration `0002` has **not** been applied to production; the deploy applies
+  it on merge.
+- Razorpay Route / Easy Split — §8.2's escrow posture — is still not used.
+- Cashfree, an SMS fallback, cloud-telephony number masking, and vendor-specific
+  VLTD quirks all remain.

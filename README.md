@@ -59,27 +59,42 @@ IST, and every action that moves money is written to an audit log.
 
 **Works:** everything in the list above, against a Postgres database, behind
 the single-operator gate. The pricing engine, GST split, settlement arithmetic,
-compliance rules, fair-price band and metric definitions are pure functions
-with unit tests — 91 of them.
+compliance rules, fair-price band, metric definitions, Indian identifier
+checks and the geo maths are pure functions with unit tests — 150 of them.
 
-**Does not, deliberately:**
+**Also works — position ingest**, which needs no third party:
+
+- `POST /api/ingest/ping` for a driver app, single or replayed batch, with an
+  offline buffer in mind.
+- `POST /api/ingest/vltd` for an AIS-140 telematics feed, tolerant of the field
+  names real Indian vendors actually send. This is what keeps tracking alive
+  when the driver's phone dies, which it will.
+- Each device gets its own bearer token; only its SHA-256 is stored. A position
+  outside India, or Null Island from a chip with no fix, is refused. A vehicle
+  far from every planned stop raises one deviation event, not two hundred.
+
+**Built but not switched on** — each needs an account nobody has opened yet.
+Every one degrades to the manual path that worked before, says which variable
+is missing, and never pretends. `/integrations` is the live inventory:
+
+| Integration | Turns on with | Meanwhile |
+|---|---|---|
+| Razorpay payment links + webhook | `RAZORPAY_*` | Payments recorded by hand once the money lands |
+| Google Places + Mappls geocoding | `GOOGLE_MAPS_API_KEY` / `MAPPLS_REST_KEY` | Stops stay text; coordinates typed when needed |
+| Self-hosted OSRM routing | `OSRM_BASE_URL` | Estimated km typed by whoever took the call |
+| WhatsApp Business | `WHATSAPP_*` | Messages queue in the outbox to send by hand |
+| VAHAN / Sarathi / GSTN | `VEHICLE_VERIFY_*` | An ops person reads the portal, same table, slower |
+
+**Does not exist at all:**
 
 - **No customer, operator or driver apps.** The plan's five surfaces are
   Flutter and Kotlin work. This is surface 5, the admin console, and it is the
   one that makes the other four unnecessary for the first two hundred bookings.
-- **No government API verification.** VAHAN, Sarathi and GSTIN access goes
-  through an authorised aggregator and is a Month-2 item. An ops person reads
-  the portal and records what it said — into the same table the automated check
-  will write to.
-- **No payment gateway.** Payments are recorded, not taken. Razorpay Route or
-  Cashfree Easy Split is the Phase 1 integration; the schema already models
-  advance, balance, refund and cash-to-driver.
-- **No maps, geocoding or routing.** Stops are text and distance is estimated
-  by the person taking the call. Self-hosted OSRM is the plan's answer and it
-  is a service, not a page.
-- **No WhatsApp, SMS or push.** Notifications are the ops desk's own phone.
-- **No live GPS ingest.** Positions are recorded by hand or, later, by the
-  driver app and an AIS-140 VLTD feed.
+- **No map rendering.** Coordinates deep-link out to Google Maps, per the
+  plan's own advice not to build navigation. Drawing tiles in-app would mean a
+  dependency this template does not bless.
+- **No cloud-telephony number masking**, which is the actual anti-leakage
+  control. Phone numbers are masked in the UI, which is display hygiene.
 - **One user.** The gate is one email and one password hash. Real RBAC over the
   admin console is a decision to raise, not to implement quietly.
 
@@ -91,6 +106,10 @@ pnpm db:migrate          # needs DATABASE_URL
 pnpm db:seed             # realistic Jaipur data — never against production
 pnpm dev
 ```
+
+Everything above works with no external credentials at all. To switch an
+integration on, set its variables from `apps/web/.env.example`; `/integrations`
+shows which are set, what each one enables, and what happens while it is off.
 
 Environment lives in `apps/web/.env.local`; `apps/web/.env.example` lists what
 is needed. `pnpm hash-password` sets the operator password — an app with none

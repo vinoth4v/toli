@@ -5,11 +5,14 @@ import { getRequest, termsOf } from "@/data/demand"
 import { listActiveOperators } from "@/data/supply"
 import { verdict } from "@/domain/fairprice"
 import { formatIst, maskPhone } from "@/domain/format"
+import { mapLink } from "@/domain/geo"
 import { GST_TREATMENTS } from "@/domain/gst"
 import { formatPaise } from "@/domain/money"
 import { quoteChips } from "@/domain/quote"
 import { extraLabel, pricingBasis, tripTypeLabel } from "@/domain/trip"
 import { featureLabel, vehicleClassLabel } from "@/domain/vehicle"
+import { isConfigured } from "@/integrations/config"
+import { resolveItineraryAction } from "../../integrations/actions"
 import { acceptQuoteAction, inviteOperatorsAction, submitQuoteAction } from "../actions"
 
 /**
@@ -43,6 +46,7 @@ export default async function RequestPage({
   const answered = quotes.filter((quote) => quote.status !== "requested")
   const outstanding = quotes.filter((quote) => quote.status === "requested")
   const basis = pricingBasis(request.tripType)
+  const mapsLive = isConfigured("maps") && isConfigured("routing")
 
   return (
     <>
@@ -366,9 +370,36 @@ export default async function RequestPage({
                 <h3>Route</h3>
                 <ul className="timeline">
                   {stops.map((stop) => (
-                    <li key={stop.id}>{stop.label}</li>
+                    <li key={stop.id}>
+                      {stop.label}
+                      {stop.lat && stop.lng ? (
+                        <time>
+                          <a
+                            href={mapLink({ lat: Number(stop.lat), lng: Number(stop.lng) })}
+                            rel="noreferrer noopener"
+                            target="_blank"
+                          >
+                            {Number(stop.lat).toFixed(4)}, {Number(stop.lng).toFixed(4)}
+                          </a>
+                        </time>
+                      ) : (
+                        <time className="muted">not placed on the map yet</time>
+                      )}
+                    </li>
                   ))}
                 </ul>
+
+                <form action={resolveItineraryAction}>
+                  <input type="hidden" name="tripRequestId" value={request.id} />
+                  <button type="submit" className="quiet">
+                    Place stops and measure the road
+                  </button>
+                </form>
+                <p className="muted small">
+                  {mapsLive
+                    ? "Geocodes each stop and measures the road distance, which fills in the estimated km every quote is priced against — and gives live tracking a route to detect deviation from."
+                    : "Geocoding is not configured, so this will name the missing variable rather than guess. Estimated km stays whatever was typed on the call."}
+                </p>
               </>
             ) : null}
 

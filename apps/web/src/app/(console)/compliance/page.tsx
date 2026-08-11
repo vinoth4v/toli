@@ -7,6 +7,9 @@ import {
 } from "@/data/supply"
 import { DOCUMENT_LABELS, daysUntil } from "@/domain/compliance"
 import { formatIstDate } from "@/domain/format"
+import { isConfigured } from "@/integrations/config"
+import { SOURCE_FOR_DOCUMENT } from "@/integrations/verification"
+import { verifyVehicleAction } from "../integrations/actions"
 import { verifyDocumentAction } from "../operators/actions"
 
 /**
@@ -30,6 +33,7 @@ const BUCKET_TONE = {
 
 export default async function CompliancePage() {
   const now = new Date()
+  const verificationLive = isConfigured("verification")
   const [queue, needingSuspension, expiringLicences] = await Promise.all([
     complianceQueue(now),
     vehiclesNeedingSuspension(now),
@@ -121,22 +125,43 @@ export default async function CompliancePage() {
                     </td>
                     <td>
                       {item.document.verification === "pending" ? (
-                        <form action={verifyDocumentAction} className="inline-form">
-                          <input type="hidden" name="documentId" value={item.document.id} />
-                          <input type="hidden" name="vehicleId" value={item.vehicleId} />
-                          <select name="source" defaultValue="vahan" aria-label="Source">
-                            <option value="vahan">VAHAN</option>
-                            <option value="sarathi">Sarathi</option>
-                            <option value="gstn">GSTN</option>
-                            <option value="manual">Manual</option>
-                          </select>
-                          <button type="submit" name="decision" value="verified">
-                            Verify
-                          </button>
-                          <button type="submit" name="decision" value="rejected" className="danger">
-                            Reject
-                          </button>
-                        </form>
+                        <>
+                          {verificationLive &&
+                          SOURCE_FOR_DOCUMENT[item.document.kind] === "vahan" ? (
+                            <form action={verifyVehicleAction}>
+                              <input type="hidden" name="vehicleId" value={item.vehicleId} />
+                              <input type="hidden" name="documentId" value={item.document.id} />
+                              <input type="hidden" name="operatorId" value={item.operatorId} />
+                              <input
+                                type="hidden"
+                                name="registrationNumber"
+                                value={item.registrationNumber}
+                              />
+                              <button type="submit">Check VAHAN</button>
+                            </form>
+                          ) : null}
+                          <form action={verifyDocumentAction} className="inline-form">
+                            <input type="hidden" name="documentId" value={item.document.id} />
+                            <input type="hidden" name="vehicleId" value={item.vehicleId} />
+                            <select name="source" defaultValue="vahan" aria-label="Source">
+                              <option value="vahan">VAHAN</option>
+                              <option value="sarathi">Sarathi</option>
+                              <option value="gstn">GSTN</option>
+                              <option value="manual">Manual</option>
+                            </select>
+                            <button type="submit" name="decision" value="verified">
+                              Verify
+                            </button>
+                            <button
+                              type="submit"
+                              name="decision"
+                              value="rejected"
+                              className="danger"
+                            >
+                              Reject
+                            </button>
+                          </form>
+                        </>
                       ) : null}
                     </td>
                   </tr>
