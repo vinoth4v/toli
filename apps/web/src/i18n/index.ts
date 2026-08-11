@@ -87,6 +87,7 @@ export type Dictionary = {
   driveNoTripHint: string
   driveOpen: string
   drivePassengers: string
+  driveSeats: string
   driveInterstate: string
   driveTripRunning: string
   driveStartTrip: string
@@ -133,6 +134,7 @@ const en: Dictionary = {
   driveNoTripHint: "Your next trip will appear here as soon as it is assigned to you.",
   driveOpen: "Open",
   drivePassengers: "passengers",
+  driveSeats: "seats",
   driveInterstate: "interstate",
   driveTripRunning: "Trip running",
   driveStartTrip: "Start trip",
@@ -181,6 +183,7 @@ const ta: Dictionary = {
   driveNoTripHint: "உங்களுக்கு பயணம் ஒதுக்கியவுடன் இங்கே தெரியும்.",
   driveOpen: "திற",
   drivePassengers: "பயணிகள்",
+  driveSeats: "இருக்கைகள்",
   driveInterstate: "மாநிலம் கடக்கும்",
   driveTripRunning: "பயணம் நடக்கிறது",
   driveStartTrip: "பயணத்தைத் தொடங்கு",
@@ -233,6 +236,7 @@ const hi: Dictionary = {
   driveNoTripHint: "आपको ट्रिप सौंपते ही वह यहाँ दिखाई देगी।",
   driveOpen: "खोलें",
   drivePassengers: "यात्री",
+  driveSeats: "सीटें",
   driveInterstate: "अंतरराज्यीय",
   driveTripRunning: "ट्रिप चल रही है",
   driveStartTrip: "ट्रिप शुरू करें",
@@ -280,6 +284,7 @@ const te: Dictionary = {
   driveNoTripHint: "మీకు ప్రయాణం కేటాయించగానే ఇక్కడ కనిపిస్తుంది.",
   driveOpen: "తెరవండి",
   drivePassengers: "ప్రయాణికులు",
+  driveSeats: "సీట్లు",
   driveInterstate: "అంతర్రాష్ట్ర",
   driveTripRunning: "ప్రయాణం జరుగుతోంది",
   driveStartTrip: "ప్రయాణం ప్రారంభించు",
@@ -327,6 +332,7 @@ const ml: Dictionary = {
   driveNoTripHint: "നിങ്ങൾക്ക് യാത്ര നൽകിയാലുടൻ ഇവിടെ കാണാം.",
   driveOpen: "തുറക്കുക",
   drivePassengers: "യാത്രക്കാർ",
+  driveSeats: "സീറ്റുകൾ",
   driveInterstate: "അന്തർസംസ്ഥാനം",
   driveTripRunning: "യാത്ര നടക്കുന്നു",
   driveStartTrip: "യാത്ര ആരംഭിക്കുക",
@@ -374,6 +380,7 @@ const kn: Dictionary = {
   driveNoTripHint: "ನಿಮಗೆ ಪ್ರಯಾಣ ನಿಗದಿಯಾದ ತಕ್ಷಣ ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ.",
   driveOpen: "ತೆರೆಯಿರಿ",
   drivePassengers: "ಪ್ರಯಾಣಿಕರು",
+  driveSeats: "ಆಸನಗಳು",
   driveInterstate: "ಅಂತರರಾಜ್ಯ",
   driveTripRunning: "ಪ್ರಯಾಣ ನಡೆಯುತ್ತಿದೆ",
   driveStartTrip: "ಪ್ರಯಾಣ ಪ್ರಾರಂಭಿಸಿ",

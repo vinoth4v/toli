@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { driverTrips } from "@/data/scoped"
 import { formatIstDate, formatIstTime } from "@/domain/format"
+import { translations } from "@/i18n"
 
 /**
  * Today.
@@ -15,7 +16,7 @@ import { formatIstDate, formatIstTime } from "@/domain/format"
 export const dynamic = "force-dynamic"
 
 export default async function DriveHome() {
-  const session = await auth()
+  const [session, { t }] = await Promise.all([auth(), translations()])
   const driverId = session?.user.driverId
   if (!driverId) redirect("/login")
 
@@ -27,14 +28,16 @@ export default async function DriveHome() {
     <>
       {trips.length === 0 ? (
         <section className="drive-empty">
-          <p className="big">No trip today</p>
-          <p>Your next trip will appear here as soon as it is assigned to you.</p>
+          <p className="big">{t.driveNoTrip}</p>
+          <p>{t.driveNoTripHint}</p>
         </section>
       ) : null}
 
       {[...running, ...rest].map((trip) => (
         <Link key={trip.bookingId} href={`/drive/${trip.bookingId}`} className="drive-card">
-          {trip.status === "in_transit" ? <span className="running">Trip running</span> : null}
+          {trip.status === "in_transit" ? (
+            <span className="running">{t.driveTripRunning}</span>
+          ) : null}
 
           <p className="drive-time">{formatIstTime(trip.startAt)}</p>
           <p className="drive-date">{formatIstDate(trip.startAt)}</p>
@@ -51,11 +54,11 @@ export default async function DriveHome() {
 
           <p className="drive-vehicle numeric">{trip.registration}</p>
           <p className="drive-meta">
-            {trip.passengerCount} passengers
-            {trip.interstate ? " · interstate" : ""}
+            {trip.passengerCount} {t.drivePassengers}
+            {trip.interstate ? ` · ${t.driveInterstate}` : ""}
           </p>
 
-          <span className="drive-go">Open →</span>
+          <span className="drive-go">{t.driveOpen} →</span>
         </Link>
       ))}
     </>

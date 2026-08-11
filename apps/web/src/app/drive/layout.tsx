@@ -2,7 +2,9 @@ import { redirect } from "next/navigation"
 import type { ReactNode } from "react"
 import { signOutAction } from "@/app/actions"
 import { auth } from "@/auth"
+import { LanguageSwitch } from "@/components/language"
 import { homeFor } from "@/domain/roles"
+import { translations } from "@/i18n"
 
 /**
  * Toli Driver.
@@ -21,7 +23,7 @@ import { homeFor } from "@/domain/roles"
 export const dynamic = "force-dynamic"
 
 export default async function DriveLayout({ children }: { children: ReactNode }) {
-  const session = await auth()
+  const [session, { locale }] = await Promise.all([auth(), translations()])
   if (!session?.user) redirect("/login")
   if (session.user.role !== "driver") redirect(homeFor(session.user.role))
 
@@ -31,11 +33,14 @@ export default async function DriveLayout({ children }: { children: ReactNode })
         <span className="wordmark">
           toli<span className="tag">driver</span>
         </span>
-        <form action={signOutAction}>
-          <button type="submit" className="quiet">
-            {session.user.name}
-          </button>
-        </form>
+        <div className="drive-top-right">
+          <LanguageSwitch locale={locale} />
+          <form action={signOutAction}>
+            <button type="submit" className="quiet">
+              {session.user.name}
+            </button>
+          </form>
+        </div>
       </header>
       <main>{children}</main>
     </div>

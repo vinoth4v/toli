@@ -98,7 +98,7 @@ export default async function NewRequestPage({
                 </div>
                 <div>
                   <label htmlFor="city">Origin city</label>
-                  <input id="city" name="city" list="cities" defaultValue="Jaipur" required />
+                  <input id="city" name="city" list="cities" defaultValue="Madurai" required />
                   <datalist id="cities">
                     {LAUNCH_CITIES.map((city) => (
                       <option key={city} value={city} />
@@ -110,7 +110,7 @@ export default async function NewRequestPage({
                     Origin state
                     <span className="hint">Decides the place of supply on the invoice</span>
                   </label>
-                  <select id="state" name="state" defaultValue="Rajasthan" required>
+                  <select id="state" name="state" defaultValue="Tamil Nadu" required>
                     {STATE_NAMES.map((state) => (
                       <option key={state} value={state}>
                         {state}
@@ -144,11 +144,11 @@ export default async function NewRequestPage({
               <div className="row">
                 <div>
                   <label htmlFor="stop0">Pickup</label>
-                  <input id="stop0" name="stops" placeholder="Hotel Clarks Amer, Jaipur" />
+                  <input id="stop0" name="stops" placeholder="Hotel Germanus, Madurai" />
                 </div>
                 <div>
                   <label htmlFor="stop1">Stop</label>
-                  <input id="stop1" name="stops" placeholder="Fatehpur Sikri" />
+                  <input id="stop1" name="stops" placeholder="Batlagundu" />
                 </div>
                 <div>
                   <label htmlFor="stop2">Stop</label>
@@ -156,7 +156,7 @@ export default async function NewRequestPage({
                 </div>
                 <div>
                   <label htmlFor="stop3">Drop</label>
-                  <input id="stop3" name="stops" placeholder="Taj East Gate, Agra" />
+                  <input id="stop3" name="stops" placeholder="Kodai Lake, Kodaikanal" />
                 </div>
               </div>
 

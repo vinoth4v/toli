@@ -3,7 +3,9 @@ import { redirect } from "next/navigation"
 import type { ReactNode } from "react"
 import { signOutAction } from "@/app/actions"
 import { auth } from "@/auth"
+import { LanguageSwitch } from "@/components/language"
 import { homeFor } from "@/domain/roles"
+import { translations } from "@/i18n"
 
 /**
  * Toli for the person organising the trip.
@@ -18,7 +20,7 @@ import { homeFor } from "@/domain/roles"
 export const dynamic = "force-dynamic"
 
 export default async function PortalLayout({ children }: { children: ReactNode }) {
-  const session = await auth()
+  const [session, { locale, t }] = await Promise.all([auth(), translations()])
   if (!session?.user) redirect("/login")
   if (session.user.role !== "customer") redirect(homeFor(session.user.role))
 
@@ -27,17 +29,21 @@ export default async function PortalLayout({ children }: { children: ReactNode }
       <header className="portal-top">
         <Link href="/portal" className="wordmark">
           toli
-          <small>your trips</small>
+          <small>{t.portalYourTrips.toLowerCase()}</small>
         </Link>
         <nav>
-          <Link href="/portal">Trips</Link>
-          <Link href="/portal/new">Ask for a vehicle</Link>
+          <Link href="/portal">{t.portalYourTrips}</Link>
+          <Link href="/portal/book">{t.portalBookNow}</Link>
+          <Link href="/portal/new">{t.portalAskForVehicle}</Link>
         </nav>
-        <form action={signOutAction}>
-          <button type="submit" className="quiet">
-            {session.user.name ?? "Sign out"}
-          </button>
-        </form>
+        <div className="portal-top-right">
+          <LanguageSwitch locale={locale} />
+          <form action={signOutAction}>
+            <button type="submit" className="quiet">
+              {session.user.name ?? t.signOut}
+            </button>
+          </form>
+        </div>
       </header>
       <main>{children}</main>
     </div>

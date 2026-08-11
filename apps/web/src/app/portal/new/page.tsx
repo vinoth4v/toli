@@ -57,7 +57,7 @@ export default async function NewRequestPage({
             </div>
             <div>
               <label htmlFor="city">Starting from</label>
-              <input id="city" name="city" list="cities" defaultValue="Jaipur" required />
+              <input id="city" name="city" list="cities" defaultValue="Madurai" required />
               <datalist id="cities">
                 {LAUNCH_CITIES.map((city) => (
                   <option key={city} value={city} />
@@ -66,7 +66,7 @@ export default async function NewRequestPage({
             </div>
             <div>
               <label htmlFor="state">In which state</label>
-              <select id="state" name="state" defaultValue="Rajasthan" required>
+              <select id="state" name="state" defaultValue="Tamil Nadu" required>
                 {STATE_NAMES.map((state) => (
                   <option key={state} value={state}>
                     {state}
@@ -100,7 +100,7 @@ export default async function NewRequestPage({
           <div className="row">
             <div>
               <label htmlFor="stop0">Pick up at</label>
-              <input id="stop0" name="stops" placeholder="Hotel Clarks Amer, Jaipur" />
+              <input id="stop0" name="stops" placeholder="Hotel Germanus, Madurai" />
             </div>
             <div>
               <label htmlFor="stop1">Stopping at</label>
@@ -108,7 +108,7 @@ export default async function NewRequestPage({
             </div>
             <div>
               <label htmlFor="stop2">Ending at</label>
-              <input id="stop2" name="stops" placeholder="Taj East Gate, Agra" />
+              <input id="stop2" name="stops" placeholder="Kodai Lake, Kodaikanal" />
             </div>
           </div>
 

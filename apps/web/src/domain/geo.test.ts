@@ -10,27 +10,29 @@ import {
   stoppedFor,
 } from "./geo.ts"
 
-const jaipur = { lat: 26.9124, lng: 75.7873 }
-const agra = { lat: 27.1767, lng: 78.0081 }
-const fatehpurSikri = { lat: 27.0945, lng: 77.6679 }
+const madurai = { lat: 9.9252, lng: 78.1198 }
+const kodaikanal = { lat: 10.2381, lng: 77.4892 }
+const batlagundu = { lat: 10.1667, lng: 77.7833 }
+const rameswaram = { lat: 9.2876, lng: 79.3129 }
 
 describe("haversineKm", () => {
   it("measures the straight line between two cities", () => {
-    // Jaipur to Agra is ~220 km as the crow flies; the road is ~240.
-    expect(haversineKm(jaipur, agra)).toBeGreaterThan(210)
-    expect(haversineKm(jaipur, agra)).toBeLessThan(230)
+    // Madurai to Kodaikanal is about 77 km as the crow flies; the ghat road
+    // is half as long again, which is exactly why routing is not geometry.
+    expect(haversineKm(madurai, kodaikanal)).toBeGreaterThan(70)
+    expect(haversineKm(madurai, kodaikanal)).toBeLessThan(85)
   })
 
   it("is zero for a point against itself, and symmetric", () => {
-    expect(haversineKm(jaipur, jaipur)).toBe(0)
-    expect(haversineKm(jaipur, agra)).toBeCloseTo(haversineKm(agra, jaipur), 9)
+    expect(haversineKm(madurai, madurai)).toBe(0)
+    expect(haversineKm(madurai, kodaikanal)).toBeCloseTo(haversineKm(kodaikanal, madurai), 9)
   })
 })
 
 describe("checkPing", () => {
   it("accepts a position in India, from a string or a number", () => {
-    expect(checkPing("26.9124", "75.7873")).toEqual({ ok: true, point: jaipur })
-    expect(checkPing(26.9124, 75.7873).ok).toBe(true)
+    expect(checkPing("9.9252", "78.1198")).toEqual({ ok: true, point: madurai })
+    expect(checkPing(9.9252, 78.1198).ok).toBe(true)
   })
 
   it("rejects Null Island, which is what a chip with no fix reports", () => {
@@ -52,25 +54,25 @@ describe("checkPing", () => {
 })
 
 describe("deviation", () => {
-  const route = [jaipur, fatehpurSikri, agra]
+  const route = [madurai, batlagundu, kodaikanal]
 
   it("measures distance to the nearest point of the planned route", () => {
-    expect(deviationKm(fatehpurSikri, route)).toBeCloseTo(0, 6)
-    expect(deviationKm({ lat: 26.95, lng: 75.8 }, route)).toBeLessThan(10)
+    expect(deviationKm(batlagundu, route)).toBeCloseTo(0, 6)
+    expect(deviationKm({ lat: 9.95, lng: 78.1 }, route)).toBeLessThan(10)
   })
 
-  it("flags a coach that should be near Fatehpur Sikri and is not", () => {
-    expect(hasDeviated({ lat: 26.2389, lng: 73.0243 }, route)).toBe(true)
+  it("flags a coach that should be near Batlagundu and is halfway to Rameswaram", () => {
+    expect(hasDeviated(rameswaram, route)).toBe(true)
   })
 
   it("does not flag a vehicle a few kilometres off the line", () => {
     // Indian routes wander: a detour to a dhaba is not an incident.
-    expect(hasDeviated({ lat: 27.1, lng: 77.7 }, route)).toBe(false)
+    expect(hasDeviated({ lat: 10.2, lng: 77.7 }, route)).toBe(false)
   })
 
   it("has no opinion when there is no route to compare against", () => {
-    expect(deviationKm(jaipur, [])).toBeNull()
-    expect(hasDeviated(jaipur, [])).toBe(false)
+    expect(deviationKm(madurai, [])).toBeNull()
+    expect(hasDeviated(madurai, [])).toBe(false)
   })
 })
 
@@ -81,10 +83,10 @@ describe("stoppedFor", () => {
   it("reports how long a vehicle has sat still", () => {
     const stopped = stoppedFor(
       [
-        { at: minutesAgo(2), lat: "26.9124", lng: "75.7873" },
-        { at: minutesAgo(15), lat: "26.9125", lng: "75.7874" },
-        { at: minutesAgo(35), lat: "26.9124", lng: "75.7872" },
-        { at: minutesAgo(50), lat: "27.1767", lng: "78.0081" },
+        { at: minutesAgo(2), lat: "9.9252", lng: "78.1198" },
+        { at: minutesAgo(15), lat: "9.9253", lng: "78.1199" },
+        { at: minutesAgo(35), lat: "9.9252", lng: "78.1197" },
+        { at: minutesAgo(50), lat: "10.2381", lng: "77.4892" },
       ],
       now,
     )
@@ -96,8 +98,8 @@ describe("stoppedFor", () => {
     expect(
       stoppedFor(
         [
-          { at: minutesAgo(1), lat: "26.9124", lng: "75.7873" },
-          { at: minutesAgo(30), lat: "27.1767", lng: "78.0081" },
+          { at: minutesAgo(1), lat: "9.9252", lng: "78.1198" },
+          { at: minutesAgo(30), lat: "10.2381", lng: "77.4892" },
         ],
         now,
       ),
@@ -108,8 +110,8 @@ describe("stoppedFor", () => {
     expect(
       stoppedFor(
         [
-          { at: minutesAgo(1), lat: "26.9124", lng: "75.7873" },
-          { at: minutesAgo(9), lat: "26.9124", lng: "75.7873" },
+          { at: minutesAgo(1), lat: "9.9252", lng: "78.1198" },
+          { at: minutesAgo(9), lat: "9.9252", lng: "78.1198" },
         ],
         now,
       ),
@@ -124,17 +126,19 @@ describe("stoppedFor", () => {
 
 describe("cache keys", () => {
   it("rounds coordinates so two pins on the same forecourt share a key", () => {
-    expect(roundCoordinate(26.91241234)).toBe("26.9124")
-    expect(routeCacheKey([jaipur, agra])).toBe(routeCacheKey([{ ...jaipur, lat: 26.91242 }, agra]))
+    expect(roundCoordinate(9.92521234)).toBe("9.9252")
+    expect(routeCacheKey([madurai, kodaikanal])).toBe(
+      routeCacheKey([{ ...madurai, lat: 9.92522 }, kodaikanal]),
+    )
   })
 
   it("distinguishes routes that genuinely differ", () => {
-    expect(routeCacheKey([jaipur, agra])).not.toBe(routeCacheKey([agra, jaipur]))
+    expect(routeCacheKey([madurai, kodaikanal])).not.toBe(routeCacheKey([kodaikanal, madurai]))
   })
 
   it("normalises a geocode query, because the same place is typed many ways", () => {
-    expect(geocodeCacheKey("  Hotel Clarks Amer,   Jaipur ")).toBe(
-      geocodeCacheKey("hotel clarks amer, jaipur"),
+    expect(geocodeCacheKey("  Hotel Germanus,   Madurai ")).toBe(
+      geocodeCacheKey("hotel germanus, madurai"),
     )
   })
 })
