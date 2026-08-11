@@ -120,6 +120,7 @@ Everything is behind the operator gate unless stated otherwise.
 | `/console/compliance` | Verification queue and expiry ladder, ordered by consequence |
 | `/console/settings` | Commission, TCS, TDS, advance %, GST treatment, home state — plus the audit log |
 | `/console/integrations` | What is wired up and what is not, per variable; device enrolment; the outbox |
+| `/partner/rates` | **operator** — standing rates, which is what makes instant booking possible |
 | `/login` | The gate |
 | **`/track/[token]`** | **Public.** The guest tracking page — no app, no login |
 | **`POST /api/ingest/ping`** | **Public.** Driver-app positions, one or a replayed batch. Device bearer token |
@@ -248,6 +249,20 @@ is the single place that decides whether one is configured, and
   product never implies coverage it does not have.
 - **Translations are typed, not looked up.** A `Dictionary` type per locale
   means adding an English string and forgetting Tamil fails the build.
+- **An operator may add and retire their own vehicles, but never verify them.**
+  Self-certification would hollow out the one rule this marketplace enforces
+  hardest, so a vehicle added by an operator lands `pending_verification` and
+  Toli checks the papers. Removing is retiring, never deleting — bookings,
+  settlements and compliance history stay answerable after the bus is sold.
+- **Photos upload straight to object storage.** A presigned PUT means a
+  four-megabyte image never passes through a function billed by the
+  millisecond. SigV4 is signed by hand rather than by an SDK the dependency
+  list does not bless; the signing is pure and tested, because a subtly wrong
+  signature fails with an opaque 403 that looks like a credentials problem.
+- **Toli's number is published; the operator's is released on booking.** §10's
+  masking is about *when* a customer may reach an operator, not whether. Indian
+  customers phone before they pay, and a marketplace with no visible number
+  reads as one with nobody behind it.
 - **Percentages are stored as basis points.** 10% commission and 1% TCS are
   both integers that way, and nothing downstream multiplies by a float.
 - **"Not configured" is a first-class state, never a silent fallback.** Four of
@@ -304,14 +319,6 @@ is the single place that decides whether one is configured, and
 - **The `hi`, `te`, `ml` and `kn` translations have not had a native-speaker
   pass.** They are careful but unreviewed, and should be checked before the
   soft launch — a mistranslated SOS hint is worse than English.
-- **The language switcher is not yet mounted in the portal and driver
-  layouts.** The plumbing, dictionaries and switch component exist; the driver
-  app still renders English strings. That is the next commit, not a design gap.
-- **Rate cards have no operator-facing editor.** They are seeded; an operator
-  cannot yet change their own standing price, which they will want immediately.
-- **Instant booking assumes intra-state.** The book-now flow does not yet offer
-  interstate trips, because those need the AITP check surfaced in the UI rather
-  than only enforced.
 - **Maps are an OpenStreetMap iframe**, chosen over a mapping library the
   dependency list does not bless, and over the Maps Embed API, which needs a
   billing account this app does not have. **Confirmed rendering in a real
@@ -328,6 +335,11 @@ is the single place that decides whether one is configured, and
   because the browser stops running when the screen locks. The button sends one
   fix and an optional repeat while the screen stays on, and the UI says so
   rather than implying background tracking.
+- **Photo verification is not wired to the ops queue.** A photo lands
+  `pending` and nothing surfaces it for review yet, so the verified-photo badge
+  §4.1 wants is not yet earned.
+- **The operator's fleet screens are English.** They are used by office staff;
+  the customer portal and driver app are the translated ones.
 - **No SMS fallback.** §4.5 wants DLT-registered SMS behind WhatsApp; the
   outbox has a `channel` column and only one channel is implemented.
 - **Reference numbers come from a row count.** Correct for one desk, racy for

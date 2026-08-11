@@ -829,6 +829,18 @@ export const platformSetting = pgTable("platform_setting", {
   advanceBps: integer("advance_bps").notNull().default(2500),
   homeState: text("home_state").notNull().default("Tamil Nadu"),
   quoteValidityHours: integer("quote_validity_hours").notNull().default(48),
+  /**
+   * How a customer reaches Toli.
+   *
+   * Indian customers want to call somebody before parting with ₹16,000, and
+   * §10's answer to disintermediation is not to hide from them — it is number
+   * masking until a booking is confirmed. So Toli publishes its own number
+   * everywhere, and the operator's is released once there is a booking to
+   * discuss.
+   */
+  supportPhone: text("support_phone").notNull().default("+914522500100"),
+  supportWhatsapp: text("support_whatsapp").notNull().default("+914522500100"),
+  supportEmail: text("support_email").notNull().default("help@toli.in"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 })
 
@@ -1017,6 +1029,47 @@ export const appUser = pgTable(
 
 export type AppUser = typeof appUser.$inferSelect
 export type AppRole = (typeof roleEnum.enumValues)[number]
+
+/**
+ * Photographs of a vehicle.
+ *
+ * §4.1 is specific: "vehicle photos (real ones, uploaded and verified — not
+ * stock images)", and §10 lists a customer arriving to a different vehicle as
+ * a catastrophe rather than a bad rating. So a photo belongs to a vehicle, is
+ * labelled by what it shows, and carries the same verification state a
+ * document does — an unverified photo is a claim, not evidence.
+ *
+ * The image itself lives in object storage; this row holds where. When object
+ * storage is not configured, an operator can still record a link to a photo
+ * they host elsewhere, which is worth more than an empty gallery.
+ */
+export const photoKindEnum = pgEnum("photo_kind", [
+  "exterior",
+  "interior",
+  "seats",
+  "boot",
+  "documents",
+])
+
+export const vehiclePhoto = pgTable(
+  "vehicle_photo",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    vehicleId: uuid("vehicle_id")
+      .notNull()
+      .references(() => vehicle.id),
+    kind: photoKindEnum("kind").notNull().default("exterior"),
+    url: text("url").notNull(),
+    /** The object-storage key, when Toli hosts it — null for a linked image. */
+    storageKey: text("storage_key"),
+    caption: text("caption"),
+    verification: verificationStatusEnum("verification").notNull().default("pending"),
+    uploadedAt: timestamp("uploaded_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("vehicle_photo_vehicle_idx").on(table.vehicleId)],
+)
+
+export type VehiclePhoto = typeof vehiclePhoto.$inferSelect
 
 export type IngestDevice = typeof ingestDevice.$inferSelect
 export type GeoCache = typeof geoCache.$inferSelect

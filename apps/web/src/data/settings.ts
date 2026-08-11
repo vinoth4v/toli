@@ -37,6 +37,40 @@ export async function getSettings(): Promise<PlatformSetting> {
   return row
 }
 
+/**
+ * Settings, or the defaults, for a page that must render regardless.
+ *
+ * The front page and the tracking link are public and must not go down because
+ * the database is unreachable — a marketplace whose marketing page 500s during
+ * an incident looks like a company that has closed. Contact details are the
+ * one thing those pages read, and a stale phone number is infinitely better
+ * than an error page.
+ *
+ * Only for pages where wrong-but-present beats absent. Anything that decides
+ * money uses `getSettings` and fails loudly.
+ */
+export async function publicSettings(): Promise<PlatformSetting> {
+  try {
+    return await getSettings()
+  } catch (error) {
+    console.error("platform_setting unreadable; falling back to defaults", error)
+    return {
+      id: SETTINGS_ID,
+      defaultCommissionBps: 1000,
+      tcsBps: 100,
+      tdsBps: 100,
+      defaultGstTreatment: "passenger_transport_5",
+      advanceBps: 2500,
+      homeState: "Tamil Nadu",
+      quoteValidityHours: 48,
+      supportPhone: "+914522500100",
+      supportWhatsapp: "+914522500100",
+      supportEmail: "help@toli.in",
+      updatedAt: new Date(),
+    }
+  }
+}
+
 export async function updateSettings(values: Partial<PlatformSetting>): Promise<void> {
   await db()
     .update(platformSetting)

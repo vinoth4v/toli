@@ -16,6 +16,9 @@ const schema = z.object({
   defaultGstTreatment: z.enum(GST_TREATMENT_KEYS as [string, ...string[]]),
   homeState: z.enum(STATE_NAMES as [string, ...string[]]),
   quoteValidityHours: z.coerce.number().int().min(1).max(240),
+  supportPhone: z.string().trim().min(6),
+  supportWhatsapp: z.string().trim().min(6),
+  supportEmail: z.string().trim().email(),
 })
 
 export async function updateSettingsAction(formData: FormData): Promise<void> {
@@ -27,6 +30,9 @@ export async function updateSettingsAction(formData: FormData): Promise<void> {
     defaultGstTreatment: formData.get("defaultGstTreatment"),
     homeState: formData.get("homeState"),
     quoteValidityHours: formData.get("quoteValidityHours"),
+    supportPhone: formData.get("supportPhone"),
+    supportWhatsapp: formData.get("supportWhatsapp"),
+    supportEmail: formData.get("supportEmail"),
   })
 
   if (!parsed.success) return
@@ -44,6 +50,9 @@ export async function updateSettingsAction(formData: FormData): Promise<void> {
       | "rental_with_operator_18",
     homeState: parsed.data.homeState,
     quoteValidityHours: parsed.data.quoteValidityHours,
+    supportPhone: parsed.data.supportPhone,
+    supportWhatsapp: parsed.data.supportWhatsapp,
+    supportEmail: parsed.data.supportEmail,
   })
 
   const session = await auth()

@@ -146,6 +146,42 @@ export default async function SettingsPage() {
                 </select>
               </div>
 
+              <h3>How customers reach Toli</h3>
+              <p className="muted small">
+                Published on the front page, the tracking link and every trip. §10 masks the
+                operator's number until a booking exists; it never masks ours.
+              </p>
+              <div className="row">
+                <div>
+                  <label htmlFor="supportPhone">Support phone</label>
+                  <input
+                    id="supportPhone"
+                    name="supportPhone"
+                    defaultValue={settings.supportPhone}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="supportWhatsapp">WhatsApp</label>
+                  <input
+                    id="supportWhatsapp"
+                    name="supportWhatsapp"
+                    defaultValue={settings.supportWhatsapp}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="supportEmail">Email</label>
+                  <input
+                    id="supportEmail"
+                    name="supportEmail"
+                    type="email"
+                    defaultValue={settings.supportEmail}
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="button-row">
                 <button type="submit">Save settings</button>
               </div>

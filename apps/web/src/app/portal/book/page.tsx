@@ -4,7 +4,7 @@ import { auth } from "@/auth"
 import { findOffers } from "@/data/availability"
 import { tollNotice } from "@/domain/bill"
 import { formatIst, fromIstInputValue } from "@/domain/format"
-import { LAUNCH_CITIES } from "@/domain/india"
+import { LAUNCH_CITIES, NEIGHBOURING_STATES } from "@/domain/india"
 import { formatPaise } from "@/domain/money"
 import { SEGMENT_INFO, SEGMENTS, type Segment } from "@/domain/segment"
 import { featureLabel, vehicleClassLabel } from "@/domain/vehicle"
@@ -43,6 +43,7 @@ export default async function BookNowPage({
     km?: string
     error?: string
     driverLanguage?: string
+    crosses?: string
   }>
 }) {
   const [params, session] = await Promise.all([searchParams, auth()])
@@ -54,6 +55,14 @@ export default async function BookNowPage({
   const estimatedKm = Number(params.km ?? "0") || 0
   const searched = Boolean(params.startAt)
 
+  // A state named here makes the trip interstate, which makes an All India
+  // Tourist Permit mandatory — so the filter tightens rather than the customer
+  // discovering it at a check post.
+  const crossing = (params.crosses ?? "")
+    .split(",")
+    .map((state) => state.trim())
+    .filter(Boolean)
+
   const offers = searched
     ? await findOffers({
         city,
@@ -62,8 +71,8 @@ export default async function BookNowPage({
         startAt: fromIstInputValue(params.startAt as string),
         endAt: params.endAt ? fromIstInputValue(params.endAt) : null,
         estimatedKm,
-        interstate: false,
-        stateCount: 0,
+        interstate: crossing.length > 0,
+        stateCount: crossing.length,
         driverLanguage: params.driverLanguage ?? null,
       })
     : []
@@ -121,6 +130,20 @@ export default async function BookNowPage({
             defaultValue={passengers}
             required
           />
+        </div>
+        <div>
+          <label htmlFor="crosses">
+            Crossing into
+            <span className="hint">Needs an All India Tourist Permit</span>
+          </label>
+          <select id="crosses" name="crosses" defaultValue={params.crosses ?? ""}>
+            <option value="">Staying in Tamil Nadu</option>
+            {NEIGHBOURING_STATES.map((state) => (
+              <option key={state} value={state}>
+                {state}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label htmlFor="driverLanguage">Driver speaks</label>
@@ -188,8 +211,10 @@ export default async function BookNowPage({
           <h2>Nothing free for that window</h2>
           <p>
             No {SEGMENT_INFO[segment].label.toLowerCase()} vehicle in {city} is both free and
-            road-legal for those dates. Try another segment, or ask operators to quote — they can
-            often move a vehicle for a longer trip.
+            road-legal for those dates
+            {crossing.length > 0 ? ` with a permit for ${crossing.join(", ")}` : ""}. Try another
+            segment, or ask operators to quote — they can often move a vehicle, or arrange a permit,
+            for a longer trip.
           </p>
           <Link href="/portal/new" className="button-link">
             Get a quote instead
@@ -256,6 +281,7 @@ export default async function BookNowPage({
                       name="driverLanguage"
                       value={params.driverLanguage ?? ""}
                     />
+                    <input type="hidden" name="crosses" value={params.crosses ?? ""} />
                     <input type="hidden" name="startAt" value={params.startAt ?? ""} />
                     <input type="hidden" name="endAt" value={params.endAt ?? ""} />
                     <button type="submit">Book this vehicle</button>
@@ -268,6 +294,9 @@ export default async function BookNowPage({
           <p className="footnote">
             {tollNotice(offers[0]?.terms.tollIncluded ?? false)} Departure{" "}
             {formatIst(fromIstInputValue(params.startAt as string))}.
+            {crossing.length > 0
+              ? ` Every vehicle shown holds a valid All India Tourist Permit for ${crossing.join(", ")} — one without it is not offered at all.`
+              : ""}
           </p>
         </>
       )}

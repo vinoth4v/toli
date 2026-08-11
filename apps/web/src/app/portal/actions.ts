@@ -77,6 +77,10 @@ export async function bookInstantAction(formData: FormData): Promise<void> {
   const segment = String(formData.get("segment") ?? "premium") as "economy" | "premium" | "luxury"
   const passengers = Number(formData.get("passengers") ?? "1") || 1
   const estimatedKm = Number(formData.get("km") ?? "0") || 0
+  const crossing = String(formData.get("crosses") ?? "")
+    .split(",")
+    .map((state) => state.trim())
+    .filter(Boolean)
 
   if (!vehicleId || !startAtRaw || !city) redirect("/portal/book")
 
@@ -128,8 +132,8 @@ export async function bookInstantAction(formData: FormData): Promise<void> {
     preferredDriverLanguage: String(formData.get("driverLanguage") ?? "").trim() || null,
     features: [],
     extras: [],
-    interstate: false,
-    statesCrossed: [],
+    interstate: crossing.length > 0,
+    statesCrossed: crossing,
     estimatedKm: estimatedKm || null,
     notes: null,
     stops: [],
@@ -150,8 +154,8 @@ export async function bookInstantAction(formData: FormData): Promise<void> {
       nights: Math.max(0, days - 1),
       estimatedKm,
       estimatedHours: Math.max(8, Math.round(estimatedKm / 35)),
-      interstate: false,
-      stateCount: 0,
+      interstate: crossing.length > 0,
+      stateCount: crossing.length,
     },
     { validUntil: null, notes: "Instant booking at standing rate", vehicleId: offer.vehicleId },
   )

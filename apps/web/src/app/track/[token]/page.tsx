@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { MapEmbed } from "@/components/map"
 import { getPublicTrip } from "@/data/fulfilment"
+import { publicSettings } from "@/data/settings"
+import { telLink, whatsappLink } from "@/domain/contact"
 import { formatIst, relativeToNow } from "@/domain/format"
 import { checkPing } from "@/domain/geo"
 
@@ -35,7 +37,7 @@ const STATUS_TEXT: Record<string, string> = {
 
 export default async function TrackPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
-  const trip = await getPublicTrip(token)
+  const [trip, settings] = await Promise.all([getPublicTrip(token), publicSettings()])
   if (!trip) notFound()
 
   // Ten minutes without a ping while a trip is running is worth saying out
@@ -127,6 +129,33 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
           </ul>
         </section>
       ) : null}
+
+      <section className="card track-help">
+        <h2>Need to speak to someone?</h2>
+        <p className="muted small">
+          Toli's desk can reach the driver and the operator. This link does not show their numbers,
+          because it may have been forwarded to sixty people.
+        </p>
+        <p className="contact-actions">
+          {whatsappLink(settings.supportWhatsapp, `About trip ${trip.reference}`) ? (
+            <a
+              className="button-link"
+              href={
+                whatsappLink(settings.supportWhatsapp, `About trip ${trip.reference}`) as string
+              }
+              rel="noreferrer noopener"
+              target="_blank"
+            >
+              WhatsApp Toli
+            </a>
+          ) : null}
+          {telLink(settings.supportPhone) ? (
+            <a className="button-link quiet" href={telLink(settings.supportPhone) as string}>
+              Call {settings.supportPhone}
+            </a>
+          ) : null}
+        </p>
+      </section>
 
       <a className="cta" href="/">
         <strong>toli</strong>

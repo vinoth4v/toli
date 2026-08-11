@@ -1,182 +1,217 @@
 # toli
 
-India's aggregator marketplace for chartered vans, tempo travellers and buses — transparent quotes, verified operators, live tracking.
+India's charter marketplace for vans, tempo travellers and buses. Book a whole
+vehicle for a whole group — transparent quotes, verified operators, live
+tracking. Launching in **Madurai and south Tamil Nadu**; selling to all of India.
+
+**Live:** https://toli-flame.vercel.app
 
 > Scaffolded from [werft-template](https://github.com/vinoth4v/werft-template).
-> The hard rules live in `AGENTS.md`, the design in `docs/ARCHITECTURE.md`,
-> and why each change was made in `docs/SESSIONS.md`.
-> The business plan this implements is `docs/00-index.md` and its five parts.
+
+---
+
+## Read this first if you are an agent or a new developer
+
+This section is the orientation. The rest of the README is detail.
+
+**The business plan is the specification.** `docs/00-index.md` and its five
+parts are a real charter-marketplace plan, and the code cites it constantly —
+`§7.1`, `§8.3`, `§4.2`. When a comment says "§9 says money is integer paise",
+that is not decoration: the plan is the authority, and disagreeing with it is a
+decision to raise rather than a detail to quietly fix.
+
+**Three documents, three jobs, and you must update them.**
+
+| File | Answers | When you touch it |
+|---|---|---|
+| `README.md` | What is this, what works, how do I run it | When the app can do something new |
+| `docs/ARCHITECTURE.md` | How it is built *now*, decisions in force, known gaps | When the design changes — rewrite, do not append |
+| `docs/SESSIONS.md` | What happened and why, what was rejected | Every session — append only, never edit |
+
+A PR that changes behaviour and updates none of them is incomplete, and the
+`docs` CI check says so out loud.
+
+**`AGENTS.md` is the rulebook.** Read it before writing anything. The rules that
+bite most often: never end on a red `pnpm build`; never call a model provider
+directly; never write a raw colour or spacing value into CSS; never edit an
+applied migration; never add a role or a sign-in method quietly.
+
+**Where the logic actually lives.** The layering is strict, and it is the
+fastest way to find anything:
+
+```
+src/domain/        pure functions, no I/O, heavily tested — pricing, GST,
+                   settlement, compliance, segments, bills, roles, geo
+src/data/          every database query; scoped.ts enforces "this is mine" by
+                   putting ownership in the WHERE clause
+src/integrations/  the outside world — Razorpay, maps, WhatsApp, VAHAN, S3
+src/app/           routes only; they compose the layers and hold no arithmetic
+```
+
+If you are about to write a calculation inside a page, it belongs in
+`src/domain` with a test. That is where the 198 unit tests live, and why they
+run in two seconds without a database.
+
+**To understand the product, read in this order:** `src/domain/quote.ts` (why
+quotes are comparable), `src/data/scoped.ts` (how roles are kept apart), then
+`src/app/page.tsx` (what the business claims publicly).
+
+---
 
 ## What it does
 
-**Two ways to book, one verified fleet.** §11 calls these Lane A and Lane B:
+### Four people, four applications
 
-- **Book now** — vehicles that are actually free on your date, priced from the
-  operator's standing rate card, driver named, booked in one tap. Nothing
-  unfit is ever shown: a vehicle whose permit lapses before the travel date, or
-  that is already out that morning, is filtered out before you see it.
-- **Get a quote** — the RFQ lane, kept because it is what people habitually do
-  for long trips: describe it once, operators answer in one schema, compare.
-
-**Segments, the way you hire a car.** Economy is non-AC, Premium is air
-conditioned, Luxury adds push-back seats. The segment is derived from what a
-vehicle actually has, so "luxury non-AC" is not expressible — and a better
-vehicle may serve a cheaper booking, never the reverse.
-
-**Launching in Madurai.** Seed data, examples and copy stay in the Madurai →
-Kodaikanal → Palani → Rameswaram corridor, because §11 argues for one city and
-a corridor rather than scattered cities. The audience is all of India; the
-operating footprint starts here, and nothing in the product implies coverage
-that does not exist.
-
-**Six languages**, with the plumbing §4.1 asks for on day one: English, Tamil,
-Hindi, Telugu, Malayalam, Kannada — and a customer can ask for a driver who
-speaks one of them, which is honoured in vehicle selection where possible.
-
-**Four people, four applications.** §3 of the plan needs genuinely different
-users — Toli's ops desk, the group organiser, the fleet operator and the
-driver — and is explicit that the driver must not be the operator, because a
-driver who can see commercial terms can take the customer off-platform. So each
-role signs in to its own surface, and the rules live in one tested module:
+§3 needs genuinely different users, and is explicit that a driver must not be
+an operator — a driver who can see the take rate can take the customer
+off-platform next time.
 
 | Role | Lands on | What it is |
 |---|---|---|
-| `admin` | `/console` | The ops console: verification, matching, disputes, payouts |
-| `customer` | `/portal` | Calm and consumer-facing: ask, compare, book, track |
-| `operator` | `/partner` | A work tool: quote inbox, fleet paperwork, earnings |
-| `driver` | `/drive` | Three big buttons, a bad phone — and **no money on any screen** |
+| `admin` | `/console` | Ops: verification queue, matching desk, disputes, settlements, integrations |
+| `customer` | `/portal` | Book now, get a quote, compare, pay, track, read the bill |
+| `operator` | `/partner` | Quote inbox, standing rates, fleet, photos, earnings |
+| `driver` | `/drive` | Today's trip in three big buttons — **and no money on any screen** |
 
-A signed-in person who types another surface's URL is redirected to their own,
-at the edge, before the page renders. Every query about "my" data goes through
-`src/data/scoped.ts`, which puts ownership in the WHERE clause.
+Authorisation is one tested module (`src/domain/roles.ts`) enforced at the edge,
+so a role never reaches another surface even for the instant before a layout
+could redirect. It is an allow-list: a route added tomorrow is closed to
+everyone until somebody says otherwise.
 
-**`/` is the marketplace's public front page** — what the business is, the
-comparison that explains why it exists, the fleet it runs and the terms
-operators get. Signed in, it redirects straight to `/console`, so the operator
-never clicks past a welcome page to reach their own app.
+### Two ways to book
 
-Behind the gate, `/console` is an **ops console for running a charter
-marketplace by hand** — the tool for the plan's Phase 0 and Phase 1, where a
-person on a desk beats an algorithm and fifty real bookings teach you more than
-six months of design.
+- **Book now** — vehicles actually free on the date, road-legal *on that date*,
+  priced from the operator's standing rate card, driver named, booked in one
+  tap. Nothing unbookable is ever shown, and availability is re-checked at the
+  moment of booking.
+- **Get a quote** — the RFQ lane. Describe the trip once; operators answer in
+  one schema. Kept because it is the habit for long trips.
 
-You can, today:
+Both produce identical rows, so settlement, invoicing and compliance never
+learn there are two lanes.
 
-- **Take a requirement** from a group organiser — trip type, route and stops,
-  dates, passenger count, vehicle class, AC, extras, and the states the trip
-  crosses — and get back a referenced RFQ.
-- **Fan it out** to chosen operators. Inviting one records the moment they were
-  asked, which is what makes the response rate a real number rather than a
-  flattering one.
-- **Record each operator's quote in one fixed schema**: per-km rate, minimum km
-  per day, driver bata, night halt, and whether toll, parking and interstate
-  permit tax are in or out. The console refuses a quote that leaves the
-  minimum-km-per-day blank, because that blank is where an extra ₹13,000 hides.
-- **Compare quotes side by side** — the same inclusion chips in the same order
-  on every card, an estimated total, and an honest worst case that itemises
-  what each exclusion could add. Once there are five comparable past quotes, a
-  Toli Fair Price band appears above them.
-- **Accept one and book it.** The agreed total, commission rate and tax
-  treatment are frozen onto the booking at that moment.
-- **Take payment** — UPI, card, netbanking, NEFT, or cash collected by the
-  driver, which is modelled properly and deducted from what the operator is
-  paid.
-- **Assign a vehicle and driver**, and be refused when the paperwork says no:
-  an expired fitness certificate blocks the assignment, and an interstate trip
-  needs a valid All India Tourist Permit on a vehicle inside the twelve-year
-  age limit.
-- **Run the trip** — dispatch, start with odometer, stops, deviations, SOS,
-  completion, road expenses, and positions.
-- **Share a public tracking link** that needs no app and no login. Sixty
-  wedding guests can open it; none of them sees a price, a phone number or an
-  SOS event.
-- **Issue a GST invoice** with the CGST/SGST or IGST split decided by the place
-  of supply, and **settle the operator**: commission, TCS, TDS, expenses
-  reimbursed, cash already collected, net payable.
-- **Watch the fleet's compliance** — a queue ordered by consequence, with the
-  30/15/7-day expiry ladder and hard suspension for a lapsed permit or
-  insurance.
-- **See the metrics that matter** — quote response rate first, because below
-  50% nothing else does.
+### The product's actual argument
 
-Every rupee is stored as integer paise, every timestamp as UTC and rendered in
-IST, and every action that moves money is written to an audit log.
+Group charter is miserable because quotes are not comparable. Toli forces every
+quote into §7.1's schema and refuses one that leaves **minimum km per day**
+blank — the charge that turns ₹28,000 into ₹41,000. Every quote shows an
+estimated total *and* an itemised worst case. Every bill shows what was added
+after the quote, with tolls named in both directions.
 
-## What works, and what does not
+### Segments, the car-rental ladder
 
-**Works:** everything in the list above, against a Postgres database, behind
-the single-operator gate. The pricing engine, GST split, settlement arithmetic,
-compliance rules, fair-price band, metric definitions, Indian identifier
-checks and the geo maths are pure functions with unit tests — 150 of them.
+Economy is non-AC, Premium is air conditioned, Luxury adds push-back seats.
+**Derived from what a vehicle has, never declared** — "luxury non-AC" cannot be
+expressed. A better vehicle may serve a cheaper booking; the reverse is
+mis-selling.
 
-**Also works — position ingest**, which needs no third party:
+### Trust machinery
 
-- `POST /api/ingest/ping` for a driver app, single or replayed batch, with an
-  offline buffer in mind.
-- `POST /api/ingest/vltd` for an AIS-140 telematics feed, tolerant of the field
-  names real Indian vendors actually send. This is what keeps tracking alive
-  when the driver's phone dies, which it will.
-- Each device gets its own bearer token; only its SHA-256 is stored. A position
-  outside India, or Null Island from a chip with no fix, is refused. A vehicle
-  far from every planned stop raises one deviation event, not two hundred.
+- Registration, fitness, insurance, PUC and AIS-140 tracked to expiry, with the
+  30/15/7-day ladder and hard suspension.
+- Interstate needs a valid AITP on a vehicle inside the twelve-year age limit —
+  enforced at assignment and at instant booking, not merely displayed.
+- Operators add and retire their own vehicles, upload photos and file
+  documents; **they cannot verify their own paperwork**, which is what the
+  badge is worth.
+- A public tracking link needing no app or login, showing a map, no prices and
+  no phone numbers.
+- GST invoices with the CGST/SGST or IGST split decided by place of supply, and
+  settlements itemising commission, TCS, TDS, expenses and driver-collected cash.
 
-**Built but not switched on** — each needs an account nobody has opened yet.
-Every one degrades to the manual path that worked before, says which variable
-is missing, and never pretends. `/integrations` is the live inventory:
+### Six languages
 
-| Integration | Turns on with | Meanwhile |
-|---|---|---|
-| Razorpay payment links + webhook | `RAZORPAY_*` | Payments recorded by hand once the money lands |
-| Google Places + Mappls geocoding | `GOOGLE_MAPS_API_KEY` / `MAPPLS_REST_KEY` | Stops stay text; coordinates typed when needed |
-| Self-hosted OSRM routing | `OSRM_BASE_URL` | Estimated km typed by whoever took the call |
-| WhatsApp Business | `WHATSAPP_*` | Messages queue in the outbox to send by hand |
-| VAHAN / Sarathi / GSTN | `VEHICLE_VERIFY_*` | An ops person reads the portal, same table, slower |
+English, Tamil, Hindi, Telugu, Malayalam, Kannada — typed dictionaries, so
+adding an English string and forgetting Tamil **fails the build**. Hindi is in
+the list but not at its head: this launches in Madurai. Customers can request a
+driver who speaks a given language, and matching drivers are chosen first.
 
-**Does not exist at all:**
+### Reaching a human
 
-- **No customer, operator or driver apps.** The plan's five surfaces are
-  Flutter and Kotlin work. This is surface 5, the admin console, and it is the
-  one that makes the other four unnecessary for the first two hundred bookings.
-- **No map rendering.** Coordinates deep-link out to Google Maps, per the
-  plan's own advice not to build navigation. Drawing tiles in-app would mean a
-  dependency this template does not bless.
-- **No cloud-telephony number masking**, which is the actual anti-leakage
-  control. Phone numbers are masked in the UI, which is display hygiene.
-- **No self-registration, no password reset, no invitations.** Accounts are
-  created by `db:seed-users` or by hand. That is deliberate for four accounts
-  and the obvious next thing to build for forty.
-- **No per-field permissions inside a role.** §4.4 eventually wants finer
-  control than "admins see everything".
+Indian customers phone before they pay. Toli's own number, WhatsApp and email
+are published on the front page, the tracking link and every trip. The
+operator's contact appears **once a booking exists** — §10's masking is about
+*when*, not whether.
+
+---
 
 ## Run it
 
 ```bash
 pnpm install
-pnpm db:migrate          # needs DATABASE_URL
-pnpm db:seed             # realistic Jaipur data — never against production
-pnpm db:seed-users       # the four role accounts; prints passwords once
-CONFIRM_RESET=yes pnpm db:reset   # wipes every table but the audit log
+pnpm db:migrate                    # needs DATABASE_URL
+pnpm db:seed                       # realistic Madurai data
+pnpm db:seed-users                 # four role accounts; prints passwords once
 pnpm dev
 ```
 
-Everything above works with no external credentials at all. To switch an
-integration on, set its variables from `apps/web/.env.example`; `/integrations`
-shows which are set, what each one enables, and what happens while it is off.
+```bash
+pnpm build         # must exit 0 — the gate that matters
+pnpm test          # 198 unit tests, no database needed
+pnpm test:e2e      # Playwright smoke; needs pnpm build first
+pnpm typecheck
+pnpm lint / pnpm format
+pnpm db:generate   # schema diff → migration, no database needed
+CONFIRM_RESET=yes pnpm db:reset    # wipes everything but the audit log
+```
 
-Environment lives in `apps/web/.env.local`; `apps/web/.env.example` lists what
-is needed. `pnpm hash-password` sets the operator password — an app with none
-cannot be signed into.
+Environment lives in `apps/web/.env.local`; `apps/web/.env.example` lists
+everything. **The app runs fully with only `DATABASE_URL`, `AUTH_SECRET` and the
+break-glass operator set** — every integration below is optional and degrades to
+a manual path that names the missing variable.
 
-## Change it
+| Integration | Variables | Without it |
+|---|---|---|
+| Razorpay | `RAZORPAY_*` | Payments recorded by hand |
+| Google / Mappls geocoding | `GOOGLE_MAPS_API_KEY`, `MAPPLS_REST_KEY` | Stops stay text |
+| OSRM routing | `OSRM_BASE_URL` | Distance typed in |
+| WhatsApp | `WHATSAPP_*` | Messages queue in the outbox |
+| VAHAN / Sarathi / GSTN | `VEHICLE_VERIFY_*` | Ops reads the portal and records it |
+| S3 photo upload | `S3_BUCKET`, `AWS_*` | Operators link a photo hosted elsewhere |
 
-Say what you want in the app's page on the
-[marketplace](https://werft-marketplace.vercel.app), or comment `@claude` on an
-issue here. Either way Claude works on a branch and opens a pull request; five
-gates run against a real preview on its own database branch, and a human
-merges. Nothing reaches production on its own.
+`/console/integrations` shows the live inventory. Position ingest and embedded
+maps need no credentials at all.
+
+---
 
 ## Deployment
 
-Merging to `main` deploys. Migrations are applied to production during that
-build, before it starts — a failed migration fails the build and the previous
-deployment keeps serving.
+Merging to `main` deploys. Migrations run during that build, before it starts —
+a failed migration fails the build and the previous deployment keeps serving.
+
+Gates on every PR: `gitleaks`, `typecheck`, `build`, `docs`,
+`neon-preview-branch` and `preview-smoke`. Each PR gets its own Neon database
+branch, deleted when it closes.
+
+## Change it
+
+Comment `@claude` on an issue or PR, or say what you want on the app's
+[marketplace](https://werft-marketplace.vercel.app) page. Claude works on a
+branch and opens a pull request; a human merges. Nothing reaches production on
+its own.
+
+---
+
+## What is deliberately not here
+
+Named so nothing is mistaken for an oversight. `docs/ARCHITECTURE.md` carries
+the full list with reasoning.
+
+- **No customer, operator or driver mobile apps.** The plan's five surfaces
+  include four mobile ones; these are the web equivalents, which is what makes
+  the first few hundred bookings possible without them.
+- **No payment gateway switched on.** Razorpay is written; nobody has opened a
+  merchant account. Razorpay Route / Easy Split — §8.2's escrow posture — is
+  not used at all yet.
+- **No live government verification.** VAHAN, Sarathi and GSTN access is resold
+  by authorised aggregators; ops records what the portal said, into the same
+  table the automated check will write to.
+- **The `hi`, `te`, `ml` and `kn` translations have had no native-speaker
+  review.** Careful but unverified. A mistranslated SOS hint is worse than
+  English.
+- **No self-registration, password reset or invitations.** Accounts are created
+  by script. Correct for four; the first thing to build for forty.
+- **No session revocation.** The role lives in the JWT, so disabling an account
+  stops the next sign-in, not the current session.
+- **No SMS fallback, no cloud-telephony number masking, no 90-day GPS
+  retention.**
