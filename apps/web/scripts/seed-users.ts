@@ -12,6 +12,11 @@
  * customer account to a customer — because §3's whole point is that these are
  * four different people, not one account with a dropdown.
  *
+ * The links are looked up by name, so renaming anything in the seed means
+ * renaming it here too — as moving the launch market to Madurai proved. The
+ * script refuses rather than creating an account linked to nothing, which is
+ * the failure worth having.
+ *
  *   DATABASE_URL=... pnpm --filter web run db:seed-users
  */
 
@@ -59,17 +64,17 @@ async function main(): Promise<void> {
   const operators = await db
     .select()
     .from(schema.operator)
-    .where(eq(schema.operator.name, "Shekhawati Travels"))
+    .where(eq(schema.operator.name, "Meenakshi Travels"))
     .limit(1)
   const drivers = await db
     .select()
     .from(schema.driver)
-    .where(eq(schema.driver.name, "Ramesh Meena"))
+    .where(eq(schema.driver.name, "Murugan Selvam"))
     .limit(1)
   const customers = await db
     .select()
     .from(schema.customer)
-    .where(eq(schema.customer.name, "Aditi Agarwal"))
+    .where(eq(schema.customer.name, "Anitha Ramasamy"))
     .limit(1)
 
   const operatorRow = operators[0]
@@ -94,7 +99,7 @@ async function main(): Promise<void> {
       surface: "/console",
     },
     {
-      email: "aditi@example.in",
+      email: "anitha@example.in",
       name: customerRow.name,
       role: "customer" as const,
       operatorId: null,
@@ -103,7 +108,7 @@ async function main(): Promise<void> {
       surface: "/portal",
     },
     {
-      email: "operator@shekhawati.in",
+      email: "operator@meenakshi.in",
       name: operatorRow.contactName,
       role: "operator" as const,
       operatorId: operatorRow.id,
@@ -112,7 +117,7 @@ async function main(): Promise<void> {
       surface: "/partner",
     },
     {
-      email: "ramesh@driver.toli.in",
+      email: "murugan@driver.toli.in",
       name: driverRow.name,
       role: "driver" as const,
       operatorId: null,
