@@ -1,9 +1,11 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import type { ReactNode } from "react"
-import { signOutAction } from "@/app/actions"
 import { auth } from "@/auth"
+import { Avatar } from "@/components/avatar"
 import { LanguageSwitch } from "@/components/language"
+import { ToliLogo } from "@/components/logo"
+import { avatarUrlFor } from "@/data/users"
 import { homeFor } from "@/domain/roles"
 import { translations } from "@/i18n"
 
@@ -23,13 +25,13 @@ export default async function PortalLayout({ children }: { children: ReactNode }
   const [session, { locale, t }] = await Promise.all([auth(), translations()])
   if (!session?.user) redirect("/login")
   if (session.user.role !== "customer") redirect(homeFor(session.user.role))
+  const avatar = await avatarUrlFor(session.user.id)
 
   return (
     <div className="shell portal">
       <header className="portal-top">
-        <Link href="/portal" className="wordmark">
-          toli
-          <small>{t.portalYourTrips.toLowerCase()}</small>
+        <Link href="/portal" className="wordmark-link">
+          <ToliLogo sub={t.portalYourTrips.toLowerCase()} />
         </Link>
         <nav>
           <Link href="/portal">{t.portalYourTrips}</Link>
@@ -38,11 +40,9 @@ export default async function PortalLayout({ children }: { children: ReactNode }
         </nav>
         <div className="portal-top-right">
           <LanguageSwitch locale={locale} />
-          <form action={signOutAction}>
-            <button type="submit" className="quiet">
-              {session.user.name ?? t.signOut}
-            </button>
-          </form>
+          <Link href="/account" className="avatar-link" aria-label={session.user.name ?? t.signOut}>
+            <Avatar name={session.user.name ?? "?"} url={avatar} size={36} />
+          </Link>
         </div>
       </header>
       <main>{children}</main>

@@ -57,6 +57,13 @@
       "when": 1786438454398,
       "tag": "0007_support_contacts",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1786439538734,
+      "tag": "0008_avatars",
+      "breakpoints": true
     }
   ]
 }

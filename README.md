@@ -4,6 +4,12 @@ India's charter marketplace for vans, tempo travellers and buses. Book a whole
 vehicle for a whole group — transparent quotes, verified operators, live
 tracking. Launching in **Madurai and south Tamil Nadu**; selling to all of India.
 
+The brand is the `toli` theme in `packages/tokens` — ink on paper, one bold
+weight, colour only where it means something. The logo is a route mark: dot,
+road, pin. The hero is a hand-drawn animated SVG of the ghat road to
+Kodaikanal, because the product is the software and the software is what the
+front page shows.
+
 **Live:** https://toli-flame.vercel.app
 
 > Scaffolded from [werft-template](https://github.com/vinoth4v/werft-template).
@@ -114,6 +120,8 @@ mis-selling.
 - Operators add and retire their own vehicles, upload photos and file
   documents; **they cannot verify their own paperwork**, which is what the
   badge is worth.
+- Every signed-in person has an avatar — initials by default, direct photo
+  upload at `/account`, the one surface all four roles share.
 - A public tracking link needing no app or login, showing a map, no prices and
   no phone numbers.
 - GST invoices with the CGST/SGST or IGST split decided by place of supply, and

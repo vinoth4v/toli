@@ -109,6 +109,7 @@ Everything is behind the operator gate unless stated otherwise.
 | Route | What it is for |
 |---|---|
 | **`/`** | **Public.** The marketplace's front page. Signed in, it redirects to the signer's own home |
+| `/account` | Every signed-in role — avatar upload, language, sign out |
 | `/portal`, `/portal/new`, `/portal/trips/[id]` | **customer** — trips, ask for a vehicle, compare quotes and book |
 | `/partner`, `/partner/quotes/[id]`, `/partner/fleet`, `/partner/earnings` | **operator** — quote inbox, the §7.1 form, fleet paperwork, settlements |
 | `/drive`, `/drive/[id]` | **driver** — today's trip, start, stops, expenses, finish, SOS |
@@ -200,6 +201,22 @@ is the single place that decides whether one is configured, and
   through the same function in `domain/metrics.ts`.
 - **The public tracking page gets a projection, not a row.** Purpose limitation
   under DPDP, and obvious besides.
+- **The brand is a theme, and the theme is the redesign.** `toli` in
+  `@werft/tokens` — ink on paper, one bold weight, colour reserved for meaning
+  (green = live/settled, red = stop). Because every component already reads
+  tokens, the whole app re-skinned from one definition; the CSS "brand" layer
+  only sets posture (weight, tracking, stickiness, motion). The logo is a route
+  mark — dot, road, pin — drawn in currentColor so it inverts in the footer.
+- **The hero illustration is artwork, not UI.** A hand-drawn SVG of the
+  Madurai–Kodaikanal ghat road, animated in CSS (clouds, wheels, road dashes,
+  a pulsing destination pin), stilled by `prefers-reduced-motion`. Its palette
+  is internal to the image — the same standing a photograph would have — and
+  is the one deliberate exception to the tokens-only rule, so the UI can stay
+  monochrome while the world it depicts is not.
+- **Avatars upload like vehicle photos.** Presigned PUT to `avatars/<userId>/…`,
+  recorded on `app_user` (migration `0008`); initials are the designed default,
+  not a failure state. `/account` is the one surface every role shares — face,
+  language, sign out — so four layouts do not each grow a profile corner.
 - **Authorisation is one pure module, checked at the edge.** `domain/roles.ts`
   answers "may this role see this path", and `auth.config.ts`'s `authorized`
   callback is the only caller that matters — so a role cannot reach another

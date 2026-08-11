@@ -543,3 +543,54 @@ session — a parallel implementation of the whole app with its own README,
 stylesheet and routes at the old paths. Merging it would overwrite the console,
 portal, partner and driver surfaces with an earlier attempt. Raised rather than
 merged.
+
+---
+
+## The rebrand — 11 August 2026
+
+**Asked:** a modern, Uber-calibre redesign an investor would read as a
+professional team; a logo; editorial illustration on the home page; avatars,
+with direct upload rather than URLs.
+
+**Changed:**
+
+- **A `toli` theme** in the token package — ink on paper, one bold weight,
+  colour reserved for meaning — and the whole app re-skinned from it, which is
+  the payoff of every component having been token-driven from the start. The
+  console, portal, partner, driver, login and tracking surfaces all moved
+  together without an edit each.
+- **A logo**: dot, road, pin — one trip, one stroke, drawn in currentColor so
+  the same component is ink in the header and paper in the footer. Favicon to
+  match.
+- **The hero** is a hand-drawn animated SVG of the Madurai–Kodaikanal ghat
+  road — bus bobbing, wheels turning, road dashes moving, clouds drifting,
+  destination pin pulsing — with the live tracking card floating over it. A
+  few kilobytes, no library, stilled by prefers-reduced-motion.
+- **An ink metrics band and a black footer**, Uber-school; sticky masthead.
+- **Avatars** (migration `0008`): presigned upload, initials as the designed
+  default, shown in every masthead; `/account` as the one page every role
+  shares, holding face, language and sign out.
+
+**Decided, and why:**
+
+- **The illustration's palette is the one exception to tokens-only CSS.** It
+  is artwork with the standing of a photograph; the UI around it stays
+  monochrome precisely so the world the product operates in is the only
+  colourful thing on the page.
+- **No mapping or drawing library, no webfont.** The scene is SVG, the type is
+  a system stack tuned Helvetica-ward. The blessed-dependency list is intact.
+- **No URL field for avatars**, as asked: upload or initials.
+
+**Found while verifying in the browser, not the diff:** the demo card sat
+exactly on top of the bus and gopuram (moved to the sky); the headline set at
+5xl stacked four lines (dropped to 4xl); the sticky masthead had no background
+and content scrolled through it; and sign-in failed outright because the user
+query now selects avatar columns migration `0008` had not yet created in
+production — applied, additive, exactly what the deploy would have run.
+
+Also visible while signed in as the driver: a third party had made a real
+instant booking on production that morning. The seed data is no longer alone.
+
+**Open:** avatar upload reports "not configured" on production until the four
+S3 variables are set; the hero scene is one static composition and could grow
+a night mode; `hi`/`te`/`ml`/`kn` strings still lack a native pass.

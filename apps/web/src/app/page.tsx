@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
+import { HeroScene } from "@/components/hero-scene"
+import { ToliLogo } from "@/components/logo"
 import { publicSettings } from "@/data/settings"
 import { tollNotice } from "@/domain/bill"
 import { mailtoLink, telLink, whatsappLink } from "@/domain/contact"
@@ -112,10 +114,7 @@ export default async function HomePage() {
   return (
     <div className="landing">
       <header className="landing-top">
-        <span className="wordmark">
-          toli
-          <small>chartered vans, tempo travellers and buses</small>
-        </span>
+        <ToliLogo />
         <nav>
           <a href="#how">How it works</a>
           <a href="#fleet">Fleet</a>
@@ -128,39 +127,80 @@ export default async function HomePage() {
       </header>
 
       <section className="hero">
-        <p className="eyebrow">Madurai · Kodaikanal · Rameswaram · Palani · Trichy</p>
-        <h1>
-          Book a whole van or bus
-          <br />
-          for your whole group.
-        </h1>
-        <p className="lede">
-          One requirement, sent to operators who actually have the vehicle. Every quote comes back
-          in the same shape, so you compare numbers instead of deciphering five people's WhatsApp
-          messages.
-        </p>
-        <div className="hero-actions">
-          <Link href="/login?as=customer" className="button-link">
-            Start a requirement
-          </Link>
-          <a href="#compare" className="button-link quiet">
-            See why quotes lie
-          </a>
+        <div className="hero-copy">
+          <p className="eyebrow">Madurai · Kodaikanal · Rameswaram · Palani · Trichy</p>
+          <h1>Book a whole van or bus for your whole group.</h1>
+          <p className="lede">
+            One requirement, sent to operators who actually have the vehicle. Every quote comes back
+            in the same shape, so you compare numbers instead of deciphering five people's WhatsApp
+            messages.
+          </p>
+          <div className="hero-actions">
+            <Link href="/login?as=customer" className="button-link">
+              Book a vehicle
+            </Link>
+            <a href="#compare" className="button-link quiet">
+              See why quotes lie
+            </a>
+          </div>
         </div>
-        <dl className="hero-stats">
-          <div>
-            <dt>Quote response</dt>
-            <dd>under 30 min</dd>
+
+        {/* Not a photograph of a bus: the product itself, as a still. What an
+            investor is buying is the software, so the hero shows the software. */}
+        <aside className="hero-visual">
+          <HeroScene />
+          <div className="demo-card" aria-hidden="true">
+            <header>
+              <span className="demo-ref">TOLI-B-000002</span>
+              <span className="demo-live">
+                <i /> Live
+              </span>
+            </header>
+            <ol className="demo-route">
+              <li>
+                <span className="demo-dot from" />
+                Meenakshi Temple, Madurai
+              </li>
+              <li>
+                <span className="demo-dot to" />
+                Kodai Lake, Kodaikanal
+              </li>
+            </ol>
+            <div className="demo-crew">
+              <span className="demo-avatar">MS</span>
+              <span>
+                Murugan S. · <span className="numeric">TN 58 AL 4521</span>
+                <small>17-seat tempo traveller · Premium</small>
+              </span>
+            </div>
+            <footer>
+              <span>
+                <small>All-inclusive</small>
+                <strong>₹15,960</strong>
+              </span>
+              <span className="demo-chip">Toll included</span>
+            </footer>
           </div>
-          <div>
-            <dt>Papers checked</dt>
-            <dd>every vehicle</dd>
-          </div>
-          <div>
-            <dt>Live tracking</dt>
-            <dd>no app needed</dd>
-          </div>
-        </dl>
+        </aside>
+      </section>
+
+      <section className="band-dark" aria-label="What Toli holds itself to">
+        <div>
+          <strong>&lt; 30 min</strong>
+          <span>quote response, or the RFQ escalates to a human</span>
+        </div>
+        <div>
+          <strong>100%</strong>
+          <span>vehicles with papers checked before they carry anyone</span>
+        </div>
+        <div>
+          <strong>₹0</strong>
+          <span>hidden charges — the worst case is printed on every quote</span>
+        </div>
+        <div>
+          <strong>24×7</strong>
+          <span>a person on the phone, not a chatbot</span>
+        </div>
       </section>
 
       <section id="compare" className="section">
@@ -433,8 +473,8 @@ export default async function HomePage() {
 
       <footer className="landing-foot">
         <div>
-          <span className="wordmark">toli</span>
-          <p className="muted small">
+          <ToliLogo />
+          <p className="foot-line">
             Chartered vans, tempo travellers and buses. Starting in Madurai and south Tamil Nadu,
             for groups travelling anywhere in India.
           </p>

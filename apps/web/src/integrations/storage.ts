@@ -145,3 +145,9 @@ export function photoKey(vehicleId: string, filename: string, random: string): s
   const extension = filename.toLowerCase().match(/\.(jpe?g|png|webp|heic)$/)?.[0] ?? ".jpg"
   return `vehicles/${vehicleId}/${random}${extension}`
 }
+
+/** Same rules, different namespace: a person's face is not a vehicle's boot. */
+export function avatarKey(userId: string, filename: string, random: string): string {
+  const extension = filename.toLowerCase().match(/\.(jpe?g|png|webp|heic)$/)?.[0] ?? ".jpg"
+  return `avatars/${userId}/${random}${extension}`
+}

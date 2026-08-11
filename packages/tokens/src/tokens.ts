@@ -72,12 +72,16 @@ export const fontSize = {
      hold a table. Every theme shares these — only colour and family change. */
   "3xl": "2.75rem",
   "4xl": "3.75rem",
+  "5xl": "4.75rem",
 } as const
 
 export const fontWeight = {
   normal: "400",
   medium: "500",
   semibold: "600",
+  /* Display weight. A brand set in 600 reads like a document; 700 reads like
+     a company. */
+  bold: "700",
 } as const
 
 export const fontFamily = {

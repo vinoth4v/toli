@@ -2601,3 +2601,470 @@ button.huge.sos {
   margin-top: var(--space-4);
   border-top: 1px solid var(--color-border);
 }
+
+/* =============================================================== the brand
+
+   Toli's own face: mobility-platform monochrome. Ink on paper, one heavy
+   weight for anything that speaks, and colour reserved for meaning. Values
+   come from the `toli` theme in @werft/tokens; this layer sets posture —
+   weight, tracking, stickiness, motion. Animation distances are artwork
+   geometry, like SVG coordinates, not layout spacing.                      */
+
+h1,
+.section-title {
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.025em;
+}
+
+.landing-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.landing-top nav a.signin {
+  color: var(--color-bg);
+  background: var(--color-accent);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.button-link {
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ------------------------------------------------------------------- logo */
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-fg);
+}
+
+.logo svg {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.logo-word {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.logo-word small {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.wordmark-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ------------------------------------------------------------------- hero */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: var(--space-12);
+  align-items: center;
+  padding-top: var(--space-12);
+  padding-bottom: var(--space-16);
+}
+
+.hero h1 {
+  max-width: 16ch;
+  font-size: var(--font-size-4xl);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+@media (max-width: 64rem) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero h1 {
+    font-size: var(--font-size-3xl);
+  }
+
+  .hero-visual {
+    max-width: 36rem;
+  }
+}
+
+.hero-visual {
+  position: relative;
+}
+
+.scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+}
+
+/* The scene breathes. prefers-reduced-motion stills all of it globally. */
+
+.cloud-a {
+  animation: scene-drift 26s ease-in-out infinite alternate;
+}
+
+.cloud-b {
+  animation: scene-drift 34s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes scene-drift {
+  from {
+    transform: translateX(-28px);
+  }
+
+  to {
+    transform: translateX(44px);
+  }
+}
+
+.plane {
+  animation: scene-fly 44s linear infinite;
+}
+
+@keyframes scene-fly {
+  0% {
+    transform: translate(-140px, 26px);
+  }
+
+  100% {
+    transform: translate(840px, -34px);
+  }
+}
+
+.bus {
+  animation: scene-bob 2.2s ease-in-out infinite;
+}
+
+@keyframes scene-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.wheel {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: scene-spin 1.2s linear infinite;
+}
+
+@keyframes scene-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.road-dash {
+  animation: scene-roll 1.4s linear infinite;
+}
+
+@keyframes scene-roll {
+  to {
+    stroke-dashoffset: -44;
+  }
+}
+
+.pin {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: scene-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes scene-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.14);
+  }
+}
+
+/* The product, floating over the world it runs in. */
+
+.demo-card {
+  position: absolute;
+  top: var(--space-6);
+  left: calc(-1 * var(--space-8));
+  width: min(20rem, 92%);
+  padding: var(--space-4) var(--space-6);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 48px -20px color-mix(in srgb, var(--color-fg) 30%, transparent);
+}
+
+@media (max-width: 40rem) {
+  .demo-card {
+    position: static;
+    width: 100%;
+    margin-top: var(--space-4);
+  }
+}
+
+.demo-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.demo-ref {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-muted);
+}
+
+.demo-live {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-success);
+}
+
+.demo-live i {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+  animation: scene-pulse 1.6s ease-in-out infinite;
+}
+
+.demo-route {
+  padding: 0;
+  margin: 0 0 var(--space-3);
+  list-style: none;
+  font-size: var(--font-size-sm);
+}
+
+.demo-route li {
+  position: relative;
+  padding: var(--space-1) 0 var(--space-1) var(--space-6);
+}
+
+.demo-route li + li::before {
+  content: "";
+  position: absolute;
+  left: 0.26rem;
+  top: -0.5rem;
+  height: 1.1rem;
+  width: 2px;
+  background: var(--color-border);
+}
+
+.demo-dot {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0.6rem;
+  height: 0.6rem;
+  translate: 0 -50%;
+  border-radius: var(--radius-full);
+  background: var(--color-fg);
+}
+
+.demo-dot.to {
+  background: var(--color-success);
+}
+
+.demo-crew {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3) 0;
+  font-size: var(--font-size-sm);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.demo-crew small {
+  display: block;
+  color: var(--color-muted);
+}
+
+.demo-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-bg);
+  background: var(--color-fg);
+  border-radius: var(--radius-full);
+}
+
+.demo-card footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-3);
+}
+
+.demo-card footer small {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-muted);
+}
+
+.demo-card footer strong {
+  font-size: var(--font-size-lg);
+}
+
+.demo-chip {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-full);
+}
+
+/* ---------------------------------------------------------- the ink slabs */
+
+.band-dark {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-8);
+  padding: var(--space-12) max(var(--space-6), calc((100% - 68rem) / 2));
+  color: var(--color-bg);
+  background: var(--color-fg);
+}
+
+.band-dark strong {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+}
+
+.band-dark span {
+  font-size: var(--font-size-sm);
+  opacity: 0.72;
+}
+
+.landing-foot {
+  max-width: none;
+  margin-top: 0;
+  padding: var(--space-16) max(var(--space-6), calc((100% - 68rem) / 2));
+  color: var(--color-bg);
+  background: var(--color-fg);
+  border-top: none;
+}
+
+.landing-foot .logo {
+  --logo-contrast: var(--color-fg);
+  color: var(--color-bg);
+}
+
+.landing-foot a {
+  color: var(--color-bg);
+}
+
+.landing-foot .muted,
+.landing-foot .foot-line {
+  color: var(--color-bg);
+  opacity: 0.72;
+}
+
+.foot-line {
+  max-width: 44ch;
+  margin: var(--space-3) 0 0;
+  font-size: var(--font-size-sm);
+}
+
+.landing-foot .button-link {
+  color: var(--color-fg);
+  background: var(--color-bg);
+}
+
+.landing-foot .button-link.quiet {
+  color: var(--color-bg);
+  background: none;
+  border-color: color-mix(in srgb, var(--color-bg) 45%, transparent);
+}
+
+/* ---------------------------------------------------------------- avatars */
+
+.avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  overflow: hidden;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-bg);
+  background: var(--color-fg);
+  border-radius: var(--radius-full);
+}
+
+.avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-link {
+  display: inline-flex;
+  border-radius: var(--radius-full);
+}
+
+/* ---------------------------------------------------------------- account */
+
+.account {
+  padding-top: var(--space-12);
+}
+
+.account .wordmark-link {
+  display: inline-block;
+  margin-bottom: var(--space-8);
+}
+
+.account-card {
+  display: flex;
+  gap: var(--space-6);
+  align-items: center;
+  padding: var(--space-6);
+  margin-bottom: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.account-card h1 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+}

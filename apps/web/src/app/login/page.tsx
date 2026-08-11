@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ToliLogo } from "@/components/logo"
 import { ROLE_INFO, ROLES, type Role } from "@/domain/roles"
 import { signInAction } from "./actions.ts"
 
@@ -61,8 +62,8 @@ export default async function LoginPage({
   if (!chosen) {
     return (
       <main className="narrow signin-page">
-        <Link href="/" className="wordmark">
-          toli
+        <Link href="/" className="wordmark-link">
+          <ToliLogo />
         </Link>
 
         <h1>Who is signing in?</h1>
@@ -96,9 +97,8 @@ export default async function LoginPage({
 
   return (
     <main className="narrow signin-page">
-      <Link href="/" className="wordmark">
-        toli
-        <small>{ROLE_INFO[chosen].label.toLowerCase()}</small>
+      <Link href="/" className="wordmark-link">
+        <ToliLogo sub={ROLE_INFO[chosen].label.toLowerCase()} />
       </Link>
 
       <p className="crumb">
