@@ -55,6 +55,7 @@ const requestSchema = z.object({
   vehicleClass: z.enum(VEHICLE_CLASSES),
   vehicleCount: z.coerce.number().int().min(1).max(20),
   acRequired: z.coerce.boolean(),
+  driverLanguage: optionalText,
   estimatedKm: z.coerce.number().int().min(0).max(20_000),
   statesCrossed: z.array(z.string()).default([]),
   features: z.array(z.string()).default([]),
@@ -79,6 +80,7 @@ export async function createRequestAction(formData: FormData): Promise<void> {
     vehicleClass: formData.get("vehicleClass"),
     vehicleCount: formData.get("vehicleCount") ?? "1",
     acRequired: formData.get("acRequired") === "on",
+    driverLanguage: formData.get("driverLanguage") ?? "",
     estimatedKm: formData.get("estimatedKm") || "0",
     statesCrossed: formData.getAll("statesCrossed").map(String),
     features: formData.getAll("features").map(String),
@@ -116,6 +118,10 @@ export async function createRequestAction(formData: FormData): Promise<void> {
     vehicleClass: input.vehicleClass,
     vehicleCount: input.vehicleCount,
     acRequired: input.acRequired,
+    // The ops desk records what the caller asked for; segment defaults to the
+    // one most callers mean when they say "AC vehicle".
+    segment: input.acRequired ? "premium" : "economy",
+    preferredDriverLanguage: input.driverLanguage,
     features: input.features,
     extras: input.extras,
     // Crossing a state line is what makes an AITP mandatory, so it is derived

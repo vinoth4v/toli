@@ -91,5 +91,31 @@ export function placeOfSupply(input: {
   return stateFromGstin(input.customerGstin) ?? input.originState
 }
 
-/** §11's launch corridor: Jaipur first, then the cities vehicles already move between. */
-export const LAUNCH_CITIES = ["Jaipur", "Delhi NCR", "Agra", "Udaipur", "Jodhpur", "Ajmer"] as const
+/**
+ * The launch corridor: **Madurai first**, then the towns vehicles already run
+ * between from there.
+ *
+ * §11 argues for one city and a corridor rather than scattered cities, because
+ * vehicles move between corridor towns and an operator signed for one route is
+ * already useful on the next. Madurai is that wedge here — temple tourism,
+ * Kodaikanal hill traffic, the Rameswaram and Palani pilgrimage circuits, and
+ * wedding season demand, all served by the same fleets.
+ *
+ * The market Toli sells to is all of India; the market it *operates* in starts
+ * here. Examples, seed data and copy stay in this corridor until that changes,
+ * so nothing in the product quietly implies coverage that does not exist.
+ */
+export const LAUNCH_CITIES = [
+  "Madurai",
+  "Kodaikanal",
+  "Rameswaram",
+  "Palani",
+  "Trichy",
+  "Dindigul",
+  "Theni",
+  "Chennai",
+  "Coimbatore",
+] as const
+
+/** Toli's own registration state — the default place of supply. */
+export const HOME_STATE = "Tamil Nadu"

@@ -4,11 +4,13 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { z } from "zod"
 import { auth } from "@/auth"
-import { createRequest } from "@/data/demand"
-import { acceptQuote } from "@/data/fulfilment"
+import { findOffers } from "@/data/availability"
+import { createRequest, inviteOperators, quotesForRequest, submitQuote } from "@/data/demand"
+import { acceptQuote, assignVehicle } from "@/data/fulfilment"
 import { customerTrip } from "@/data/scoped"
 import { recordEvent } from "@/db/events"
 import { fromIstInputValue } from "@/domain/format"
+import { HOME_STATE } from "@/domain/india"
 import { TRIP_TYPES } from "@/domain/trip"
 import { VEHICLE_CLASSES } from "@/domain/vehicle"
 
@@ -53,6 +55,122 @@ export async function acceptOwnQuoteAction(formData: FormData): Promise<void> {
   redirect(`/portal/trips/${requestId}`)
 }
 
+/**
+ * Lane B, in one action: request, quote, booking and assignment together.
+ *
+ * A customer tapping "book this vehicle" is making one decision, so it becomes
+ * one operation — but underneath it produces exactly the same rows a quoted
+ * booking does. That is deliberate: settlement, invoicing, compliance and the
+ * ops console must not need to know which lane a trip came through, or every
+ * one of them grows a second code path.
+ *
+ * Availability is re-checked here rather than trusted from the form, because
+ * between the search and the tap somebody else may have taken the vehicle.
+ */
+export async function bookInstantAction(formData: FormData): Promise<void> {
+  const id = await customerId()
+
+  const vehicleId = String(formData.get("vehicleId") ?? "")
+  const startAtRaw = String(formData.get("startAt") ?? "")
+  const endAtRaw = String(formData.get("endAt") ?? "")
+  const city = String(formData.get("city") ?? "")
+  const segment = String(formData.get("segment") ?? "premium") as "economy" | "premium" | "luxury"
+  const passengers = Number(formData.get("passengers") ?? "1") || 1
+  const estimatedKm = Number(formData.get("km") ?? "0") || 0
+
+  if (!vehicleId || !startAtRaw || !city) redirect("/portal/book")
+
+  const startAt = fromIstInputValue(startAtRaw)
+  const endAt = endAtRaw ? fromIstInputValue(endAtRaw) : null
+  const days = endAt
+    ? Math.max(1, Math.ceil((endAt.getTime() - startAt.getTime()) / 86_400_000))
+    : 1
+
+  const offers = await findOffers({
+    city,
+    segment,
+    passengers,
+    startAt,
+    endAt,
+    estimatedKm,
+    interstate: false,
+    stateCount: 0,
+  })
+
+  const offer = offers.find((entry) => entry.vehicleId === vehicleId)
+  if (!offer) {
+    // Taken, or no longer road-legal for that date. Saying which would be
+    // guessing; a fresh search is honest and immediately useful.
+    const back = new URLSearchParams({
+      error: "That vehicle was taken while you were choosing. Here is what is free now.",
+      city,
+      segment,
+      passengers: String(passengers),
+      km: String(estimatedKm),
+      startAt: startAtRaw,
+      ...(endAtRaw ? { endAt: endAtRaw } : {}),
+    })
+    redirect(`/portal/book?${back.toString()}`)
+  }
+
+  const request = await createRequest({
+    customerId: id,
+    tripType: endAt ? "round_trip" : "one_way",
+    city,
+    state: HOME_STATE,
+    startAt,
+    endAt,
+    passengerCount: passengers,
+    vehicleClass: offer.vehicleClass as never,
+    vehicleCount: 1,
+    acRequired: segment !== "economy",
+    segment,
+    preferredDriverLanguage: String(formData.get("driverLanguage") ?? "").trim() || null,
+    features: [],
+    extras: [],
+    interstate: false,
+    statesCrossed: [],
+    estimatedKm: estimatedKm || null,
+    notes: null,
+    stops: [],
+  })
+
+  // The quote is the operator's own standing rate, recorded so the booking has
+  // the same provenance a hand-typed one would.
+  await inviteOperators(request.id, [offer.operatorId], "passenger_transport_5")
+  const placed = (await quotesForRequest(request.id))[0]
+  if (!placed) redirect("/portal/book")
+
+  await submitQuote(
+    placed.id,
+    offer.terms,
+    {
+      tripType: endAt ? "round_trip" : "one_way",
+      days,
+      nights: Math.max(0, days - 1),
+      estimatedKm,
+      estimatedHours: Math.max(8, Math.round(estimatedKm / 35)),
+      interstate: false,
+      stateCount: 0,
+    },
+    { validUntil: null, notes: "Instant booking at standing rate", vehicleId: offer.vehicleId },
+  )
+
+  const booking = await acceptQuote(placed.id, "instant")
+
+  if (offer.driverId) {
+    await assignVehicle({
+      bookingId: booking.id,
+      vehicleId: offer.vehicleId,
+      driverId: offer.driverId,
+      subContractedToOperatorId: null,
+    })
+  }
+
+  await recordEvent("quote_accepted", `customer:${id}`, `${booking.reference} booked instantly`)
+  redirect(`/portal/trips/${request.id}`)
+}
+
 const optionalText = z
   .string()
   .trim()
@@ -68,6 +186,8 @@ const requestSchema = z.object({
   vehicleClass: z.enum(VEHICLE_CLASSES),
   vehicleCount: z.coerce.number().int().min(1).max(20),
   acRequired: z.coerce.boolean(),
+  segment: z.enum(["economy", "premium", "luxury"]).default("premium"),
+  driverLanguage: optionalText,
   estimatedKm: z.coerce.number().int().min(0).max(20_000),
   statesCrossed: z.array(z.string()).default([]),
   features: z.array(z.string()).default([]),
@@ -89,6 +209,8 @@ export async function createOwnRequestAction(formData: FormData): Promise<void> 
     vehicleClass: formData.get("vehicleClass"),
     vehicleCount: formData.get("vehicleCount") ?? "1",
     acRequired: formData.get("acRequired") === "on",
+    segment: formData.get("segment") ?? "premium",
+    driverLanguage: formData.get("driverLanguage") ?? "",
     estimatedKm: formData.get("estimatedKm") || "0",
     statesCrossed: formData.getAll("statesCrossed").map(String),
     features: formData.getAll("features").map(String),
@@ -117,6 +239,8 @@ export async function createOwnRequestAction(formData: FormData): Promise<void> 
     vehicleClass: input.vehicleClass,
     vehicleCount: input.vehicleCount,
     acRequired: input.acRequired,
+    segment: input.segment,
+    preferredDriverLanguage: input.driverLanguage,
     features: input.features,
     extras: input.extras,
     interstate: input.statesCrossed.length > 0,

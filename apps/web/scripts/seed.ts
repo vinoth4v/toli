@@ -1,12 +1,11 @@
 /**
- * Seeds a development or staging database with realistic Jaipur data.
+ * Seeds a development or staging database with realistic Madurai data.
  *
  * §5.3 of the build plan is specific about this: seed staging with realistic
  * Indian data, not `John Doe`. So the operators are the kind of firm that
- * actually runs tempo travellers out of Sindhi Camp, the registrations are
- * real RJ series, the routes are the ones that get chartered — Jaipur to
- * Ajmer for a pilgrimage, Jaipur to Agra across the Uttar Pradesh border for
- * a wedding party — and the prices are what those trips cost.
+ * actually runs tempo travellers out of Madurai's Periyar bus stand, the registrations are
+ * real TN series, the routes are the ones that get chartered — Madurai to
+ * Palani for a pilgrimage, Madurai to Kodaikanal for a wedding party — and the prices are what those trips cost.
  *
  * Refuses to run against a database that already has operators, so it cannot
  * quietly double a fleet. Never run it against production.
@@ -52,40 +51,41 @@ async function main(): Promise<void> {
     .insert(schema.operator)
     .values([
       {
-        name: "Shekhawati Travels",
-        city: "Jaipur",
-        contactName: "Mahendra Singh",
-        phone: "+919829011234",
-        email: "ops@shekhawatitravels.in",
+        name: "Meenakshi Travels",
+        city: "Madurai",
+        contactName: "Murugesan Pandian",
+        phone: "+919842011234",
+        email: "ops@meenakshitravels.in",
         pan: "AAECS1234F",
-        gstin: "08AAECS1234F1ZO",
+        gstin: "33AAECS1234F1ZW",
         status: "active",
         tier: "gold",
         commissionBps: 900,
         bankAccountLast4: "4417",
-        notes: "First operator signed. Runs the Ajmer–Pushkar circuit weekly; very responsive.",
+        notes:
+          "First operator signed. Runs the Palani and Rameswaram circuits weekly; very responsive.",
       },
       {
-        name: "Pink City Coach Service",
-        city: "Jaipur",
-        contactName: "Rekha Sharma",
-        phone: "+919314055678",
-        email: "bookings@pinkcitycoach.com",
+        name: "Pandiyan Coach Service",
+        city: "Madurai",
+        contactName: "Lakshmi Subramanian",
+        phone: "+919843055678",
+        email: "bookings@pandiyancoach.in",
         pan: "AAFCP5678K",
-        gstin: "08AAFCP5678K1ZR",
+        gstin: "33AAFCP5678K1ZZ",
         status: "active",
         tier: "silver",
         bankAccountLast4: "9082",
-        notes: "Volvo multi-axle and 45-seat coaches. Strong on corporate offsites.",
+        notes: "Volvo multi-axle and 45-seat coaches. Strong on Kodaikanal corporate offsites.",
       },
       {
-        name: "Rajputana Fleet Owners",
-        city: "Jaipur",
-        contactName: "Imran Qureshi",
-        phone: "+919928099887",
+        name: "Vaigai Fleet Owners",
+        city: "Madurai",
+        contactName: "Abdul Kareem",
+        phone: "+919894099887",
         status: "pending_verification",
         tier: "bronze",
-        notes: "Nine tempo travellers. Paperwork still coming in.",
+        notes: "Nine tempo travellers on the Madurai–Theni run. Paperwork still coming in.",
       },
     ])
     .returning()
@@ -98,37 +98,40 @@ async function main(): Promise<void> {
     .values([
       {
         operatorId: shekhawati.id,
-        registrationNumber: "RJ 14 PA 4521",
+        registrationNumber: "TN 58 AL 4521",
         vehicleClass: "tempo_traveller",
         seats: 17,
         ac: true,
         yearOfManufacture: 2022,
         fuelType: "diesel",
         features: ["pushback", "luggage_carrier", "led_tv"],
+        segment: "luxury",
         photoCount: 8,
         status: "active",
       },
       {
         operatorId: shekhawati.id,
-        registrationNumber: "RJ 14 PB 8890",
+        registrationNumber: "TN 58 AM 8890",
         vehicleClass: "tempo_traveller",
         seats: 26,
         ac: true,
         yearOfManufacture: 2020,
         fuelType: "diesel",
         features: ["pushback", "luggage_carrier", "mic"],
+        segment: "luxury",
         photoCount: 6,
         status: "active",
       },
       {
         operatorId: pinkCity.id,
-        registrationNumber: "RJ 14 PC 1207",
+        registrationNumber: "TN 58 BQ 1207",
         vehicleClass: "coach_seater",
         seats: 45,
         ac: true,
         yearOfManufacture: 2021,
         fuelType: "diesel",
         features: ["pushback", "mic", "led_tv", "luggage_carrier"],
+        segment: "luxury",
         photoCount: 10,
         status: "active",
       },
@@ -136,25 +139,27 @@ async function main(): Promise<void> {
         // Insurance lapsed last week: the compliance queue has to have
         // something real in it, because that screen is the one that must work.
         operatorId: pinkCity.id,
-        registrationNumber: "RJ 14 PC 3388",
+        registrationNumber: "TN 58 BR 3388",
         vehicleClass: "mini_bus",
         seats: 32,
         ac: false,
         yearOfManufacture: 2016,
         fuelType: "diesel",
         features: ["luggage_carrier"],
+        segment: "economy",
         photoCount: 4,
         status: "active",
       },
       {
         operatorId: rajputana.id,
-        registrationNumber: "RJ 45 CA 7761",
+        registrationNumber: "TN 59 CH 7761",
         vehicleClass: "tempo_traveller",
         seats: 13,
         ac: true,
         yearOfManufacture: 2019,
         fuelType: "diesel",
         features: ["pushback"],
+        segment: "luxury",
         photoCount: 2,
         status: "pending_verification",
       },
@@ -278,14 +283,74 @@ async function main(): Promise<void> {
     },
   ])
 
+  /**
+   * Standing rates — what makes Lane B work at all.
+   *
+   * Priced off the segment ladder rather than invented per operator: economy
+   * is the base, premium carries the AC running cost, luxury the newer vehicle
+   * and the reclining seats. Real operators will edit these; the shape is what
+   * matters.
+   */
+  await db.insert(schema.rateCard).values([
+    {
+      operatorId: shekhawati.id,
+      segment: "luxury",
+      vehicleClass: "tempo_traveller",
+      perKmRatePaise: 2_600,
+      minKmPerDay: 250,
+      driverBataPerDayPaise: 60_000,
+      nightHaltPaise: 40_000,
+      tollIncluded: true,
+      parkingIncluded: false,
+      statePermitIncluded: false,
+    },
+    {
+      operatorId: shekhawati.id,
+      segment: "premium",
+      vehicleClass: "tempo_traveller",
+      perKmRatePaise: 2_200,
+      minKmPerDay: 250,
+      driverBataPerDayPaise: 50_000,
+      nightHaltPaise: 35_000,
+      tollIncluded: true,
+      parkingIncluded: false,
+      statePermitIncluded: false,
+    },
+    {
+      operatorId: pinkCity.id,
+      segment: "luxury",
+      vehicleClass: "coach_seater",
+      perKmRatePaise: 5_200,
+      minKmPerDay: 300,
+      driverBataPerDayPaise: 80_000,
+      nightHaltPaise: 60_000,
+      tollIncluded: true,
+      parkingIncluded: true,
+      statePermitIncluded: false,
+    },
+    {
+      operatorId: pinkCity.id,
+      segment: "economy",
+      vehicleClass: "mini_bus",
+      perKmRatePaise: 3_400,
+      minKmPerDay: 250,
+      driverBataPerDayPaise: 45_000,
+      nightHaltPaise: 30_000,
+      tollIncluded: false,
+      parkingIncluded: false,
+      statePermitIncluded: false,
+    },
+  ])
+
   const drivers = await db
     .insert(schema.driver)
     .values([
       {
         operatorId: shekhawati.id,
-        name: "Ramesh Meena",
-        phone: "+919829445566",
-        dlNumber: "RJ1420110004421",
+        name: "Murugan Selvam",
+        phone: "+919842445566",
+        languages: ["ta", "en", "hi"],
+        dlNumber: "TN5820110004421",
         dlExpiresOn: isoDate(700),
         policeVerifiedOn: isoDate(-120),
         medicalCheckedOn: isoDate(-90),
@@ -294,9 +359,10 @@ async function main(): Promise<void> {
       },
       {
         operatorId: shekhawati.id,
-        name: "Sohan Lal Gurjar",
-        phone: "+919887332211",
-        dlNumber: "RJ1420090011872",
+        name: "Karuppasamy Raja",
+        phone: "+919865332211",
+        languages: ["ta"],
+        dlNumber: "TN5820090011872",
         dlExpiresOn: isoDate(22),
         policeVerifiedOn: isoDate(-200),
         medicalCheckedOn: isoDate(-150),
@@ -305,9 +371,10 @@ async function main(): Promise<void> {
       },
       {
         operatorId: pinkCity.id,
-        name: "Abdul Rehman",
-        phone: "+919314778899",
-        dlNumber: "RJ1420150003310",
+        name: "Ilango Devaraj",
+        phone: "+919894778899",
+        languages: ["ta", "ml"],
+        dlNumber: "TN5920150003310",
         dlExpiresOn: isoDate(900),
         policeVerifiedOn: isoDate(-60),
         medicalCheckedOn: isoDate(-60),
@@ -324,24 +391,24 @@ async function main(): Promise<void> {
     .insert(schema.customer)
     .values([
       {
-        name: "Aditi Agarwal",
-        phone: "+919001122334",
-        email: "aditi.agarwal@gmail.com",
-        city: "Jaipur",
+        name: "Anitha Ramasamy",
+        phone: "+919841122334",
+        email: "anitha.ramasamy@gmail.com",
+        city: "Madurai",
         segment: "wedding",
       },
       {
-        name: "Nexworth Analytics Pvt Ltd",
-        phone: "+919833004455",
-        email: "admin@nexworth.in",
-        gstin: "27AAGCN9911L1ZY",
-        city: "Mumbai",
+        name: "Vaigai Analytics Pvt Ltd",
+        phone: "+919840004455",
+        email: "admin@vaigaianalytics.in",
+        gstin: "33AAGCN9911L1ZR",
+        city: "Chennai",
         segment: "corporate",
       },
       {
-        name: "Shri Ramdev Yatra Mandal",
-        phone: "+919772211009",
-        city: "Jaipur",
+        name: "Sri Meenakshi Yatra Mandal",
+        phone: "+919894211009",
+        city: "Madurai",
         segment: "pilgrimage",
       },
     ])
@@ -364,8 +431,8 @@ async function main(): Promise<void> {
         reference: "TOLI-R-000001",
         customerId: aditi.id,
         tripType: "round_trip",
-        city: "Jaipur",
-        state: "Rajasthan",
+        city: "Madurai",
+        state: "Tamil Nadu",
         startAt: day(-9, 6),
         endAt: day(-8, 21),
         passengerCount: 24,
@@ -374,11 +441,12 @@ async function main(): Promise<void> {
         acRequired: true,
         features: ["pushback", "luggage_carrier"],
         extras: ["decorated_vehicle", "guest_tracking_link"],
-        interstate: true,
-        statesCrossed: ["Uttar Pradesh"],
+        interstate: false,
+        statesCrossed: [],
         estimatedKm: 480,
+        preferredDriverLanguage: "hi",
         notes:
-          "Baraat from Jaipur to Agra, back next evening. Decorated vehicle, driver in uniform.",
+          "Wedding party from Madurai to Kodaikanal, back next evening. Decorated vehicle, driver in uniform. Half the guests are from Delhi — a Hindi-speaking driver would help.",
         status: "booked",
         createdAt: new Date(now - 14 * DAY),
       },
@@ -386,8 +454,8 @@ async function main(): Promise<void> {
         reference: "TOLI-R-000002",
         customerId: nexworth.id,
         tripType: "multi_day_tour",
-        city: "Jaipur",
-        state: "Rajasthan",
+        city: "Madurai",
+        state: "Tamil Nadu",
         startAt: day(6, 7),
         endAt: day(8, 19),
         passengerCount: 42,
@@ -400,7 +468,7 @@ async function main(): Promise<void> {
         statesCrossed: [],
         estimatedKm: 620,
         notes:
-          "Sales offsite — Jaipur, Ranthambore, Jaipur. GST invoice required against Mumbai GSTIN.",
+          "Sales offsite — Madurai, Kodaikanal, Madurai. GST invoice required against the Chennai GSTIN.",
         status: "quoting",
         createdAt: new Date(now - 2 * DAY),
       },
@@ -408,8 +476,8 @@ async function main(): Promise<void> {
         reference: "TOLI-R-000003",
         customerId: yatra.id,
         tripType: "round_trip",
-        city: "Jaipur",
-        state: "Rajasthan",
+        city: "Madurai",
+        state: "Tamil Nadu",
         startAt: day(12, 5),
         endAt: day(12, 22),
         passengerCount: 16,
@@ -422,7 +490,7 @@ async function main(): Promise<void> {
         statesCrossed: [],
         estimatedKm: 290,
         notes:
-          "Ajmer Sharif and Pushkar, one day. Elderly group — needs a low step and unhurried stops.",
+          "Ajmer Sharif and Rameswaram, one day. Elderly group — needs a low step and unhurried stops.",
         status: "open",
         createdAt: new Date(now - 4 * 3_600_000),
       },
@@ -433,15 +501,15 @@ async function main(): Promise<void> {
   if (!wedding || !offsite || !pilgrimage) throw new Error("requests not created")
 
   await db.insert(schema.stop).values([
-    { tripRequestId: wedding.id, sequence: 0, label: "Hotel Clarks Amer, Jaipur" },
-    { tripRequestId: wedding.id, sequence: 1, label: "Fatehpur Sikri" },
-    { tripRequestId: wedding.id, sequence: 2, label: "Taj East Gate, Agra" },
-    { tripRequestId: offsite.id, sequence: 0, label: "Nexworth office, Malviya Nagar" },
-    { tripRequestId: offsite.id, sequence: 1, label: "Ranthambore National Park" },
-    { tripRequestId: offsite.id, sequence: 2, label: "Nexworth office, Malviya Nagar" },
-    { tripRequestId: pilgrimage.id, sequence: 0, label: "Sanganeri Gate, Jaipur" },
-    { tripRequestId: pilgrimage.id, sequence: 1, label: "Ajmer Sharif Dargah" },
-    { tripRequestId: pilgrimage.id, sequence: 2, label: "Pushkar" },
+    { tripRequestId: wedding.id, sequence: 0, label: "Hotel Germanus, Madurai" },
+    { tripRequestId: wedding.id, sequence: 1, label: "Batlagundu" },
+    { tripRequestId: wedding.id, sequence: 2, label: "Kodai Lake, Kodaikanal" },
+    { tripRequestId: offsite.id, sequence: 0, label: "Vaigai Analytics, Anna Nagar" },
+    { tripRequestId: offsite.id, sequence: 1, label: "Kodaikanal" },
+    { tripRequestId: offsite.id, sequence: 2, label: "Vaigai Analytics, Anna Nagar" },
+    { tripRequestId: pilgrimage.id, sequence: 0, label: "Meenakshi Temple, Madurai" },
+    { tripRequestId: pilgrimage.id, sequence: 1, label: "Palani Murugan Temple" },
+    { tripRequestId: pilgrimage.id, sequence: 2, label: "Rameswaram" },
   ])
 
   /** Prices a quote the way the app does, so seeded totals are not invented. */
@@ -610,7 +678,7 @@ async function main(): Promise<void> {
       advanceDuePaise: applyBps(accepted.estimatedTotalPaise, advanceBps),
       commissionBps,
       gstTreatment: "passenger_transport_5",
-      placeOfSupply: "Rajasthan",
+      placeOfSupply: "Tamil Nadu",
       intraState: true,
       trackingToken: trackingToken(),
       createdAt: new Date(now - 13 * DAY),
@@ -662,12 +730,12 @@ async function main(): Promise<void> {
       lat: "26.9124",
       lng: "75.7873",
     },
-    { bookingId: booking.id, kind: "stop_reached", at: day(-9, 11, 40), detail: "Fatehpur Sikri" },
+    { bookingId: booking.id, kind: "stop_reached", at: day(-9, 11, 40), detail: "Batlagundu" },
     {
       bookingId: booking.id,
       kind: "stop_reached",
       at: day(-9, 14, 20),
-      detail: "Taj East Gate, Agra",
+      detail: "Kodai Lake, Kodaikanal",
     },
     {
       bookingId: booking.id,
@@ -703,7 +771,7 @@ async function main(): Promise<void> {
     gstTreatment: "passenger_transport_5",
     gstRateBps: gst.rateBps,
     sacCode: gst.sacCode,
-    placeOfSupply: "Rajasthan",
+    placeOfSupply: "Tamil Nadu",
   })
 
   const breakdown = computeSettlement({
@@ -751,7 +819,7 @@ async function main(): Promise<void> {
         advanceDuePaise: applyBps(894_000, advanceBps),
         commissionBps,
         gstTreatment: "passenger_transport_5",
-        placeOfSupply: "Rajasthan",
+        placeOfSupply: "Tamil Nadu",
         intraState: true,
         trackingToken: trackingToken(),
       })
@@ -801,7 +869,7 @@ async function main(): Promise<void> {
   await db.insert(schema.auditLog).values({
     kind: "request_created",
     actor: "seed",
-    detail: "Seeded Jaipur data: 3 operators, 5 vehicles, 3 RFQs, 1 completed booking",
+    detail: "Seeded Madurai data: 3 operators, 5 vehicles, 3 RFQs, 1 completed booking",
   })
 
   console.log("Seeded:")

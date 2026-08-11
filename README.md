@@ -9,6 +9,30 @@ India's aggregator marketplace for chartered vans, tempo travellers and buses �
 
 ## What it does
 
+**Two ways to book, one verified fleet.** §11 calls these Lane A and Lane B:
+
+- **Book now** — vehicles that are actually free on your date, priced from the
+  operator's standing rate card, driver named, booked in one tap. Nothing
+  unfit is ever shown: a vehicle whose permit lapses before the travel date, or
+  that is already out that morning, is filtered out before you see it.
+- **Get a quote** — the RFQ lane, kept because it is what people habitually do
+  for long trips: describe it once, operators answer in one schema, compare.
+
+**Segments, the way you hire a car.** Economy is non-AC, Premium is air
+conditioned, Luxury adds push-back seats. The segment is derived from what a
+vehicle actually has, so "luxury non-AC" is not expressible — and a better
+vehicle may serve a cheaper booking, never the reverse.
+
+**Launching in Madurai.** Seed data, examples and copy stay in the Madurai →
+Kodaikanal → Palani → Rameswaram corridor, because §11 argues for one city and
+a corridor rather than scattered cities. The audience is all of India; the
+operating footprint starts here, and nothing in the product implies coverage
+that does not exist.
+
+**Six languages**, with the plumbing §4.1 asks for on day one: English, Tamil,
+Hindi, Telugu, Malayalam, Kannada — and a customer can ask for a driver who
+speaks one of them, which is honoured in vehicle selection where possible.
+
 **Four people, four applications.** §3 of the plan needs genuinely different
 users — Toli's ops desk, the group organiser, the fleet operator and the
 driver — and is explicit that the driver must not be the operator, because a

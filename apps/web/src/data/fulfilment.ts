@@ -78,7 +78,10 @@ export type BookingDetail = {
  * Also rejects the losing quotes, because leaving them open is how an operator
  * ends up holding a vehicle for a trip somebody else is running.
  */
-export async function acceptQuote(quoteId: string): Promise<Booking> {
+export async function acceptQuote(
+  quoteId: string,
+  source: "quote" | "instant" = "quote",
+): Promise<Booking> {
   const rows = await db()
     .select({ quote, request: tripRequest, operator, customer })
     .from(quote)
@@ -101,6 +104,7 @@ export async function acceptQuote(quoteId: string): Promise<Booking> {
     .insert(booking)
     .values({
       reference: reference("B", count.length + 1),
+      source,
       tripRequestId: found.request.id,
       quoteId: found.quote.id,
       customerId: found.customer.id,

@@ -66,6 +66,24 @@ export const vehicleClassEnum = pgEnum("vehicle_class", [
   "double_decker",
 ])
 
+/**
+ * The Europcar ladder, applied to charter: economy is non-AC, premium is air
+ * conditioned, luxury adds push-back seats. Stored rather than derived so a
+ * query can filter on it, but always written from `segmentFor` — an operator
+ * moves a vehicle up a rung by fitting the thing, not by claiming it.
+ */
+export const segmentEnum = pgEnum("vehicle_segment", ["economy", "premium", "luxury"])
+
+/**
+ * Which of the two products a booking came through.
+ *
+ * §11 calls these Lane A and Lane B: a quote fanned out to operators, and an
+ * instant book against a standing rate. They produce the same booking and are
+ * settled identically — but they convert differently and are worth telling
+ * apart in the metrics from the first day.
+ */
+export const bookingSourceEnum = pgEnum("booking_source", ["quote", "instant"])
+
 /** §9: `draft → pending_verification → active → suspended → retired`. */
 export const vehicleStatusEnum = pgEnum("vehicle_status", [
   "draft",
@@ -243,6 +261,8 @@ export const vehicle = pgTable(
     fuelType: text("fuel_type"),
     /** pushback, luggage_carrier, led_tv, mic, washroom, wheelchair_accessible. */
     features: text("features").array().notNull().default([]),
+    /** Derived from `ac` and `features`; see domain/segment.ts. */
+    segment: segmentEnum("segment").notNull().default("economy"),
     photoCount: smallint("photo_count").notNull().default(0),
     status: vehicleStatusEnum("status").notNull().default("draft"),
     /** Enumerated in domain/compliance.ts, stored as text so a reason survives a code change. */
@@ -286,6 +306,16 @@ export const driver = pgTable(
       .references(() => operator.id),
     name: text("name").notNull(),
     phone: text("phone").notNull(),
+    /**
+     * Languages this driver actually speaks, as locale codes.
+     *
+     * §4.1 lets a customer ask for a driver who speaks their language, and in
+     * a market like Madurai that is not a nicety: a Delhi family on the Kodai
+     * circuit and a Tamil-speaking driver can spend two days unable to agree
+     * where to stop for lunch. Stored per driver so the request can be matched
+     * rather than hoped for.
+     */
+    languages: text("languages").array().notNull().default(["ta"]),
     dlNumber: text("dl_number"),
     dlExpiresOn: date("dl_expires_on"),
     /** §8.4 makes all three a licence condition, not a nicety. */
@@ -375,6 +405,10 @@ export const tripRequest = pgTable(
     vehicleClass: vehicleClassEnum("vehicle_class").notNull(),
     vehicleCount: smallint("vehicle_count").notNull().default(1),
     acRequired: boolean("ac_required").notNull().default(true),
+    /** What the customer picked from the ladder. A better vehicle may serve it. */
+    segment: segmentEnum("segment").notNull().default("premium"),
+    /** A locale code the customer asked the driver to speak, if they asked. */
+    preferredDriverLanguage: text("preferred_driver_language"),
     features: text("features").array().notNull().default([]),
     extras: text("extras").array().notNull().default([]),
     /** Drives the AITP requirement in domain/compliance.ts. */
@@ -494,6 +528,7 @@ export const booking = pgTable(
       .notNull()
       .references(() => operator.id),
     status: bookingStatusEnum("status").notNull().default("confirmed"),
+    source: bookingSourceEnum("source").notNull().default("quote"),
 
     /** Copied from the accepted quote so a later quote edit cannot rewrite history. */
     agreedTotalPaise: bigint("agreed_total_paise", { mode: "number" }).notNull(),
@@ -727,6 +762,57 @@ export const dispute = pgTable(
 )
 
 /**
+ * Standing rates — what makes instant booking possible at all.
+ *
+ * §4.2 calls this "rate card mode": the operator sets a price per segment and
+ * vehicle class once, and the platform quotes on their behalf. §11 then builds
+ * Lane B on top of it. Without a rate card an operator can only answer RFQs by
+ * hand, which is fine but caps how fast they can be booked.
+ *
+ * The columns are §7.1's, deliberately: an instant price and a hand-typed
+ * quote must be the same shape, or the customer cannot compare them.
+ */
+export const rateCard = pgTable(
+  "rate_card",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    operatorId: uuid("operator_id")
+      .notNull()
+      .references(() => operator.id),
+    segment: segmentEnum("segment").notNull(),
+    vehicleClass: vehicleClassEnum("vehicle_class").notNull(),
+
+    baseFarePaise: bigint("base_fare_paise", { mode: "number" }).notNull().default(0),
+    perKmRatePaise: bigint("per_km_rate_paise", { mode: "number" }).notNull(),
+    minKmPerDay: integer("min_km_per_day").notNull(),
+    driverBataPerDayPaise: bigint("driver_bata_per_day_paise", { mode: "number" })
+      .notNull()
+      .default(0),
+    nightHaltPaise: bigint("night_halt_paise", { mode: "number" }).notNull().default(0),
+    /** Local packages: what the base fare covers before overage. */
+    includedKm: integer("included_km"),
+    includedHours: integer("included_hours"),
+    extraKmRatePaise: bigint("extra_km_rate_paise", { mode: "number" }),
+    extraHourRatePaise: bigint("extra_hour_rate_paise", { mode: "number" }),
+
+    tollIncluded: boolean("toll_included").notNull().default(false),
+    parkingIncluded: boolean("parking_included").notNull().default(false),
+    statePermitIncluded: boolean("state_permit_included").notNull().default(false),
+
+    active: boolean("active").notNull().default(true),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("rate_card_unique_idx").on(table.operatorId, table.segment, table.vehicleClass),
+    index("rate_card_lookup_idx").on(table.segment, table.vehicleClass),
+  ],
+)
+
+export type RateCard = typeof rateCard.$inferSelect
+export type Segment = (typeof segmentEnum.enumValues)[number]
+export type BookingSource = (typeof bookingSourceEnum.enumValues)[number]
+
+/**
  * One row, id `default`. Commission, the two statutory deduction rates, the
  * GST treatment in force and the advance percentage — the numbers §7.4 and
  * §8.3 say will change once a CA has answered, and which must therefore not
@@ -741,7 +827,7 @@ export const platformSetting = pgTable("platform_setting", {
     .notNull()
     .default("passenger_transport_5"),
   advanceBps: integer("advance_bps").notNull().default(2500),
-  homeState: text("home_state").notNull().default("Rajasthan"),
+  homeState: text("home_state").notNull().default("Tamil Nadu"),
   quoteValidityHours: integer("quote_validity_hours").notNull().default(48),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 })
