@@ -490,7 +490,7 @@ async function main(): Promise<void> {
         statesCrossed: [],
         estimatedKm: 290,
         notes:
-          "Ajmer Sharif and Rameswaram, one day. Elderly group — needs a low step and unhurried stops.",
+          "Palani and Rameswaram in one day. Elderly group — needs a low step and unhurried stops.",
         status: "open",
         createdAt: new Date(now - 4 * 3_600_000),
       },

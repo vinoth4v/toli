@@ -39,7 +39,7 @@ export default async function NewOperatorPage({
             </div>
             <div>
               <label htmlFor="city">City</label>
-              <input id="city" name="city" list="cities" defaultValue="Jaipur" required />
+              <input id="city" name="city" list="cities" defaultValue="Madurai" required />
               <datalist id="cities">
                 {LAUNCH_CITIES.map((city) => (
                   <option key={city} value={city} />

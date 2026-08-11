@@ -1,7 +1,7 @@
 /**
  * Times are stored UTC and rendered IST — §9, and the reason is that every
  * person who reads this app is in one time zone. A departure at "06:00" means
- * six in the morning in Jaipur, and no screen should ever make an ops person
+ * six in the morning in Madurai, and no screen should ever make an ops person
  * do the arithmetic at 5 AM.
  *
  * Reference codes live here too: they are what a customer reads out on a phone

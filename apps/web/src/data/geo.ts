@@ -10,7 +10,7 @@ import { geocode, paddedDurationMinutes, route } from "@/integrations/maps"
  * "Cache geocode results forever, route distances for common origin-destination
  * pairs with a 30-day TTL, keyed on rounded coordinates." A memory cache would
  * not survive a serverless invocation, and the whole point is that the same
- * Jaipur–Agra pair is asked for by every quote on every RFQ.
+ * Madurai–Kodaikanal pair is asked for by every quote on every RFQ.
  */
 
 const cache = {

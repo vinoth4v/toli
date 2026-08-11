@@ -20,8 +20,8 @@ function toRadians(degrees: number): number {
  *
  * Straight-line, not road distance — used for "has this vehicle moved", "is
  * this ping plausible" and "how far off the route is it", never for pricing. A
- * quote's distance comes from OSRM, because the road between Jaipur and Agra
- * is 240 km and the line between them is 190.
+ * quote's distance comes from OSRM, because the road from Madurai up to
+ * Kodaikanal is 120 km of ghat and the line between them is 75.
  */
 export function haversineKm(a: Point, b: Point): number {
   const dLat = toRadians(b.lat - a.lat)

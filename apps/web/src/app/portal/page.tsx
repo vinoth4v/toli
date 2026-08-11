@@ -6,19 +6,29 @@ import { formatIst, relativeToNow } from "@/domain/format"
 import { formatPaise } from "@/domain/money"
 import { tripTypeLabel } from "@/domain/trip"
 import { vehicleClassLabel } from "@/domain/vehicle"
+import { translations } from "@/i18n"
 
 export const dynamic = "force-dynamic"
 
-const STATE: Record<string, { label: string; tone: string }> = {
-  open: { label: "Waiting for quotes", tone: "waiting" },
-  quoting: { label: "Quotes coming in", tone: "waiting" },
-  booked: { label: "Booked", tone: "good" },
-  expired: { label: "Expired", tone: "quiet" },
-  cancelled: { label: "Cancelled", tone: "quiet" },
+/** Status wording comes from the dictionary, so it changes with the language. */
+function stateOf(
+  status: string,
+  t: { portalWaitingQuotes: string; portalQuotesComing: string; portalBooked: string },
+) {
+  switch (status) {
+    case "open":
+      return { label: t.portalWaitingQuotes, tone: "waiting" }
+    case "quoting":
+      return { label: t.portalQuotesComing, tone: "waiting" }
+    case "booked":
+      return { label: t.portalBooked, tone: "good" }
+    default:
+      return { label: status, tone: "quiet" }
+  }
 }
 
 export default async function PortalHome() {
-  const session = await auth()
+  const [session, { t }] = await Promise.all([auth(), translations()])
   const customerId = session?.user.customerId
   if (!customerId) redirect("/login")
 
@@ -29,15 +39,20 @@ export default async function PortalHome() {
   return (
     <>
       <header className="portal-head">
-        <h1>Your trips</h1>
-        <Link href="/portal/new" className="button-link">
-          Ask for a vehicle
-        </Link>
+        <h1>{t.portalYourTrips}</h1>
+        <div className="button-row">
+          <Link href="/portal/book" className="button-link">
+            {t.portalBookNow}
+          </Link>
+          <Link href="/portal/new" className="button-link quiet">
+            {t.portalAskForVehicle}
+          </Link>
+        </div>
       </header>
 
       {trips.length === 0 ? (
         <section className="portal-empty">
-          <h2>Nothing booked yet</h2>
+          <h2>{t.portalNothingYet}</h2>
           <p>
             Tell us where the group is going and how many of you there are. Operators come back with
             quotes in one shape, so you can actually compare them.
@@ -50,7 +65,7 @@ export default async function PortalHome() {
 
       {upcoming.length > 0 ? (
         <section>
-          <h2 className="portal-section">Coming up</h2>
+          <h2 className="portal-section">{t.portalComingUp}</h2>
           <div className="trip-list">
             {upcoming.map(({ request, booking }) => (
               <Link key={request.id} href={`/portal/trips/${request.id}`} className="trip-card">
@@ -79,8 +94,8 @@ export default async function PortalHome() {
                   <p className="muted small">{relativeToNow(request.startAt)}</p>
                 </div>
                 <div className="trip-state">
-                  <span className={`state ${STATE[request.status]?.tone ?? "quiet"}`}>
-                    {STATE[request.status]?.label ?? request.status}
+                  <span className={`state ${stateOf(request.status, t).tone}`}>
+                    {stateOf(request.status, t).label}
                   </span>
                   {booking ? (
                     <span className="price">{formatPaise(booking.booking.agreedTotalPaise)}</span>
@@ -94,7 +109,7 @@ export default async function PortalHome() {
 
       {past.length > 0 ? (
         <section>
-          <h2 className="portal-section">Earlier</h2>
+          <h2 className="portal-section">{t.portalEarlier}</h2>
           <div className="trip-list">
             {past.map(({ request, booking }) => (
               <Link

@@ -398,3 +398,42 @@ somebody lands, and the second step says so.
 password field at all, that each role's card reveals the form, and that a junk
 `?as=` falls back to the chooser. The gate test was updated in the same pass —
 it was still asserting a form on a page that no longer has one.
+
+---
+
+## Tamil, and the defaults that never moved — 11 August 2026
+
+**Asked:** the prefilled locations were still Jaipur and Rajasthan; add a Tamil
+language pack.
+
+**Changed:**
+
+- Every form default and placeholder follows the launch market: Madurai, Tamil
+  Nadu, Hotel Germanus, Kodai Lake, a TN registration. The seed and
+  `LAUNCH_CITIES` had moved a session earlier; the hard-coded defaults had not,
+  which is exactly the kind of thing a documented constraint is supposed to
+  catch and did not.
+- Test fixtures moved too, since the constraint covers examples: the quote
+  fixture is now Madurai → Munnar, which also happens to be genuinely
+  interstate, and the geo fixtures are Madurai, Batlagundu, Kodaikanal and
+  Rameswaram with distances re-derived rather than adjusted to pass.
+- The language switcher is mounted in the driver app and the customer portal,
+  and both now read their strings from the dictionary — so the six languages
+  are reachable rather than merely present.
+
+**Found while verifying, and fixed:**
+
+- The customer note on the seeded pilgrimage trip still read "Ajmer Sharif".
+  The Madurai rename replaced "Pushkar" globally *before* the note pattern ran,
+  so the note never matched — a silent partial rename that only showed up on
+  screen. The one row already in production was corrected in place.
+- The driver's trip header read "16 பயணிகள் · 17" because translating the line
+  dropped the word "seats" entirely. A `driveSeats` key now exists in all six
+  languages.
+
+Both were found by signing in as the driver and switching to Tamil, not by
+reading the diff — which is the argument for looking at the screen.
+
+**Open:** the portal's deeper screens (quote comparison, bill, book-now) are
+still English; the dictionary covers the surfaces a non-English reader meets
+first. The `hi`/`te`/`ml`/`kn` strings still need a native pass.

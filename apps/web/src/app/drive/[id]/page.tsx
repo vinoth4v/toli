@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { driverTrips } from "@/data/scoped"
 import { formatIstTime } from "@/domain/format"
+import { translations } from "@/i18n"
 import {
   addTripExpenseAction,
   completeTripAction,
@@ -29,7 +30,12 @@ export default async function DriveTripPage({
   params: Promise<{ id: string }>
   searchParams: Promise<{ error?: string }>
 }) {
-  const [{ id }, { error }, session] = await Promise.all([params, searchParams, auth()])
+  const [{ id }, { error }, session, { t }] = await Promise.all([
+    params,
+    searchParams,
+    auth(),
+    translations(),
+  ])
   const driverId = session?.user.driverId
   if (!driverId) redirect("/login")
 
@@ -43,7 +49,7 @@ export default async function DriveTripPage({
   return (
     <>
       <p className="crumb">
-        <Link href="/drive">← Trips</Link>
+        <Link href="/drive">← {t.back}</Link>
       </p>
 
       {error ? <p role="alert">{error}</p> : null}
@@ -52,8 +58,8 @@ export default async function DriveTripPage({
         <p className="drive-time">{formatIstTime(trip.startAt)}</p>
         <p className="drive-vehicle numeric">{trip.registration}</p>
         <p className="drive-meta">
-          {trip.passengerCount} passengers · {trip.seats} seats
-          {trip.interstate ? " · interstate" : ""}
+          {trip.passengerCount} {t.drivePassengers} · {trip.seats} {t.driveSeats}
+          {trip.interstate ? ` · ${t.driveInterstate}` : ""}
         </p>
       </section>
 
@@ -68,21 +74,21 @@ export default async function DriveTripPage({
 
       {trip.notes ? (
         <section className="drive-note">
-          <p className="label">From the customer</p>
+          <p className="label">{t.driveFromCustomer}</p>
           <p>{trip.notes}</p>
         </section>
       ) : null}
 
       <section className="drive-contact">
         <a href={`tel:+91${trip.customerPhone.replace(/\D/g, "").slice(-10)}`} className="call">
-          Call {trip.customerName}
+          {t.driveCall} {trip.customerName}
         </a>
       </section>
 
       {!started ? (
         <form action={startTripAction} className="drive-form">
           <input type="hidden" name="bookingId" value={trip.bookingId} />
-          <label htmlFor="odometerKm">Odometer reading now</label>
+          <label htmlFor="odometerKm">{t.driveOdometerNow}</label>
           <input
             id="odometerKm"
             name="odometerKm"
@@ -92,7 +98,7 @@ export default async function DriveTripPage({
             required
           />
           <button type="submit" className="huge go">
-            Start trip
+            {t.driveStartTrip}
           </button>
         </form>
       ) : null}
@@ -101,7 +107,7 @@ export default async function DriveTripPage({
         <>
           <form action={reachedStopAction} className="drive-form">
             <input type="hidden" name="bookingId" value={trip.bookingId} />
-            <label htmlFor="label">Reached a stop</label>
+            <label htmlFor="label">{t.driveReachedStop}</label>
             <select id="label" name="label">
               {trip.stops.map((stop) => (
                 <option key={stop.sequence} value={stop.label}>
@@ -110,49 +116,46 @@ export default async function DriveTripPage({
               ))}
             </select>
             <button type="submit" className="huge">
-              Reached
+              {t.driveReached}
             </button>
           </form>
 
           <form action={addTripExpenseAction} className="drive-form">
             <input type="hidden" name="bookingId" value={trip.bookingId} />
-            <label htmlFor="kind">Money you paid on the road</label>
+            <label htmlFor="kind">{t.driveMoneyPaid}</label>
             <select id="kind" name="kind" defaultValue="toll">
-              <option value="toll">Toll</option>
-              <option value="parking">Parking</option>
-              <option value="fuel">Fuel</option>
-              <option value="state_permit">State permit</option>
+              <option value="toll">{t.driveToll}</option>
+              <option value="parking">{t.driveParking}</option>
+              <option value="fuel">{t.driveFuel}</option>
+              <option value="state_permit">{t.drivePermit}</option>
             </select>
             <input name="amount" inputMode="decimal" placeholder="₹" required />
             <button type="submit" className="huge">
-              Add
+              {t.driveAdd}
             </button>
-            <p className="hint">Goes back to your operator in the trip settlement.</p>
+            <p className="hint">{t.driveExpenseHint}</p>
           </form>
 
           <form action={completeTripAction} className="drive-form">
             <input type="hidden" name="bookingId" value={trip.bookingId} />
-            <label htmlFor="endOdometer">Odometer at the end</label>
+            <label htmlFor="endOdometer">{t.driveOdometerEnd}</label>
             <input id="endOdometer" name="odometerKm" type="number" inputMode="numeric" required />
             <button type="submit" className="huge done">
-              Finish trip
+              {t.driveFinishTrip}
             </button>
           </form>
         </>
       ) : null}
 
-      {finished ? <p className="drive-finished">Trip finished. Thank you.</p> : null}
+      {finished ? <p className="drive-finished">{t.driveFinished}</p> : null}
 
       <form action={sosAction} className="drive-sos">
         <input type="hidden" name="bookingId" value={trip.bookingId} />
-        <input name="detail" placeholder="What is happening?" />
+        <input name="detail" placeholder={t.driveSosPlaceholder} />
         <button type="submit" className="huge sos">
-          SOS
+          {t.driveSos}
         </button>
-        <p className="hint">
-          Raises an alert on the trip and in Toli's records. It does not yet ring a phone — for an
-          emergency, call 112 first.
-        </p>
+        <p className="hint">{t.driveSosHint}</p>
       </form>
 
       {trip.events.length > 0 ? (
