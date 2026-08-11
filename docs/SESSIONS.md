@@ -657,3 +657,43 @@ legend. Both fixed.
 application has no notification to ops beyond appearing in the verification
 queue; `hi`/`te`/`ml`/`kn` strings still await a native speaker; S3 variables
 still unset on production for avatar and vehicle-photo upload.
+
+## Session 16 — 11 August 2026: navy, and scenes that are of somewhere
+
+**Asked:** the black-and-white theme still reads as Uber — change it to dark
+blue and white; and make the images suit south Tamil Nadu — temple tower,
+mountains.
+
+**Changed:**
+
+- **Foreground token: black → deep navy** (`#122a52` light, navy-tinted
+  surfaces/borders/muted to match; dark scheme is white-on-navy). One token
+  edit repainted the masthead, footer, metrics band, buttons, logo and every
+  heading — the same payoff as the first re-skin, proving the point of the
+  token system twice.
+- **The hero gopuram grew into a Meenakshi-class tower**: six striped tiers,
+  sculpture-niche rows, barrel roof, a crown of kalasam finials, arched
+  gateway — and behind it two hazed ranges of actual Western Ghats peaks,
+  because Kodaikanal sits on a mountain, not a mound.
+- **Pamban gained its destination**: the bridge now ends at a Rameswaram
+  shore with its own small gopuram and palm, so each crossing ends with the
+  bus disappearing into temple town instead of off an edge.
+- **The night scene gained Palani**: the hilltop temple lit above the ridge,
+  glow, lamp-lit steps — the way you actually see it from a night bus.
+- The scene's destination pin matched to the logo's navy.
+
+**Found while verifying in the browser, not the diff:** the taller gopuram
+was entirely hidden behind the floating demo card, which covered the left
+half of the artwork — the two things the scene exists to show. The card
+moved to overhang the bottom-right corner, where it costs a palm tree; a
+second look showed its corner clipping the destination pin, so it now hangs
+below the frame edge too.
+
+Verification note: the landing page was viewed via `localhost` because the
+browser held a driver session cookie for `127.0.0.1` from the previous
+session's testing — httpOnly, so undeletable from script, but host-scoped,
+so the other hostname sidesteps it. No database was needed; `publicSettings()`
+fallback carried the page, which is exactly what it is for.
+
+**Open:** unchanged from session 15 — S3 variables, native-speaker pass,
+password reset by phone call.

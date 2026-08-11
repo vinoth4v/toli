@@ -204,25 +204,27 @@ is the single place that decides whether one is configured, and
 - **The public tracking page gets a projection, not a row.** Purpose limitation
   under DPDP, and obvious besides.
 - **The brand is a theme, and the theme is the redesign.** `toli` in
-  `@werft/tokens` — ink on paper, one bold weight, colour reserved for meaning
-  (green = live/settled, red = stop). Because every component already reads
-  tokens, the whole app re-skinned from one definition; the CSS "brand" layer
-  only sets posture (weight, tracking, stickiness, motion). The logo is a route
-  mark — dot, road, pin — drawn in currentColor so it inverts in the footer.
-- **The accent is terracotta, not ink.** An all-black interface read as an
-  Uber clone, which a marketplace asking for trust cannot afford. The accent
-  token is now the terracotta the hero's gopuram already wore — so buttons,
-  links, eyebrows and step numbers warmed across every surface in one token
-  change, and the identity became "ink, terracotta, hand-drawn south-Indian
-  scenes", which nobody else owns.
-- **The illustrations are artwork, not UI.** Three hand-drawn SVG scenes —
-  the Madurai–Kodaikanal ghat road in the hero, the Pamban bridge crossing to
-  Rameswaram above "How it works", a sleeper coach on a night leg with the
-  fleet owners — all animated in CSS (clouds, wheels, waves, a crossing bus,
-  twinkling stars), all stilled by `prefers-reduced-motion`. Their palettes
-  are internal to the images — the same standing a photograph would have —
-  and are the one deliberate exception to the tokens-only rule, so the UI can
-  stay two-colour while the world it depicts is not.
+  `@werft/tokens` — deep navy on white, one bold weight, colour reserved for
+  meaning (green = live/settled, red = stop). Because every component already
+  reads tokens, the whole app re-skinned from one definition; the CSS "brand"
+  layer only sets posture (weight, tracking, stickiness, motion). The logo is
+  a route mark — dot, road, pin — drawn in currentColor so it inverts in the
+  footer.
+- **Navy, not black; terracotta, not ink.** Black-on-white read as an Uber
+  clone twice — first the accent moved to the terracotta the hero's gopuram
+  already wore, then the foreground itself moved from black to deep navy
+  (`#122a52`), both single-token changes that repainted every surface,
+  masthead, footer, button and logo at once. The identity is "navy,
+  terracotta, hand-drawn south-Indian scenes", which nobody else owns.
+- **The illustrations are artwork, not UI, and they are of somewhere.** Three
+  hand-drawn SVG scenes of the launch corridor's own landmarks: a
+  Meenakshi-class tiered gopuram with kalasam finials under hazed Western
+  Ghats peaks in the hero; the Pamban bridge with the bus disappearing into a
+  Rameswaram shore gopuram; and Palani's lit hilltop temple with a lamp-lit
+  path above the night sleeper coach. All animated in CSS, all stilled by
+  `prefers-reduced-motion`. Their palettes are internal to the images — the
+  same standing a photograph would have — and are the one deliberate
+  exception to the tokens-only rule.
 - **Avatars upload like vehicle photos.** Presigned PUT to `avatars/<userId>/…`,
   recorded on `app_user` (migration `0008`); initials are the designed default,
   not a failure state. `/account` is the one surface every role shares — face,

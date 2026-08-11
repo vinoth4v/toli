@@ -44,18 +44,21 @@ export type Theme = {
 export const THEMES = {
   toli: {
     label: "Toli",
-    inspiration: "Ink and terracotta: monochrome interface, one warm accent, hand-drawn scenes.",
+    inspiration: "Navy and white with a terracotta accent, and hand-drawn south-Indian scenes.",
     color: {
-      bg: { light: "#ffffff", dark: "#0b0b0b" },
-      surface: { light: "#f6f6f6", dark: "#161616" },
-      fg: { light: "#0b0b0b", dark: "#f6f6f6" },
-      muted: { light: "#5e5e5e", dark: "#a8a8a8" },
-      border: { light: "#e8e8e8", dark: "#272727" },
-      /* Terracotta — the colour of the gopuram in the hero art, and the thing
-         that keeps this from reading as an Uber clone. Ink does the talking,
-         terracotta does the pointing, and green/red keep their meanings. */
+      bg: { light: "#ffffff", dark: "#0a1730" },
+      surface: { light: "#f3f6fb", dark: "#111f3b" },
+      /* Deep navy, not black: black-on-white kept reading as Uber however the
+         accent argued otherwise. Navy is the second brand decision black
+         could never make — the masthead, footer, buttons and logo all take it
+         from this one token. */
+      fg: { light: "#122a52", dark: "#eaf0fa" },
+      muted: { light: "#53627e", dark: "#93a5c4" },
+      border: { light: "#dbe2ee", dark: "#233659" },
+      /* Terracotta — the colour of the gopuram in the hero art. Navy does the
+         talking, terracotta does the pointing, green/red keep their meanings. */
       accent: { light: "#c2410c", dark: "#fb923c" },
-      danger: { light: "#de1135", dark: "#ff6d60" },
+      danger: { light: "#de1135", dark: "#ff7a6e" },
       success: { light: "#0e8345", dark: "#38c793" },
     },
     fontFamily: {
