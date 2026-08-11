@@ -55,7 +55,7 @@ export async function enrolDeviceAction(formData: FormData): Promise<void> {
   const { token } = await issueDevice({ kind, label, operatorId, vehicleId, driverId, vendor })
   await recordEvent("vehicle_assigned", await actor(), `ingest device enrolled: ${label}`)
 
-  redirect(`/integrations?token=${encodeURIComponent(token)}`)
+  redirect(`/console/integrations?token=${encodeURIComponent(token)}`)
 }
 
 export async function revokeDeviceAction(formData: FormData): Promise<void> {
@@ -64,7 +64,7 @@ export async function revokeDeviceAction(formData: FormData): Promise<void> {
 
   await revokeDevice(id)
   await recordEvent("vehicle_status_changed", await actor(), `ingest device revoked: ${id}`)
-  revalidatePath("/integrations")
+  revalidatePath("/console/integrations")
 }
 
 /**
@@ -111,7 +111,7 @@ export async function verifyVehicleAction(formData: FormData): Promise<void> {
   }
 
   revalidatePath(back)
-  revalidatePath("/compliance")
+  revalidatePath("/console/compliance")
 }
 
 export async function verifyGstinAction(formData: FormData): Promise<void> {
@@ -139,7 +139,7 @@ export async function verifyGstinAction(formData: FormData): Promise<void> {
     fail(`/operators/${operatorId}`, error)
   }
 
-  revalidatePath(`/operators/${operatorId}`)
+  revalidatePath(`/console/operators/${operatorId}`)
 }
 
 /**
@@ -166,7 +166,7 @@ export async function resolveItineraryAction(formData: FormData): Promise<void> 
     fail(`/rfqs/${tripRequestId}`, error)
   }
 
-  revalidatePath(`/rfqs/${tripRequestId}`)
+  revalidatePath(`/console/rfqs/${tripRequestId}`)
 }
 
 export async function markSentByHandAction(formData: FormData): Promise<void> {
@@ -174,5 +174,5 @@ export async function markSentByHandAction(formData: FormData): Promise<void> {
   if (!id) return
 
   await markSentByHand(id)
-  revalidatePath("/integrations")
+  revalidatePath("/console/integrations")
 }

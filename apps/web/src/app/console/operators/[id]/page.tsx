@@ -433,7 +433,7 @@ export default async function OperatorPage({ params }: { params: Promise<{ id: s
               interstate trip, its All India Tourist Permit is valid and the vehicle is inside the
               age limit. That rule is enforced at assignment, not merely displayed here.
             </p>
-            <Link href="/fleet">
+            <Link href="/console/fleet">
               <button type="button" className="quiet">
                 See the whole fleet
               </button>

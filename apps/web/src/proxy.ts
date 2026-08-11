@@ -33,6 +33,10 @@ export default NextAuth(authConfig).auth
  */
 export const config = {
   matcher: [
-    "/((?!api/auth|api/ingest|api/webhooks|login|track|_next/static|_next/image|favicon.ico|icon.svg).*)",
+    // `/$` — the marketplace's own front page — is matched by nothing here on
+    // purpose. It decides for itself: a visitor sees the marketplace, and a
+    // signed-in operator is redirected straight to /console, so nobody has to
+    // click past a welcome page to reach the app they run.
+    "/((?!$|api/auth|api/ingest|api/webhooks|login|track|_next/static|_next/image|favicon.ico|icon.svg).*)",
   ],
 }

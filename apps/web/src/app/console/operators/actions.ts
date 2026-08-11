@@ -62,7 +62,7 @@ export async function createOperatorAction(formData: FormData): Promise<void> {
   })
 
   if (!parsed.success) {
-    redirect(`/operators/new?error=${encodeURIComponent("Check the required fields")}`)
+    redirect(`/console/operators/new?error=${encodeURIComponent("Check the required fields")}`)
   }
 
   const percent = parsed.data.commissionPercent.trim()
@@ -80,7 +80,7 @@ export async function createOperatorAction(formData: FormData): Promise<void> {
   })
 
   await recordEvent("operator_created", await actor(), operator.name)
-  redirect(`/operators/${operator.id}`)
+  redirect(`/console/operators/${operator.id}`)
 }
 
 export async function setOperatorStatusAction(formData: FormData): Promise<void> {
@@ -97,7 +97,7 @@ export async function setOperatorStatusAction(formData: FormData): Promise<void>
   })
 
   await recordEvent("operator_created", await actor(), `${id} → ${status || tier}`)
-  revalidatePath(`/operators/${id}`)
+  revalidatePath(`/console/operators/${id}`)
 }
 
 const vehicleSchema = z.object({
@@ -133,7 +133,7 @@ export async function addVehicleAction(formData: FormData): Promise<void> {
 
   const vehicle = await createVehicle(parsed.data)
   await recordEvent("vehicle_created", await actor(), vehicle.registrationNumber)
-  revalidatePath(`/operators/${parsed.data.operatorId}`)
+  revalidatePath(`/console/operators/${parsed.data.operatorId}`)
 }
 
 const documentSchema = z.object({
@@ -165,8 +165,8 @@ export async function addDocumentAction(formData: FormData): Promise<void> {
     expiresOn: parsed.data.expiresOn,
   })
 
-  revalidatePath(`/operators/${parsed.data.operatorId}`)
-  revalidatePath("/compliance")
+  revalidatePath(`/console/operators/${parsed.data.operatorId}`)
+  revalidatePath("/console/compliance")
 }
 
 export async function verifyDocumentAction(formData: FormData): Promise<void> {
@@ -194,8 +194,8 @@ export async function verifyDocumentAction(formData: FormData): Promise<void> {
   }
 
   await recordEvent("document_verified", await actor(), `${documentId} → ${decision}`)
-  revalidatePath("/compliance")
-  revalidatePath("/fleet")
+  revalidatePath("/console/compliance")
+  revalidatePath("/console/fleet")
 }
 
 export async function setVehicleStatusAction(formData: FormData): Promise<void> {
@@ -220,8 +220,8 @@ export async function setVehicleStatusAction(formData: FormData): Promise<void> 
 
   await setVehicleStatus(vehicleId, to, to === "suspended" ? reason : null)
   await recordEvent("vehicle_status_changed", await actor(), `${vehicleId}: ${from} → ${to}`)
-  revalidatePath("/fleet")
-  revalidatePath("/compliance")
+  revalidatePath("/console/fleet")
+  revalidatePath("/console/compliance")
 }
 
 const driverSchema = z.object({
@@ -251,5 +251,5 @@ export async function addDriverAction(formData: FormData): Promise<void> {
 
   await createDriver(parsed.data)
   await recordEvent("driver_created", await actor(), parsed.data.name)
-  revalidatePath(`/operators/${parsed.data.operatorId}`)
+  revalidatePath(`/console/operators/${parsed.data.operatorId}`)
 }

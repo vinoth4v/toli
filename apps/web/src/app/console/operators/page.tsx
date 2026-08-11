@@ -16,7 +16,7 @@ export default async function OperatorsPage() {
         title="Operators"
         intro="Thirty responsive operators beat three hundred dormant ones. This list is supply, not a vanity count."
         actions={
-          <Link href="/operators/new">
+          <Link href="/console/operators/new">
             <button type="button">Sign an operator</button>
           </Link>
         }
@@ -25,8 +25,8 @@ export default async function OperatorsPage() {
       <Card>
         {operators.length === 0 ? (
           <Empty>
-            No operators yet. <Link href="/operators/new">Sign the first one</Link> — Phase 0 is
-            25–40 vehicles across 8–12 operators, on paper, with a rate card each.
+            No operators yet. <Link href="/console/operators/new">Sign the first one</Link> — Phase
+            0 is 25–40 vehicles across 8–12 operators, on paper, with a rate card each.
           </Empty>
         ) : (
           <div className="table-wrap">
@@ -46,7 +46,7 @@ export default async function OperatorsPage() {
                 {operators.map((operator) => (
                   <tr key={operator.id}>
                     <td>
-                      <Link href={`/operators/${operator.id}`}>{operator.name}</Link>
+                      <Link href={`/console/operators/${operator.id}`}>{operator.name}</Link>
                       {operator.leakageFlagged ? (
                         <div>
                           <Badge tone="stop">leakage watch</Badge>

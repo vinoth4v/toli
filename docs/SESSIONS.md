@@ -191,3 +191,50 @@ are marked as such in ARCHITECTURE.md.
 - Razorpay Route / Easy Split — §8.2's escrow posture — is still not used.
 - Cashfree, an SMS fallback, cloud-telephony number masking, and vendor-specific
   VLTD quirks all remain.
+
+---
+
+## A front door — 11 August 2026
+
+**Asked:** redesign the home page attractively; create four role accounts
+(admin, user, tour operator, driver) with credentials and a distinct UI each;
+remove the generic login page that the production URL was showing.
+
+**Changed:** the home page and the routing around it.
+
+- `/` is now a public marketing page: the hero, the two-quote comparison that
+  is the product's whole argument, how it works, the fleet taxonomy pulled
+  from the domain module rather than retyped, what is checked before a vehicle
+  carries anyone, and an operator section showing a full settlement.
+- The console moved to `/console/*`. Signed in, `/` redirects there.
+- `/login` redesigned to match, and is no longer what a visitor to the
+  production URL sees — which was the actual complaint.
+- Two token additions: display type sizes (`3xl`, `4xl`, `xs`) and larger
+  spacing steps (`16`, `24`). Every theme shares them, so nothing was pinned
+  to one look.
+- Smoke suite rewritten for the new shape: the front page is public and is the
+  marketplace, every `/console/*` route redirects, ingest and webhook stay
+  reachable without a session.
+
+**Decided, and why:**
+
+- **`/` decides for itself rather than being two routes.** A marketing page at
+  `/` risks becoming exactly the placeholder the template forbids — the
+  operator clicking past a welcome screen to reach their app. Redirecting when
+  a session exists satisfies both requirements at once.
+- **The comparison is the hero's neighbour, not a photograph of a bus.** The
+  plan's claim is that quotes are not comparable; showing two quotes where the
+  cheaper per-km rate is the more expensive booking makes that argument in one
+  screen.
+- **Numbers on the page come from the seeded worked example**, not from
+  invention — the ₹15,960 booking and its ₹2,534 settlement are the ones in
+  the database.
+
+**Not done, and raised instead:** the four role accounts. `AGENTS.md` says in
+as many words: *never add a second user; a real multi-user app needs a real
+user store — that is a decision to raise, not to implement quietly.* Four
+roles with four distinct interfaces is that decision, so it is a question
+rather than a commit. The options and their costs went back to the operator.
+
+**Open:** the multi-user question, and with it whether per-role interfaces are
+built as real surfaces or as a demo.

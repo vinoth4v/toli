@@ -429,7 +429,7 @@ export default async function RequestPage({
             {uninvited.length === 0 ? (
               <Empty>
                 Every operator on the platform has been asked.{" "}
-                <Link href="/operators/new">Sign another one</Link>.
+                <Link href="/console/operators/new">Sign another one</Link>.
               </Empty>
             ) : (
               <form action={inviteOperatorsAction}>

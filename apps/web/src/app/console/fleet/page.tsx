@@ -40,7 +40,7 @@ export default async function FleetPage({
       <Card>
         {vehicles.length === 0 ? (
           <Empty>
-            No vehicles yet. Add them from an <Link href="/operators">operator</Link>.
+            No vehicles yet. Add them from an <Link href="/console/operators">operator</Link>.
           </Empty>
         ) : (
           <div className="table-wrap">
@@ -61,7 +61,9 @@ export default async function FleetPage({
                   <tr key={vehicle.id}>
                     <td className="numeric">{vehicle.registrationNumber}</td>
                     <td>
-                      <Link href={`/operators/${vehicle.operatorId}`}>{vehicle.operatorName}</Link>
+                      <Link href={`/console/operators/${vehicle.operatorId}`}>
+                        {vehicle.operatorName}
+                      </Link>
                     </td>
                     <td>
                       {vehicleClassLabel(vehicle.vehicleClass)}

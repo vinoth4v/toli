@@ -25,7 +25,7 @@ export default async function ControlTowerPage() {
         title="Control tower"
         intro="The last 30 days of marketplace health, and everything waiting on the ops desk right now."
         actions={
-          <Link href="/rfqs/new">
+          <Link href="/console/rfqs/new">
             <button type="button">New RFQ</button>
           </Link>
         }
@@ -118,7 +118,7 @@ export default async function ControlTowerPage() {
                     {attention.live.map((row) => (
                       <tr key={row.id}>
                         <td>
-                          <Link href={`/bookings/${row.id}`}>{row.reference}</Link>
+                          <Link href={`/console/bookings/${row.id}`}>{row.reference}</Link>
                         </td>
                         <td>{row.operatorName}</td>
                         <td>
@@ -153,7 +153,7 @@ export default async function ControlTowerPage() {
                     {attention.awaitingDecision.map((row) => (
                       <tr key={row.id}>
                         <td>
-                          <Link href={`/rfqs/${row.id}`}>{row.reference}</Link>
+                          <Link href={`/console/rfqs/${row.id}`}>{row.reference}</Link>
                         </td>
                         <td className="right">{row.quotes}</td>
                         <td>{formatIst(row.startAt)}</td>
@@ -174,7 +174,8 @@ export default async function ControlTowerPage() {
               <ul className="timeline">
                 {attention.unquoted.map((row) => (
                   <li key={row.id}>
-                    <Link href={`/rfqs/${row.id}`}>{row.reference}</Link> · {row.customerName}
+                    <Link href={`/console/rfqs/${row.id}`}>{row.reference}</Link> ·{" "}
+                    {row.customerName}
                     <time>
                       {row.city} · departs {formatIst(row.startAt)}
                     </time>
@@ -190,7 +191,7 @@ export default async function ControlTowerPage() {
               RFQ, pick the operators worth asking, and record what comes back — the fan-out is
               logged either way, so the response-rate number above stays honest.
             </p>
-            <Link href="/rfqs">
+            <Link href="/console/rfqs">
               <button type="button" className="quiet">
                 Open the RFQ desk
               </button>

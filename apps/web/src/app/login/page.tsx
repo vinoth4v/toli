@@ -1,4 +1,13 @@
+import Link from "next/link"
 import { signInAction } from "./actions.ts"
+
+/**
+ * The gate, dressed to match the front door.
+ *
+ * It is no longer what a visitor to the production URL sees — `/` is the
+ * marketplace now — so this page can be what it actually is: a small, quiet
+ * door for the one person who runs the place.
+ */
 
 export const dynamic = "force-dynamic"
 
@@ -10,8 +19,16 @@ export default async function LoginPage({
   const { error } = await searchParams
 
   return (
-    <main>
+    <main className="narrow signin-page">
+      <Link href="/" className="wordmark">
+        toli
+        <small>ops console</small>
+      </Link>
+
       <h1>Sign in</h1>
+      <p className="muted">
+        The operator's console — RFQs, quotes, compliance and settlements. One account, by design.
+      </p>
 
       {error ? (
         // Never say which half was wrong.
@@ -19,14 +36,12 @@ export default async function LoginPage({
       ) : null}
 
       <form action={signInAction}>
-        <p>
+        <div>
           <label htmlFor="email">Email</label>
-          <br />
           <input id="email" name="email" type="email" autoComplete="username" required />
-        </p>
-        <p>
+        </div>
+        <div>
           <label htmlFor="password">Password</label>
-          <br />
           <input
             id="password"
             name="password"
@@ -34,9 +49,14 @@ export default async function LoginPage({
             autoComplete="current-password"
             required
           />
-        </p>
+        </div>
         <button type="submit">Sign in</button>
       </form>
+
+      <p className="muted small">
+        Looking for your trip? The tracking link you were sent needs no sign-in.{" "}
+        <Link href="/">Back to Toli</Link>.
+      </p>
     </main>
   )
 }

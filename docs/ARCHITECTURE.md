@@ -101,15 +101,16 @@ Everything is behind the operator gate unless stated otherwise.
 
 | Route | What it is for |
 |---|---|
-| `/` | Control tower: §13 metrics, live trips, RFQs with no quotes, quotes awaiting a decision |
-| `/rfqs`, `/rfqs/new`, `/rfqs/[id]` | The RFQ desk: requirement builder, operator fan-out, quote comparison, acceptance |
-| `/bookings`, `/bookings/[id]` | Payments, assignment, trip events, positions, expenses, invoice, settlement, review, disputes |
-| `/operators`, `/operators/new`, `/operators/[id]` | Onboarding, fleet, drivers, documents, verification |
-| `/fleet` | Every vehicle judged against its own paperwork; lifecycle transitions |
-| `/compliance` | Verification queue and expiry ladder, ordered by consequence |
-| `/settings` | Commission, TCS, TDS, advance %, GST treatment, home state — plus the audit log |
-| `/integrations` | What is wired up and what is not, per variable; device enrolment; the outbox |
-| `/login` | The template's gate |
+| **`/`** | **Public.** The marketplace's front page. Signed in, it redirects to `/console` |
+| `/console` | Control tower: §13 metrics, live trips, RFQs with no quotes, quotes awaiting a decision |
+| `/console/rfqs`, `/console/rfqs/new`, `/console/rfqs/[id]` | The RFQ desk: requirement builder, operator fan-out, quote comparison, acceptance |
+| `/console/bookings`, `/console/bookings/[id]` | Payments, assignment, trip events, positions, expenses, invoice, settlement, review, disputes |
+| `/console/operators`, `/console/operators/new`, `/console/operators/[id]` | Onboarding, fleet, drivers, documents, verification |
+| `/console/fleet` | Every vehicle judged against its own paperwork; lifecycle transitions |
+| `/console/compliance` | Verification queue and expiry ladder, ordered by consequence |
+| `/console/settings` | Commission, TCS, TDS, advance %, GST treatment, home state — plus the audit log |
+| `/console/integrations` | What is wired up and what is not, per variable; device enrolment; the outbox |
+| `/login` | The gate |
 | **`/track/[token]`** | **Public.** The guest tracking page — no app, no login |
 | **`POST /api/ingest/ping`** | **Public.** Driver-app positions, one or a replayed batch. Device bearer token |
 | **`POST /api/ingest/vltd`** | **Public.** AIS-140 telematics feed. Device bearer token |
@@ -188,6 +189,11 @@ is the single place that decides whether one is configured, and
   through the same function in `domain/metrics.ts`.
 - **The public tracking page gets a projection, not a row.** Purpose limitation
   under DPDP, and obvious besides.
+- **`/` is public and decides for itself.** A visitor sees the marketplace; a
+  signed-in operator is redirected to `/console`. That satisfies both halves of
+  the rule that matters — the front door looks like a business rather than a
+  bare login form, and the operator never clicks past a welcome page to reach
+  the app they run. It is why the matcher exempts `/$` exactly, not `/`.
 - **Percentages are stored as basis points.** 10% commission and 1% TCS are
   both integers that way, and nothing downstream multiplies by a float.
 - **"Not configured" is a first-class state, never a silent fallback.** Four of

@@ -92,7 +92,7 @@ export async function createRequestAction(formData: FormData): Promise<void> {
   })
 
   if (!parsed.success) {
-    redirect(`/rfqs/new?error=${encodeURIComponent(problemsOf(parsed.error))}`)
+    redirect(`/console/rfqs/new?error=${encodeURIComponent(problemsOf(parsed.error))}`)
   }
 
   const input = parsed.data
@@ -128,7 +128,7 @@ export async function createRequestAction(formData: FormData): Promise<void> {
   })
 
   await recordEvent("request_created", await actor(), `${request.reference} for ${customer.name}`)
-  redirect(`/rfqs/${request.id}`)
+  redirect(`/console/rfqs/${request.id}`)
 }
 
 export async function inviteOperatorsAction(formData: FormData): Promise<void> {
@@ -140,7 +140,7 @@ export async function inviteOperatorsAction(formData: FormData): Promise<void> {
   const invited = await inviteOperators(requestId, operatorIds, settings.defaultGstTreatment)
 
   await recordEvent("operators_invited", await actor(), `${invited} operator(s) on ${requestId}`)
-  revalidatePath(`/rfqs/${requestId}`)
+  revalidatePath(`/console/rfqs/${requestId}`)
 }
 
 const quoteSchema = z.object({
@@ -232,7 +232,7 @@ export async function submitQuoteAction(formData: FormData): Promise<void> {
   // its minimum km per day is refused rather than stored as a comparable one.
   const problems = validateQuoteTerms(terms, shape)
   if (problems.length > 0) {
-    redirect(`/rfqs/${found.request.id}?error=${encodeURIComponent(problems.join(" "))}`)
+    redirect(`/console/rfqs/${found.request.id}?error=${encodeURIComponent(problems.join(" "))}`)
   }
 
   const settings = await getSettings()
@@ -247,7 +247,7 @@ export async function submitQuoteAction(formData: FormData): Promise<void> {
     await actor(),
     `${found.operator.name} on ${found.request.reference}`,
   )
-  revalidatePath(`/rfqs/${found.request.id}`)
+  revalidatePath(`/console/rfqs/${found.request.id}`)
 }
 
 export async function acceptQuoteAction(formData: FormData): Promise<void> {
@@ -262,7 +262,7 @@ export async function acceptQuoteAction(formData: FormData): Promise<void> {
     `${booking.reference} — ${found.operator.name} at ${found.quote.estimatedTotalPaise} paise`,
   )
 
-  redirect(`/bookings/${booking.id}`)
+  redirect(`/console/bookings/${booking.id}`)
 }
 
 function problemsOf(error: z.ZodError): string {

@@ -35,7 +35,7 @@ function problem(bookingId: string, error: unknown): never {
         ? error.message
         : "Something went wrong reaching the provider"
 
-  redirect(`/bookings/${bookingId}?error=${encodeURIComponent(message)}`)
+  redirect(`/console/bookings/${bookingId}?error=${encodeURIComponent(message)}`)
 }
 
 /**
@@ -63,7 +63,7 @@ export async function sendPaymentLinkAction(formData: FormData): Promise<void> {
       : Math.max(0, detail.booking.agreedTotalPaise - captured)
 
   if (amountPaise <= 0) {
-    redirect(`/bookings/${bookingId}?error=${encodeURIComponent("Nothing is outstanding")}`)
+    redirect(`/console/bookings/${bookingId}?error=${encodeURIComponent("Nothing is outstanding")}`)
   }
 
   try {
@@ -105,7 +105,7 @@ export async function sendPaymentLinkAction(formData: FormData): Promise<void> {
     problem(bookingId, error)
   }
 
-  revalidatePath(`/bookings/${bookingId}`)
+  revalidatePath(`/console/bookings/${bookingId}`)
 }
 
 /** §4.1 releases vehicle and driver details at T-12h. This is that message. */
@@ -142,7 +142,7 @@ export async function sendDriverDetailsAction(formData: FormData): Promise<void>
     problem(bookingId, error)
   }
 
-  revalidatePath(`/bookings/${bookingId}`)
+  revalidatePath(`/console/bookings/${bookingId}`)
 }
 
 export async function sendBookingConfirmationAction(formData: FormData): Promise<void> {
@@ -168,7 +168,7 @@ export async function sendBookingConfirmationAction(formData: FormData): Promise
     problem(bookingId, error)
   }
 
-  revalidatePath(`/bookings/${bookingId}`)
+  revalidatePath(`/console/bookings/${bookingId}`)
 }
 
 export async function sendTrackingLinkAction(formData: FormData): Promise<void> {
@@ -194,5 +194,5 @@ export async function sendTrackingLinkAction(formData: FormData): Promise<void> 
     problem(bookingId, error)
   }
 
-  revalidatePath(`/bookings/${bookingId}`)
+  revalidatePath(`/console/bookings/${bookingId}`)
 }

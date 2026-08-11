@@ -37,9 +37,9 @@ async function actor(): Promise<string | null> {
 }
 
 function refresh(bookingId: string): void {
-  revalidatePath(`/bookings/${bookingId}`)
-  revalidatePath("/bookings")
-  revalidatePath("/")
+  revalidatePath(`/console/bookings/${bookingId}`)
+  revalidatePath("/console/bookings")
+  revalidatePath("/console")
 }
 
 const paymentSchema = z.object({
@@ -107,7 +107,7 @@ export async function assignVehicleAction(formData: FormData): Promise<void> {
   if (!outcome.ok) {
     // The refusal is the feature. §8.5: an operator caught without an AITP
     // faces detention, and the passengers are stranded at the border.
-    redirect(`/bookings/${bookingId}?error=${encodeURIComponent(outcome.reason)}`)
+    redirect(`/console/bookings/${bookingId}?error=${encodeURIComponent(outcome.reason)}`)
   }
 
   await recordEvent("vehicle_assigned", await actor(), `${vehicleId} to ${bookingId}`)
@@ -157,7 +157,9 @@ export async function addExpenseAction(formData: FormData): Promise<void> {
   try {
     amountPaise = parseRupeesToPaise(amount)
   } catch {
-    redirect(`/bookings/${bookingId}?error=${encodeURIComponent("Amount must be in rupees")}`)
+    redirect(
+      `/console/bookings/${bookingId}?error=${encodeURIComponent("Amount must be in rupees")}`,
+    )
   }
 
   await addExpense({
@@ -288,7 +290,9 @@ export async function resolveDisputeAction(formData: FormData): Promise<void> {
   try {
     refundPaise = parseRupeesToPaise(String(formData.get("refund") ?? ""))
   } catch {
-    redirect(`/bookings/${bookingId}?error=${encodeURIComponent("Refund must be in rupees")}`)
+    redirect(
+      `/console/bookings/${bookingId}?error=${encodeURIComponent("Refund must be in rupees")}`,
+    )
   }
 
   await resolveDispute({ id, status, resolution, refundPaise })

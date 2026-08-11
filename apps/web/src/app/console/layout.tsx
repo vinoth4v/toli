@@ -15,14 +15,14 @@ import { auth } from "@/auth"
 export const dynamic = "force-dynamic"
 
 const NAV = [
-  { href: "/", label: "Control tower" },
-  { href: "/rfqs", label: "RFQs" },
-  { href: "/bookings", label: "Bookings" },
-  { href: "/operators", label: "Operators" },
-  { href: "/fleet", label: "Fleet" },
-  { href: "/compliance", label: "Compliance" },
-  { href: "/integrations", label: "Integrations" },
-  { href: "/settings", label: "Settings" },
+  { href: "/console", label: "Control tower" },
+  { href: "/console/rfqs", label: "RFQs" },
+  { href: "/console/bookings", label: "Bookings" },
+  { href: "/console/operators", label: "Operators" },
+  { href: "/console/fleet", label: "Fleet" },
+  { href: "/console/compliance", label: "Compliance" },
+  { href: "/console/integrations", label: "Integrations" },
+  { href: "/console/settings", label: "Settings" },
 ]
 
 export default async function ConsoleLayout({ children }: { children: ReactNode }) {
@@ -31,7 +31,7 @@ export default async function ConsoleLayout({ children }: { children: ReactNode 
   return (
     <div className="shell">
       <header className="masthead">
-        <Link href="/" className="wordmark">
+        <Link href="/console" className="wordmark">
           toli
           <small>ops console</small>
         </Link>
