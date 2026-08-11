@@ -474,3 +474,21 @@ The embed's structure renders and OSM serves a real 6.9 KB tile to a request
 carrying an `openstreetmap.org` referer — which is what the iframe sends — but
 somebody should open `/track/<token>` in an ordinary browser before the soft
 launch. Recorded in ARCHITECTURE.md rather than assumed away.
+
+---
+
+## Map tiles confirmed — 11 August 2026
+
+**Asked:** nothing; the operator checked the tracking link and reported that
+the map loads.
+
+**Changed:** `docs/ARCHITECTURE.md` only. The Known-gaps entry claiming the
+tiles were unverified is now a statement that they render, with the date and
+who checked, and the blank tiles are attributed to the automation browser
+rather than to the embed.
+
+**Why it is worth a commit:** a stale caveat is worse than none. The next
+session reading "unverified in production" would either re-do the check or,
+worse, design around a limitation that does not exist — and the coordinates in
+every caption might have looked like scaffolding to remove rather than the
+deliberate fallback they are.
