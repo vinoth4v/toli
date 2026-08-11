@@ -2037,3 +2037,376 @@ button.huge.sos {
   min-width: 5rem;
   font-variant-numeric: tabular-nums;
 }
+
+/* ==================================================== the four ways in
+
+   Shown on the landing page and again on the sign-in page. Picking one
+   changes wording only — the account decides where somebody lands — so
+   these are signposts and are styled as links, not as a control.        */
+
+.door-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.door {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  color: inherit;
+  text-decoration: none;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: border-color 120ms ease;
+}
+
+.door:hover {
+  border-color: var(--color-accent);
+}
+
+.door-role {
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.door strong {
+  font-size: var(--font-size-lg);
+}
+
+.door-does {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.door-go {
+  font-size: var(--font-size-sm);
+  color: var(--color-accent);
+}
+
+/* ------------------------------------------------- sign-in page chooser */
+
+.entry-does {
+  padding: 0;
+  margin: 0 0 var(--space-8);
+  list-style: none;
+}
+
+.entry-does li {
+  padding: var(--space-2) 0 var(--space-2) var(--space-6);
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+
+.entry-does li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--color-accent);
+}
+
+.who {
+  margin-top: var(--space-12);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--color-border);
+}
+
+.who-label {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.who-grid {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.who-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.who-card:hover {
+  border-color: var(--color-accent);
+}
+
+.who-card span {
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+}
+
+/* ================================================== two lanes and segments */
+
+.lane-grid {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+}
+
+.lane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.lane-tag {
+  align-self: flex-start;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-bg);
+  background: var(--color-accent);
+  border-radius: var(--radius-full);
+}
+
+.lane h3 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+}
+
+.lane p {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.lane .button-link {
+  align-self: flex-start;
+  margin-top: var(--space-2);
+}
+
+.segment-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.segment-tile {
+  padding: var(--space-6);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.segment-tile h3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-lg);
+  color: var(--color-accent);
+}
+
+.segment-promise {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.segment-tile ul {
+  padding-left: var(--space-6);
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.9;
+}
+
+/* ------------------------------------------------------- book now search */
+
+.search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-end;
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.search-bar > div {
+  flex: 1 1 9rem;
+}
+
+.search-bar button {
+  flex: 0 0 auto;
+}
+
+.segment-picker {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  margin-bottom: var(--space-8);
+}
+
+.segment-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.segment-card.chosen {
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+}
+
+.segment-card ul {
+  padding-left: var(--space-4);
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+}
+
+.offer-list {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.offer-row {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 52rem) {
+  .offer-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.offer-row h3 {
+  margin: var(--space-1) 0;
+  font-size: var(--font-size-lg);
+}
+
+.offer-row p {
+  margin: 0;
+}
+
+.segment-tag {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-full);
+}
+
+.offer-price {
+  text-align: right;
+}
+
+.offer-price form {
+  margin-top: var(--space-3);
+}
+
+/* ------------------------------------------------------------------ bill */
+
+.bill {
+  padding: var(--space-6);
+  margin-bottom: var(--space-8);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.bill h2 {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-lg);
+}
+
+.bill-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.bill-table td {
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.bill-table td:last-child {
+  text-align: right;
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.bill-table tr.added td {
+  color: var(--color-accent);
+}
+
+.bill-table tr.total td {
+  font-weight: var(--font-weight-semibold);
+  border-bottom: none;
+}
+
+.bill-note {
+  padding: var(--space-3) var(--space-4);
+  margin: var(--space-4) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+  background: var(--color-bg);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+/* -------------------------------------------------------------- language */
+
+.lang {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.lang form {
+  margin: 0;
+}
+
+.lang-current {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent);
+}
+
+.lang-switch {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+  background: none;
+  border: 1px solid var(--color-border);
+}

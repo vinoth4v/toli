@@ -2,7 +2,8 @@ import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { shapeOf, termsOf } from "@/data/demand"
-import { customerTrip } from "@/data/scoped"
+import { customerTrip, tripExpensesFor } from "@/data/scoped"
+import { buildBill, tollNotice } from "@/domain/bill"
 import { formatIst } from "@/domain/format"
 import { formatPaise } from "@/domain/money"
 import { priceQuote, quoteChips } from "@/domain/quote"
@@ -31,6 +32,23 @@ export default async function PortalTripPage({ params }: { params: Promise<{ id:
   if (!trip) notFound()
 
   const { request, stops, quotes, booking, operatorName, invoice, assignment } = trip
+
+  // The bill exists only once there is a booking: before that, a quote is a
+  // promise and there is nothing to reconcile it against.
+  const billing = booking ? await tripExpensesFor(customerId, booking.id) : null
+  const bill =
+    booking && billing
+      ? buildBill({
+          quotedTotalPaise: booking.agreedTotalPaise,
+          gstTreatment: booking.gstTreatment,
+          intraState: booking.intraState,
+          tollIncluded: billing.tollIncluded,
+          parkingIncluded: billing.parkingIncluded,
+          statePermitIncluded: billing.statePermitIncluded,
+          expenses: billing.expenses,
+          paymentsPaise: billing.paidPaise,
+        })
+      : null
   const shape = shapeOf(request)
   const cheapest = quotes.reduce<number | null>(
     (best, row) =>
@@ -105,6 +123,47 @@ export default async function PortalTripPage({ params }: { params: Promise<{ id:
               </p>
             ) : null}
           </div>
+        </section>
+      ) : null}
+
+      {bill ? (
+        <section className="bill">
+          <h2>Your bill</h2>
+          <table className="bill-table">
+            <tbody>
+              {bill.lines.map((line) => (
+                <tr key={line.label} className={line.addedAfterQuote ? "added" : undefined}>
+                  <td>
+                    {line.label}
+                    {line.detail ? <div className="muted small">{line.detail}</div> : null}
+                  </td>
+                  <td>{formatPaise(line.amountPaise)}</td>
+                </tr>
+              ))}
+              <tr className="total">
+                <td>Total</td>
+                <td>{formatPaise(bill.totalPaise)}</td>
+              </tr>
+              {bill.paidPaise > 0 ? (
+                <>
+                  <tr>
+                    <td>Paid so far</td>
+                    <td>−{formatPaise(bill.paidPaise)}</td>
+                  </tr>
+                  <tr className="total">
+                    <td>Still to pay</td>
+                    <td>{formatPaise(bill.duePaise)}</td>
+                  </tr>
+                </>
+              ) : null}
+            </tbody>
+          </table>
+
+          <p className="bill-note">{tollNotice(billing?.tollIncluded ?? false)}</p>
+
+          {bill.asQuoted ? (
+            <p className="muted small">Nothing was added after the quote you accepted.</p>
+          ) : null}
         </section>
       ) : null}
 

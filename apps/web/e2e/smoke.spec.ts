@@ -7,7 +7,31 @@ test("the front page is public, and is the marketplace", async ({ page }) => {
 
   await expect(page).not.toHaveURL(/\/login/)
   await expect(page.getByRole("heading", { level: 1 })).toContainText("whole group")
-  await expect(page.getByRole("link", { name: "Ops sign in" })).toBeVisible()
+  // Scoped to the masthead: "Sign in" now also appears in the footer, and an
+  // ambiguous locator is a test that breaks for the wrong reason later.
+  await expect(page.locator(".landing-top a.signin")).toBeVisible()
+})
+
+test("the front page points every role at the right door", async ({ page }) => {
+  // The complaint this fixes: the page mentioned only the operator, so three
+  // of the four people who need to sign in had nothing to click.
+  await page.goto("/")
+
+  for (const role of ["customer", "operator", "driver", "admin"]) {
+    await expect(page.locator(`a[href="/login?as=${role}"]`).first(), role).toBeVisible()
+  }
+})
+
+test("the sign-in page names the surface being entered", async ({ page }) => {
+  await page.goto("/login?as=driver")
+  await expect(page.getByRole("heading", { name: "Toli Driver" })).toBeVisible()
+
+  await page.goto("/login?as=operator")
+  await expect(page.getByRole("heading", { name: "Toli Partner" })).toBeVisible()
+
+  // A junk value falls back to the neutral page rather than erroring.
+  await page.goto("/login?as=nonsense")
+  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible()
 })
 
 test("an unauthenticated visitor cannot reach the console", async ({ page }) => {

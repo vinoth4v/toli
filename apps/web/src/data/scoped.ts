@@ -7,10 +7,12 @@ import {
   driver,
   invoice,
   operator,
+  payment,
   quote,
   settlement,
   stop,
   tripEvent,
+  tripExpense,
   tripRequest,
   vehicle,
   vehicleDocument,
@@ -111,6 +113,40 @@ export async function customerTrip(customerId: string, requestId: string) {
     operatorName: found?.operatorName ?? null,
     invoice: extras[0]?.[0] ?? null,
     assignment: extras[1]?.[0] ?? null,
+  }
+}
+
+/**
+ * What a customer's bill is built from — scoped, like everything else here.
+ *
+ * The quote's inclusion flags decide which expenses are billable at all, so
+ * they travel with the expenses rather than being looked up separately and
+ * risking the two disagreeing.
+ */
+export async function tripExpensesFor(customerId: string, bookingId: string) {
+  const rows = await db()
+    .select({ booking, quote })
+    .from(booking)
+    .innerJoin(quote, eq(booking.quoteId, quote.id))
+    .where(and(eq(booking.id, bookingId), eq(booking.customerId, customerId)))
+    .limit(1)
+
+  const found = rows[0]
+  if (!found) return null
+
+  const [expenses, payments] = await Promise.all([
+    db().select().from(tripExpense).where(eq(tripExpense.bookingId, bookingId)),
+    db().select().from(payment).where(eq(payment.bookingId, bookingId)),
+  ])
+
+  return {
+    tollIncluded: found.quote.tollIncluded,
+    parkingIncluded: found.quote.parkingIncluded,
+    statePermitIncluded: found.quote.statePermitIncluded,
+    expenses: expenses.map((row) => ({ kind: row.kind, amountPaise: row.amountPaise })),
+    paidPaise: payments
+      .filter((row) => row.status === "captured" && row.kind !== "refund")
+      .reduce((total, row) => total + row.amountPaise, 0),
   }
 }
 

@@ -202,6 +202,8 @@ export async function createRequest(input: {
   vehicleClass: TripRequest["vehicleClass"]
   vehicleCount: number
   acRequired: boolean
+  segment: "economy" | "premium" | "luxury"
+  preferredDriverLanguage: string | null
   features: string[]
   extras: string[]
   interstate: boolean
@@ -225,6 +227,8 @@ export async function createRequest(input: {
       vehicleClass: input.vehicleClass,
       vehicleCount: input.vehicleCount,
       acRequired: input.acRequired,
+      segment: input.segment,
+      preferredDriverLanguage: input.preferredDriverLanguage,
       features: input.features,
       extras: input.extras,
       interstate: input.interstate,
@@ -323,6 +327,15 @@ export async function submitQuote(
       vehicleId: extra.vehicleId,
     })
     .where(eq(quote.id, quoteId))
+}
+
+/** The quote rows on a request, newest first. Lane B fills the one it just created. */
+export async function quotesForRequest(tripRequestId: string) {
+  return db()
+    .select()
+    .from(quote)
+    .where(eq(quote.tripRequestId, tripRequestId))
+    .orderBy(desc(quote.requestedAt))
 }
 
 export async function getQuote(id: string) {

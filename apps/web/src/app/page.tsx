@@ -2,7 +2,9 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
+import { tollNotice } from "@/domain/bill"
 import { homeFor } from "@/domain/roles"
+import { SEGMENT_INFO, SEGMENTS } from "@/domain/segment"
 import { VEHICLE_CLASS_INFO } from "@/domain/vehicle"
 
 /**
@@ -59,6 +61,37 @@ const COMPARISON = [
   },
 ] as const
 
+/**
+ * The four ways in, in the order a stranger meets them: most people arriving
+ * here are booking a bus, and almost nobody is Toli's own ops desk.
+ */
+const DOORS = [
+  {
+    role: "customer",
+    label: "Booking a vehicle",
+    title: "Your trips",
+    does: "Ask for a vehicle, compare quotes honestly, pay, and watch the trip.",
+  },
+  {
+    role: "operator",
+    label: "Running a fleet",
+    title: "Toli Partner",
+    does: "Quote inbox, fleet paperwork, and what every trip actually pays you.",
+  },
+  {
+    role: "driver",
+    label: "Driving",
+    title: "Toli Driver",
+    does: "Today's trip, start and finish, tolls you paid, SOS.",
+  },
+  {
+    role: "admin",
+    label: "Toli staff",
+    title: "Ops console",
+    does: "Verification, matching, disputes, settlements.",
+  },
+] as const
+
 const rupees = (paise: number) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -81,14 +114,15 @@ export default async function HomePage() {
           <a href="#how">How it works</a>
           <a href="#fleet">Fleet</a>
           <a href="#operators">For operators</a>
+          <a href="#signin">Who signs in</a>
           <Link href="/login" className="signin">
-            Ops sign in
+            Sign in
           </Link>
         </nav>
       </header>
 
       <section className="hero">
-        <p className="eyebrow">Jaipur · Delhi NCR · Agra · Udaipur</p>
+        <p className="eyebrow">Madurai · Kodaikanal · Rameswaram · Palani · Trichy</p>
         <h1>
           Book a whole van or bus
           <br />
@@ -100,7 +134,7 @@ export default async function HomePage() {
           messages.
         </p>
         <div className="hero-actions">
-          <Link href="/login" className="button-link">
+          <Link href="/login?as=customer" className="button-link">
             Start a requirement
           </Link>
           <a href="#compare" className="button-link quiet">
@@ -158,13 +192,76 @@ export default async function HomePage() {
         </div>
 
         <p className="footnote">
-          Same trip, Jaipur to Agra and back over two days. Operator B quotes ₹2 less per kilometre
-          and is the more expensive booking, because 350 km a day is 140 km further than the trip
-          actually runs. That is the whole problem, in one table.
+          Same trip, Madurai to Kodaikanal and back over two days. Operator B quotes ₹2 less per
+          kilometre and is the more expensive booking, because 350 km a day is far more than the
+          trip actually runs. That is the whole problem, in one table.
         </p>
       </section>
 
-      <section id="how" className="section alt">
+      <section id="lanes" className="section">
+        <h2 className="section-title">Two ways to book, because trips are not all the same</h2>
+        <p className="section-lede">
+          A vehicle for tomorrow morning is a different decision from a four-day temple circuit in
+          December. So there are two lanes, and the same verified fleet behind both.
+        </p>
+
+        <div className="lane-grid">
+          <article className="lane">
+            <span className="lane-tag">Book now</span>
+            <h3>See what is free and take it</h3>
+            <p>
+              Vehicles that are actually free on your date, priced at the operator's standing rate,
+              with the driver named. One tap and it is yours — no waiting for anybody to reply.
+            </p>
+            <p className="muted small">Best for airport runs, day trips, and anything this week.</p>
+            <Link href="/login?as=customer" className="button-link">
+              Book now
+            </Link>
+          </article>
+
+          <article className="lane">
+            <span className="lane-tag">Get a quote</span>
+            <h3>Let operators compete for a bigger trip</h3>
+            <p>
+              Describe the trip once and operators come back with prices in the same shape. Worth
+              the wait when the trip is long, the group is large, or the dates are still moving.
+            </p>
+            <p className="muted small">
+              Best for multi-day tours, weddings, pilgrimage circuits and corporate offsites.
+            </p>
+            <Link href="/login?as=customer" className="button-link quiet">
+              Get a quote
+            </Link>
+          </article>
+        </div>
+      </section>
+
+      <section id="segments" className="section alt">
+        <h2 className="section-title">Pick the comfort, not the chassis</h2>
+        <p className="section-lede">
+          Three tiers, the way you would hire a car. You may be given a better vehicle than you paid
+          for — never a worse one.
+        </p>
+        <div className="segment-grid">
+          {SEGMENTS.map((segment) => {
+            const info = SEGMENT_INFO[segment]
+            return (
+              <article key={segment} className="segment-tile">
+                <h3>{info.label}</h3>
+                <p className="segment-promise">{info.promise}</p>
+                <ul>
+                  {info.includes.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </article>
+            )
+          })}
+        </div>
+        <p className="footnote">{tollNotice(false)}</p>
+      </section>
+
+      <section id="how" className="section">
         <h2 className="section-title">How it works</h2>
         <ol className="steps">
           <li>
@@ -172,7 +269,7 @@ export default async function HomePage() {
             <h3>Tell us the trip</h3>
             <p>
               Where from, where to, how many people, which dates, and anything that matters — a
-              wedding needs a decorated vehicle, a pilgrimage needs unhurried stops.
+              wedding needs a decorated vehicle, and a Palani pilgrimage needs unhurried stops.
             </p>
           </li>
           <li>
@@ -308,15 +405,37 @@ export default async function HomePage() {
         </aside>
       </section>
 
+      <section id="signin" className="section alt">
+        <h2 className="section-title">Four people, four applications</h2>
+        <p className="section-lede">
+          A driver is not an operator and an operator is not the ops desk — so Toli is four
+          applications behind one sign-in. Pick the one that describes you; your account decides
+          where you actually land, so there is nothing to get wrong here.
+        </p>
+
+        <div className="door-grid">
+          {DOORS.map((door) => (
+            <Link key={door.role} href={`/login?as=${door.role}`} className="door">
+              <span className="door-role">{door.label}</span>
+              <strong>{door.title}</strong>
+              <span className="door-does">{door.does}</span>
+              <span className="door-go">Sign in →</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <footer className="landing-foot">
         <div>
           <span className="wordmark">toli</span>
           <p className="muted small">
-            Chartered vans, tempo travellers and buses across Rajasthan and the Delhi corridor.
+            Chartered vans, tempo travellers and buses. Starting in Madurai and south Tamil Nadu,
+            for groups travelling anywhere in India.
           </p>
         </div>
         <p className="muted small">
-          Operating a fleet? <Link href="/login">Sign in to the ops console</Link>.
+          Already with Toli? <Link href="/login">Sign in</Link> — groups, operators, drivers and the
+          Toli desk all start here.
         </p>
       </footer>
     </div>

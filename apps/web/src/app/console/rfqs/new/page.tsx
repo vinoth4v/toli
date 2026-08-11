@@ -3,6 +3,7 @@ import { Card, PageHead } from "@/components/ui"
 import { LAUNCH_CITIES, STATE_NAMES } from "@/domain/india"
 import { TRIP_EXTRAS, TRIP_TYPE_INFO } from "@/domain/trip"
 import { VEHICLE_CLASS_INFO, VEHICLE_FEATURES } from "@/domain/vehicle"
+import { LANGUAGE_LABEL, LOCALES } from "@/i18n"
 import { createRequestAction } from "../actions"
 
 /**
@@ -201,6 +202,20 @@ export default async function NewRequestPage({
                     {Object.values(VEHICLE_CLASS_INFO).map((info) => (
                       <option key={info.key} value={info.key}>
                         {info.label} ({info.seatOptions.join("/")} seats)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="driverLanguage">
+                    Driver language
+                    <span className="hint">What the caller asked for, if they asked</span>
+                  </label>
+                  <select id="driverLanguage" name="driverLanguage" defaultValue="">
+                    <option value="">No preference</option>
+                    {LOCALES.map((code) => (
+                      <option key={code} value={code}>
+                        {LANGUAGE_LABEL[code]}
                       </option>
                     ))}
                   </select>

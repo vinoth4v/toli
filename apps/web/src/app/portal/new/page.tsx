@@ -1,7 +1,9 @@
 import Link from "next/link"
 import { LAUNCH_CITIES, STATE_NAMES } from "@/domain/india"
+import { SEGMENT_INFO, SEGMENTS } from "@/domain/segment"
 import { TRIP_EXTRAS, TRIP_TYPE_INFO } from "@/domain/trip"
 import { VEHICLE_CLASS_INFO, VEHICLE_FEATURES } from "@/domain/vehicle"
+import { LANGUAGE_LABEL, LOCALES } from "@/i18n"
 import { createOwnRequestAction } from "../actions"
 
 /**
@@ -164,6 +166,41 @@ export default async function NewRequestPage({
                 required
               />
             </div>
+          </div>
+
+          <div>
+            <label htmlFor="segment">
+              Comfort
+              <span className="hint">
+                Economy is non-AC, Premium is air conditioned, Luxury adds push-back seats. You may
+                be given a better vehicle than you paid for, never a worse one.
+              </span>
+            </label>
+            <select id="segment" name="segment" defaultValue="premium">
+              {SEGMENTS.map((option) => (
+                <option key={option} value={option}>
+                  {SEGMENT_INFO[option].label} — {SEGMENT_INFO[option].promise}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="driverLanguage">
+              Driver who speaks
+              <span className="hint">
+                Two days on the Kodaikanal road is a long time to be unable to agree where to stop
+                for lunch. We match where we can, and tell you if we cannot.
+              </span>
+            </label>
+            <select id="driverLanguage" name="driverLanguage" defaultValue="">
+              <option value="">No preference</option>
+              {LOCALES.map((code) => (
+                <option key={code} value={code}>
+                  {LANGUAGE_LABEL[code]}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="checks">

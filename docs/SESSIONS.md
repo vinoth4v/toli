@@ -309,3 +309,68 @@ accounts created there — 4 scrypt hashes, 0 plaintext.
 permissions inside a role; no session revocation, since the role is in the
 token; the portal books but cannot yet take payment, which needs Razorpay
 credentials.
+
+---
+
+## Two lanes, segments, and a move to Madurai — 11 August 2026
+
+**Asked**, across several messages while the work was in flight: say plainly
+that tolls appear on the bill; shift strategy from agent-style RFQ towards an
+Uber-shaped "show me what is available and book it"; keep the quote lane
+because that is the habit for long trips; add Europcar-style segments
+(economy/premium/luxury); show the customer their bill; relocate the launch to
+Madurai and south Tamil Nadu with copy to match; add Tamil, then South Indian
+languages rather than only Hindi; and let a customer request a driver who
+speaks their language.
+
+**Changed:**
+
+- **Lane B, book now** — `data/availability.ts` finds vehicles that are free,
+  road-legal *on the travel date*, big enough, and good enough for the segment,
+  then prices each from its operator's standing rate card. `/portal/book` is
+  the search; booking re-checks availability rather than trusting the form.
+- **Rate cards** (`0004`) — the thing §4.2 calls "rate card mode", and what
+  makes instant pricing possible at all.
+- **Segments** — derived from `ac` and `features`, so "luxury non-AC" cannot be
+  expressed. A better vehicle may serve a cheaper booking, never the reverse.
+- **The bill** (`domain/bill.ts`) — quoted total, then every charge the quote
+  excluded, itemised and marked, with tax on the additions and a plain sentence
+  about tolls in both directions. Shown on the customer's trip.
+- **Madurai** — corridor, seed data, registrations, names, routes and landing
+  copy. Recorded in `LAUNCH_CITIES` with the reasoning, so it is a constraint
+  rather than a default somebody drifts away from.
+- **Six languages** — typed dictionaries for en/ta/hi/te/ml/kn, a cookie, and a
+  switcher component. Drivers carry the languages they speak; a customer can
+  ask for one, and matching drivers are picked and sorted first.
+
+**Decided, and why:**
+
+- **Both lanes produce identical rows.** An instant booking creates the same
+  request, quote, booking and assignment. Anything else means settlement,
+  invoicing and compliance each grow a second code path.
+- **Hindi is in the language list, not at the head of it.** For a Madurai
+  launch the first language after English is Tamil. A Tamil-speaking driver
+  handed a Hindi interface is exactly the failure to avoid.
+- **The ops console and partner tool stay English.** They are used by staff and
+  office dispatchers; a badly translated settlement statement is worse than an
+  untranslated one.
+- **Nothing unbookable is shown.** Filtering by compliance before render, not
+  refusing after choosing.
+
+**Rejected:**
+
+- **Replacing the quote lane.** The instruction was to move *towards* instant
+  booking, and the plan's own §11 keeps both. Long trips and large groups
+  genuinely need negotiation.
+- **A translation library.** Six flat dictionaries and a cookie keep the
+  blessed-dependency list intact and make a missing string a build error.
+
+**Open:**
+
+- The `hi`/`te`/`ml`/`kn` strings need a native-speaker pass before launch.
+- The switcher is not yet mounted in the portal and driver layouts, so the
+  language choice is not user-visible yet.
+- Operators cannot edit their own rate cards.
+- Instant booking is intra-state only for now.
+- Production still holds the previous Jaipur seed; reseeding to Madurai will
+  reissue all four sets of credentials.

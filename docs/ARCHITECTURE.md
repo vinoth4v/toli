@@ -229,6 +229,25 @@ is the single place that decides whether one is configured, and
   the rule that matters — the front door looks like a business rather than a
   bare login form, and the operator never clicks past a welcome page to reach
   the app they run. It is why the matcher exempts `/$` exactly, not `/`.
+- **Two lanes produce identical rows.** An instant booking creates the same
+  request, quote, booking and assignment a quoted one does. Settlement,
+  invoicing, compliance and the console must not need to know which lane a trip
+  came through, or each grows a second code path.
+- **Segment is derived, never declared.** `segmentFor` reads `ac` and
+  `features`, so an operator moves a vehicle up a rung by fitting the thing,
+  not by claiming it. A better vehicle may serve a cheaper booking; the reverse
+  is mis-selling.
+- **Availability is re-checked at the moment of booking.** Between the search
+  and the tap somebody else may have taken the vehicle; the action re-runs
+  `findOffers` rather than trusting the form.
+- **Nothing unbookable is ever shown.** Compliance is judged against the travel
+  date before an offer is rendered — being refused after choosing is worse than
+  never seeing it.
+- **The launch corridor is a constraint, not a default.** Madurai and south
+  Tamil Nadu; see `LAUNCH_CITIES`. Examples and seed data stay there so the
+  product never implies coverage it does not have.
+- **Translations are typed, not looked up.** A `Dictionary` type per locale
+  means adding an English string and forgetting Tamil fails the build.
 - **Percentages are stored as basis points.** 10% commission and 1% TCS are
   both integers that way, and nothing downstream multiplies by a float.
 - **"Not configured" is a first-class state, never a silent fallback.** Four of
@@ -282,6 +301,17 @@ is the single place that decides whether one is configured, and
   the current session, because the role lives in the token.
 - **The customer portal cannot pay yet.** It books; taking the advance is the
   Razorpay integration, which needs credentials.
+- **The `hi`, `te`, `ml` and `kn` translations have not had a native-speaker
+  pass.** They are careful but unreviewed, and should be checked before the
+  soft launch — a mistranslated SOS hint is worse than English.
+- **The language switcher is not yet mounted in the portal and driver
+  layouts.** The plumbing, dictionaries and switch component exist; the driver
+  app still renders English strings. That is the next commit, not a design gap.
+- **Rate cards have no operator-facing editor.** They are seeded; an operator
+  cannot yet change their own standing price, which they will want immediately.
+- **Instant booking assumes intra-state.** The book-now flow does not yet offer
+  interstate trips, because those need the AITP check surfaced in the UI rather
+  than only enforced.
 - **No SMS fallback.** §4.5 wants DLT-registered SMS behind WhatsApp; the
   outbox has a `channel` column and only one channel is implemented.
 - **Reference numbers come from a row count.** Correct for one desk, racy for
