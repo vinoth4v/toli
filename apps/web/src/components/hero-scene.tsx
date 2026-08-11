@@ -11,8 +11,8 @@
  * breathes. `prefers-reduced-motion` stills all of it via the global rule.
  *
  * The palette is internal to the artwork — like a photograph's would be — and
- * deliberately not the UI's tokens: the interface stays monochrome so the one
- * colourful thing on the page is the world the product operates in.
+ * deliberately not the UI's tokens: the interface stays navy-and-white so the
+ * one colourful thing on the page is the world the product operates in.
  */
 
 export function HeroScene() {
@@ -41,6 +41,19 @@ export function HeroScene() {
         <ellipse cx="430" cy="120" rx="50" ry="15" />
         <ellipse cx="468" cy="110" rx="28" ry="12" />
       </g>
+
+      {/* The Western Ghats: two hazed ranges of actual peaks behind the
+          green hills, because Kodaikanal sits on a mountain, not a mound. */}
+      <path
+        d="M0 260 L64 168 L128 232 L196 148 L262 222 L330 158 L398 224 L470 142 L544 214 L612 152 L676 208 L720 164 L720 560 L0 560 Z"
+        fill="#c3d6e8"
+      />
+      <path
+        d="M0 292 L86 210 L162 272 L242 196 L318 264 L402 194 L488 262 L566 202 L648 258 L720 208 L720 560 L0 560 Z"
+        fill="#a7c3dc"
+      />
+      <ellipse cx="240" cy="252" rx="90" ry="10" fill="#ffffff" opacity="0.45" />
+      <ellipse cx="540" cy="238" rx="80" ry="9" fill="#ffffff" opacity="0.4" />
 
       {/* Hill ranges */}
       <path
@@ -72,10 +85,10 @@ export function HeroScene() {
         strokeDasharray="18 26"
       />
 
-      {/* Destination: the same pin as the logo */}
+      {/* Destination: the same pin as the logo, in the same navy */}
       <g className="pin">
-        <circle cx="648" cy="130" r="15" fill="#0b0b0b" />
-        <path d="M648 158 L639 138 L657 138 Z" fill="#0b0b0b" />
+        <circle cx="648" cy="130" r="15" fill="#122a52" />
+        <path d="M648 158 L639 138 L657 138 Z" fill="#122a52" />
         <circle cx="648" cy="130" r="5.5" fill="#ffffff" />
       </g>
 
@@ -102,15 +115,45 @@ export function HeroScene() {
         </g>
       </g>
 
-      {/* Madurai below: a gopuram */}
+      {/* Madurai below: a proper Meenakshi-class gopuram — tall, tiered,
+          striped with sculpture rows, crowned with a row of kalasam finials.
+          The one thing on the page that should look unmistakably like home. */}
       <g>
-        <rect x="28" y="470" width="114" height="90" fill="#e8ddc8" />
-        <polygon points="38,470 132,470 122,428 48,428" fill="#f26a21" />
-        <polygon points="48,428 122,428 114,394 56,394" fill="#f6b73c" />
-        <polygon points="56,394 114,394 108,364 62,364" fill="#35836a" />
-        <polygon points="62,364 108,364 100,340 70,340" fill="#e8ddc8" />
-        <ellipse cx="85" cy="334" rx="15" ry="8" fill="#f6b73c" />
-        <rect x="70" y="500" width="30" height="60" rx="4" fill="#8a5a30" />
+        {/* Base wall and doorway */}
+        <rect x="20" y="482" width="150" height="78" fill="#f0e7d4" />
+        <rect x="20" y="474" width="150" height="10" fill="#c94f1d" />
+        <path d="M78 560 L78 516 Q95 500 112 516 L112 560 Z" fill="#7a4a26" />
+        {/* Six tiers, alternating sculpture rows */}
+        <polygon points="30,474 160,474 150,440 40,440" fill="#f26a21" />
+        <polygon points="40,440 150,440 141,408 49,408" fill="#f0e7d4" />
+        <polygon points="49,408 141,408 133,378 57,378" fill="#f6b73c" />
+        <polygon points="57,378 133,378 126,350 64,350" fill="#f0e7d4" />
+        <polygon points="64,350 126,350 120,324 70,324" fill="#35836a" />
+        <polygon points="70,324 120,324 115,300 75,300" fill="#f26a21" />
+        {/* Niche dots — the sculpture rows, suggested not carved */}
+        <g fill="#ffffff" opacity="0.85">
+          {[52, 72, 92, 112, 132].map((x) => (
+            <rect key={`n1-${x}`} x={x} y="452" width="6" height="12" rx="2" />
+          ))}
+          {[62, 80, 98, 116].map((x) => (
+            <rect key={`n2-${x}`} x={x} y="386" width="5" height="11" rx="2" />
+          ))}
+          {[72, 88, 104].map((x) => (
+            <rect key={`n3-${x}`} x={x} y="330" width="5" height="10" rx="2" />
+          ))}
+        </g>
+        {/* Barrel roof and the kalasam row */}
+        <ellipse cx="95" cy="296" rx="26" ry="11" fill="#f6b73c" />
+        <g fill="#c94f1d">
+          {[77, 86, 95, 104, 113].map((x) => (
+            <circle key={`k-${x}`} cx={x} cy="284" r="3" />
+          ))}
+        </g>
+        <g stroke="#c94f1d" strokeWidth="2" strokeLinecap="round">
+          {[77, 86, 95, 104, 113].map((x) => (
+            <line key={`s-${x}`} x1={x} y1="281" x2={x} y2="274" />
+          ))}
+        </g>
       </g>
 
       {/* A palm, because this is the south */}
@@ -225,6 +268,32 @@ export function PambanScene() {
           </g>
         </g>
       </g>
+
+      {/* Rameswaram at the far shore — drawn after the bus, so each crossing
+          ends with it disappearing into temple town rather than off an edge */}
+      <g>
+        <polygon points="640,220 648,146 720,134 720,220" fill="#e6d8b4" />
+        <polygon points="664,140 716,140 710,112 670,112" fill="#f26a21" />
+        <polygon points="670,112 710,112 705,90 675,90" fill="#f0e7d4" />
+        <polygon points="675,90 705,90 701,72 679,72" fill="#f6b73c" />
+        <ellipse cx="690" cy="70" rx="13" ry="6" fill="#c94f1d" />
+        <g stroke="#c94f1d" strokeWidth="2" strokeLinecap="round">
+          <line x1="683" y1="66" x2="683" y2="60" />
+          <line x1="690" y1="66" x2="690" y2="58" />
+          <line x1="697" y1="66" x2="697" y2="60" />
+        </g>
+        {/* A palm on the sand */}
+        <path
+          d="M652 220 C655 196 651 184 658 168"
+          stroke="#7a5230"
+          strokeWidth="5"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path d="M658 168 C674 158 688 162 692 174 C678 170 666 168 658 168" fill="#2f7d5c" />
+        <path d="M658 168 C645 156 632 158 626 170 C639 166 650 166 658 168" fill="#2f7d5c" />
+        <path d="M658 168 C664 152 678 148 688 154 C676 156 665 162 658 168" fill="#3b9770" />
+      </g>
     </svg>
   )
 }
@@ -273,6 +342,35 @@ export function NightScene() {
         d="M0 190 C90 150 170 180 260 148 C340 122 400 150 440 132 L440 300 L0 300 Z"
         fill="#101b33"
       />
+
+      {/* Palani: the temple on its hill, lit, the way you actually see it
+          from the night bus — a warm glow above a dark ridge */}
+      <g>
+        <ellipse cx="368" cy="120" rx="34" ry="18" fill="#f6d06a" opacity="0.14" />
+        <polygon points="352,136 384,136 380,120 356,120" fill="#22345c" />
+        <polygon points="356,120 380,120 377,108 359,108" fill="#22345c" />
+        <ellipse cx="368" cy="106" rx="8" ry="4" fill="#22345c" />
+        <line
+          x1="368"
+          y1="103"
+          x2="368"
+          y2="97"
+          stroke="#f6d06a"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <rect x="364" y="124" width="8" height="12" rx="2" fill="#f6d06a" />
+        <circle cx="358" cy="128" r="1.5" fill="#f6d06a" />
+        <circle cx="378" cy="128" r="1.5" fill="#f6d06a" />
+        {/* The stepped path up, as a dotted line of lamps */}
+        <g fill="#f6d06a" opacity="0.7">
+          <circle cx="346" cy="146" r="1.4" />
+          <circle cx="338" cy="154" r="1.4" />
+          <circle cx="331" cy="162" r="1.4" />
+          <circle cx="325" cy="171" r="1.4" />
+        </g>
+      </g>
+
       <path d="M0 240 C120 210 260 250 440 208 L440 300 L0 300 Z" fill="#0b1426" />
 
       {/* The road and its dashes */}

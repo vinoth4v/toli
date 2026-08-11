@@ -2955,10 +2955,12 @@ h1,
 
 /* The product, floating over the world it runs in. */
 
+/* Bottom-right, so the card costs the scene a palm tree rather than the
+   gopuram and the mountains — the two things the artwork exists to show. */
 .demo-card {
   position: absolute;
-  top: var(--space-6);
-  left: calc(-1 * var(--space-8));
+  right: calc(-1 * var(--space-8));
+  bottom: calc(-1 * var(--space-8));
   width: min(20rem, 92%);
   padding: var(--space-4) var(--space-6);
   background: var(--color-bg);

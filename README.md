@@ -4,12 +4,13 @@ India's charter marketplace for vans, tempo travellers and buses. Book a whole
 vehicle for a whole group — transparent quotes, verified operators, live
 tracking. Launching in **Madurai and south Tamil Nadu**; selling to all of India.
 
-The brand is the `toli` theme in `packages/tokens` — ink on paper, a
+The brand is the `toli` theme in `packages/tokens` — deep navy on white, a
 terracotta accent, one bold weight, colour only where it means something. The
 logo is a route mark: dot, road, pin. The illustrations are hand-drawn
-animated SVGs of the launch corridor itself — the ghat road to Kodaikanal,
-the Pamban bridge to Rameswaram, a sleeper coach at night — because the
-product is the software and the software is what the front page shows.
+animated SVGs of the launch corridor's own landmarks — a Meenakshi-class
+gopuram under Western Ghats peaks, the Pamban bridge to Rameswaram, Palani's
+lit hilltop temple above a night sleeper coach — because the product is the
+software and the software is what the front page shows.
 
 **Live:** https://toli-flame.vercel.app
 
