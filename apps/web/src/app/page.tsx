@@ -59,6 +59,37 @@ const COMPARISON = [
   },
 ] as const
 
+/**
+ * The four ways in, in the order a stranger meets them: most people arriving
+ * here are booking a bus, and almost nobody is Toli's own ops desk.
+ */
+const DOORS = [
+  {
+    role: "customer",
+    label: "Booking a vehicle",
+    title: "Your trips",
+    does: "Ask for a vehicle, compare quotes honestly, pay, and watch the trip.",
+  },
+  {
+    role: "operator",
+    label: "Running a fleet",
+    title: "Toli Partner",
+    does: "Quote inbox, fleet paperwork, and what every trip actually pays you.",
+  },
+  {
+    role: "driver",
+    label: "Driving",
+    title: "Toli Driver",
+    does: "Today's trip, start and finish, tolls you paid, SOS.",
+  },
+  {
+    role: "admin",
+    label: "Toli staff",
+    title: "Ops console",
+    does: "Verification, matching, disputes, settlements.",
+  },
+] as const
+
 const rupees = (paise: number) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -81,8 +112,9 @@ export default async function HomePage() {
           <a href="#how">How it works</a>
           <a href="#fleet">Fleet</a>
           <a href="#operators">For operators</a>
+          <a href="#signin">Who signs in</a>
           <Link href="/login" className="signin">
-            Ops sign in
+            Sign in
           </Link>
         </nav>
       </header>
@@ -100,7 +132,7 @@ export default async function HomePage() {
           messages.
         </p>
         <div className="hero-actions">
-          <Link href="/login" className="button-link">
+          <Link href="/login?as=customer" className="button-link">
             Start a requirement
           </Link>
           <a href="#compare" className="button-link quiet">
@@ -308,6 +340,26 @@ export default async function HomePage() {
         </aside>
       </section>
 
+      <section id="signin" className="section alt">
+        <h2 className="section-title">Four people, four applications</h2>
+        <p className="section-lede">
+          A driver is not an operator and an operator is not the ops desk — so Toli is four
+          applications behind one sign-in. Pick the one that describes you; your account decides
+          where you actually land, so there is nothing to get wrong here.
+        </p>
+
+        <div className="door-grid">
+          {DOORS.map((door) => (
+            <Link key={door.role} href={`/login?as=${door.role}`} className="door">
+              <span className="door-role">{door.label}</span>
+              <strong>{door.title}</strong>
+              <span className="door-does">{door.does}</span>
+              <span className="door-go">Sign in →</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <footer className="landing-foot">
         <div>
           <span className="wordmark">toli</span>
@@ -316,7 +368,8 @@ export default async function HomePage() {
           </p>
         </div>
         <p className="muted small">
-          Operating a fleet? <Link href="/login">Sign in to the ops console</Link>.
+          Already with Toli? <Link href="/login">Sign in</Link> — groups, operators, drivers and the
+          Toli desk all start here.
         </p>
       </footer>
     </div>
