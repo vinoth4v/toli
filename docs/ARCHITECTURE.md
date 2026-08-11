@@ -42,6 +42,9 @@ throughout the code (§7.1, §8.3) point into it.
 - **Invoice, Settlement** — money out, in both directions.
 - **Review, Dispute** — after the trip.
 - **ComplianceCheck, ConsentRecord, AuditLog** — the records regulators ask for.
+- **AppUser** — somebody who signs in, with one of four roles and a link to
+  what they *are*: an operator user has an operator, a driver user has a
+  driver, a customer user has a customer.
 
 Two invariants run through all of it: **money is integer paise**, and
 **timestamps are UTC, rendered IST**.
@@ -87,6 +90,10 @@ and four provider columns on `payment`:
 | `notification` | the outbox: one row per message, written before the API call, with the rendered variables kept |
 | `webhook_event` | every inbound webhook; unique on (provider, event id), which is what stops a retry recording a payment twice |
 
+Migration `0003_app_users` added `app_user` and the `app_role` enum, replacing
+the template's single-operator gate. The environment identity survives as
+break-glass admin access.
+
 `payment` gained `provider`, `provider_order_id`, `provider_payment_id` and
 `provider_link_url` — deliberately provider-neutral names, so a second gateway
 sits beside the first without a migration.
@@ -101,8 +108,11 @@ Everything is behind the operator gate unless stated otherwise.
 
 | Route | What it is for |
 |---|---|
-| **`/`** | **Public.** The marketplace's front page. Signed in, it redirects to `/console` |
-| `/console` | Control tower: §13 metrics, live trips, RFQs with no quotes, quotes awaiting a decision |
+| **`/`** | **Public.** The marketplace's front page. Signed in, it redirects to the signer's own home |
+| `/portal`, `/portal/new`, `/portal/trips/[id]` | **customer** — trips, ask for a vehicle, compare quotes and book |
+| `/partner`, `/partner/quotes/[id]`, `/partner/fleet`, `/partner/earnings` | **operator** — quote inbox, the §7.1 form, fleet paperwork, settlements |
+| `/drive`, `/drive/[id]` | **driver** — today's trip, start, stops, expenses, finish, SOS |
+| `/console` | **admin** — control tower: §13 metrics, live trips, RFQs with no quotes, quotes awaiting a decision |
 | `/console/rfqs`, `/console/rfqs/new`, `/console/rfqs/[id]` | The RFQ desk: requirement builder, operator fan-out, quote comparison, acceptance |
 | `/console/bookings`, `/console/bookings/[id]` | Payments, assignment, trip events, positions, expenses, invoice, settlement, review, disputes |
 | `/console/operators`, `/console/operators/new`, `/console/operators/[id]` | Onboarding, fleet, drivers, documents, verification |
@@ -189,6 +199,31 @@ is the single place that decides whether one is configured, and
   through the same function in `domain/metrics.ts`.
 - **The public tracking page gets a projection, not a row.** Purpose limitation
   under DPDP, and obvious besides.
+- **Authorisation is one pure module, checked at the edge.** `domain/roles.ts`
+  answers "may this role see this path", and `auth.config.ts`'s `authorized`
+  callback is the only caller that matters — so a role cannot reach another
+  surface even for the instant before a layout redirects. Access is an
+  allow-list of prefixes, so a route added tomorrow is closed to everyone until
+  somebody says otherwise.
+- **A signed-in person on the wrong surface is redirected, not bounced to
+  login.** They are authenticated and simply in the wrong place; sending them
+  to a sign-in form they have already passed would be a bug that looks like a
+  security feature.
+- **Ownership lives in the WHERE clause.** `data/scoped.ts` takes the id from
+  the session and never from a URL. A check written as an `if` after the query
+  is the one that gets forgotten during a refactor.
+- **The driver's queries do not select money at all.** Not the trip value, not
+  the quote, not the settlement — an explicit projection rather than
+  `select()`, so a column added to `booking` later cannot leak onto a driver's
+  screen. §3 says a driver who learns the take rate can disintermediate the
+  platform, and this is that rule made structural.
+- **The role is in the JWT.** No database round trip per request; the cost is
+  that a role changed in the database takes effect on next sign-in. For four
+  accounts that is the right trade, and a revocation list is what changes it.
+- **Break-glass access is kept on purpose.** `WERFT_USER_EMAIL` and
+  `WERFT_PASSWORD_HASH` still sign in as an admin, checked before any database
+  call — an app whose only administrator is a row in an unreachable table has
+  no way back in.
 - **`/` is public and decides for itself.** A visitor sees the marketplace; a
   signed-in operator is redirected to `/console`. That satisfies both halves of
   the rule that matters — the front door looks like a business rather than a
@@ -240,6 +275,13 @@ is the single place that decides whether one is configured, and
 - **Deviation is measured to the nearest planned stop, not to the road line.**
   Coarser than route-geometry matching, and it needs no stored polyline; it
   still catches the case that matters.
+- **No self-registration, password reset, or invitation flow.** Accounts are
+  created by a script. Correct for four; the first thing to build for forty.
+- **No per-field permissions within a role**, which §4.4 eventually wants.
+- **No session revocation.** Disabling an account stops the next sign-in, not
+  the current session, because the role lives in the token.
+- **The customer portal cannot pay yet.** It books; taking the advance is the
+  Razorpay integration, which needs credentials.
 - **No SMS fallback.** §4.5 wants DLT-registered SMS behind WhatsApp; the
   outbox has a `channel` column and only one channel is implemented.
 - **Reference numbers come from a row count.** Correct for one desk, racy for

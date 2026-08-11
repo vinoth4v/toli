@@ -238,3 +238,74 @@ rather than a commit. The options and their costs went back to the operator.
 
 **Open:** the multi-user question, and with it whether per-role interfaces are
 built as real surfaces or as a demo.
+
+---
+
+## Four roles, four applications — 11 August 2026
+
+**Asked:** create four accounts — admin, user, tour operator, driver — share
+the credentials, and give each profile a distinct, high-quality interface.
+
+**Raised first:** `AGENTS.md` said *never add a second user; a real multi-user
+app needs a real user store — that is a decision to raise, not to implement
+quietly.* It was raised, with the cost of each option and the risk of sharing
+working credentials for a live app holding real data. The operator chose the
+real user store, production wipe-and-reseed, and generated passwords shown
+once. That rule in `AGENTS.md` has been rewritten rather than left to
+contradict the code — it now governs adding a *fifth* role.
+
+**Changed:**
+
+- `app_user` (migration `0003_app_users`) with an `app_role` enum, linked to
+  the operator, driver or customer the account *is*.
+- Sign-in reads the user store; the role travels in the JWT and is enforced in
+  the edge `authorized` callback via `domain/roles.ts` — 10 unit tests,
+  including that `/portalx` must not match `/portal`.
+- `data/scoped.ts`: every "my data" query takes its id from the session and
+  puts ownership in the WHERE clause.
+- Three new surfaces beside the console, each designed for its reader rather
+  than themed differently: `/portal` (calm, consumer, big dates, quotes framed
+  for someone who has never heard the word *bata*), `/partner` (dense work
+  tool, oldest unanswered RFQ loudest, settlements itemised), `/drive` (huge
+  type, 3.5rem targets, one-tap actions, no money on any screen).
+- `db:seed-users` generates passwords, prints them once, stores only scrypt
+  hashes. `db:reset` wipes every table but the audit log, and refuses without
+  `CONFIRM_RESET=yes`.
+- Seed gained a second booking departing tomorrow, assigned to a driver —
+  without it the driver app is an empty screen and demonstrates nothing.
+
+**Decided, and why:**
+
+- **The driver sees no money, structurally.** §3 warns that a driver who learns
+  the take rate can take the customer off-platform. So `driverTrips` is an
+  explicit projection with no price column in it, rather than a template that
+  omits one — a column added to `booking` later cannot leak.
+- **Break-glass admin kept.** The environment identity still signs in, checked
+  before any database call. An app whose only administrator is a row in an
+  unreachable table has no way back in.
+- **Wrong-surface means redirect, not sign-in.** The person is authenticated
+  and merely in the wrong place.
+- **Allow-list, not deny-list.** A route added tomorrow is closed to every role
+  until someone says otherwise.
+
+**Rejected:**
+
+- **Demo accounts with memorable passwords.** Offered and declined in favour of
+  generated ones; the app holds operator PANs and settlement data.
+- **One interface with a role switcher.** It would have been a fraction of the
+  work and would have contradicted §3's central claim that these are different
+  people with different rights.
+- **A database lookup per request** to make role changes instant. Not worth it
+  at four accounts; noted as the reason revocation is not immediate.
+
+**Verified:** all four accounts signed in through a real browser against a
+throwaway Neon branch, each landing on its own surface. The driver was pushed
+back to `/drive` from `/console`, `/partner/earnings` and `/portal` in turn.
+The customer's list showed only her own trip. The branch was deleted
+afterwards. Production was then migrated, wiped and reseeded, and the four
+accounts created there — 4 scrypt hashes, 0 plaintext.
+
+**Open:** no self-registration, password reset or invitations; no per-field
+permissions inside a role; no session revocation, since the role is in the
+token; the portal books but cannot yet take payment, which needs Razorpay
+credentials.

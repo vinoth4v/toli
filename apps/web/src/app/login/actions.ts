@@ -9,6 +9,9 @@ export async function signInAction(formData: FormData): Promise<void> {
   const password = String(formData.get("password") ?? "")
 
   try {
+    // Redirect to "/" and let the front page route by role: it already
+    // redirects a signed-in visitor to their own home, so there is exactly one
+    // place that knows where each role belongs.
     await signIn("credentials", { email, password, redirectTo: "/" })
   } catch (error) {
     // A successful sign-in also throws — NEXT_REDIRECT — so only auth errors

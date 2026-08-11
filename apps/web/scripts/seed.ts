@@ -15,6 +15,7 @@
  */
 
 import { neon } from "@neondatabase/serverless"
+import { eq } from "drizzle-orm"
 import { drizzle } from "drizzle-orm/neon-http"
 import * as schema from "../src/db/schema.ts"
 import { trackingToken } from "../src/domain/format.ts"
@@ -726,6 +727,67 @@ async function main(): Promise<void> {
     status: "released",
     releasedAt: day(-7, 12),
   })
+
+  /**
+   * A trip that has not run yet, leaving tomorrow morning, with a vehicle and
+   * driver already assigned.
+   *
+   * Without this the driver app is an empty screen: the completed booking above
+   * is nine days old. A driver signing in should see the thing a driver signs
+   * in to see — today's trip, with a Start button.
+   */
+  const tomorrowQuote = quotes.find((row) => row.status === "submitted")
+  if (tomorrowQuote) {
+    const pilgrimageBookings = await db
+      .insert(schema.booking)
+      .values({
+        reference: "TOLI-B-000002",
+        tripRequestId: pilgrimage.id,
+        quoteId: tomorrowQuote.id,
+        customerId: yatra.id,
+        operatorId: shekhawati.id,
+        status: "assigned",
+        agreedTotalPaise: 894_000,
+        advanceDuePaise: applyBps(894_000, advanceBps),
+        commissionBps,
+        gstTreatment: "passenger_transport_5",
+        placeOfSupply: "Rajasthan",
+        intraState: true,
+        trackingToken: trackingToken(),
+      })
+      .returning()
+
+    const upcoming = pilgrimageBookings[0]
+    if (upcoming) {
+      await db.insert(schema.assignment).values({
+        bookingId: upcoming.id,
+        vehicleId: tt17.id,
+        driverId: ramesh.id,
+      })
+
+      await db.insert(schema.payment).values({
+        bookingId: upcoming.id,
+        kind: "advance",
+        mode: "upi",
+        amountPaise: upcoming.advanceDuePaise,
+        status: "captured",
+        gatewayRef: "pay_QmR82kTb01",
+        collectedAt: new Date(now - 2 * DAY),
+      })
+
+      await db
+        .update(schema.tripRequest)
+        .set({ status: "booked", startAt: day(1, 5, 30), endAt: day(1, 22) })
+        .where(eq(schema.tripRequest.id, pilgrimage.id))
+
+      await db.insert(schema.tripEvent).values({
+        bookingId: upcoming.id,
+        kind: "dispatched",
+        at: new Date(now - 3_600_000),
+        detail: "Vehicle and driver confirmed",
+      })
+    }
+  }
 
   await db.insert(schema.review).values({
     bookingId: booking.id,

@@ -9,6 +9,23 @@ India's aggregator marketplace for chartered vans, tempo travellers and buses �
 
 ## What it does
 
+**Four people, four applications.** §3 of the plan needs genuinely different
+users — Toli's ops desk, the group organiser, the fleet operator and the
+driver — and is explicit that the driver must not be the operator, because a
+driver who can see commercial terms can take the customer off-platform. So each
+role signs in to its own surface, and the rules live in one tested module:
+
+| Role | Lands on | What it is |
+|---|---|---|
+| `admin` | `/console` | The ops console: verification, matching, disputes, payouts |
+| `customer` | `/portal` | Calm and consumer-facing: ask, compare, book, track |
+| `operator` | `/partner` | A work tool: quote inbox, fleet paperwork, earnings |
+| `driver` | `/drive` | Three big buttons, a bad phone — and **no money on any screen** |
+
+A signed-in person who types another surface's URL is redirected to their own,
+at the edge, before the page renders. Every query about "my" data goes through
+`src/data/scoped.ts`, which puts ownership in the WHERE clause.
+
 **`/` is the marketplace's public front page** — what the business is, the
 comparison that explains why it exists, the fleet it runs and the terms
 operators get. Signed in, it redirects straight to `/console`, so the operator
@@ -101,8 +118,11 @@ is missing, and never pretends. `/integrations` is the live inventory:
   dependency this template does not bless.
 - **No cloud-telephony number masking**, which is the actual anti-leakage
   control. Phone numbers are masked in the UI, which is display hygiene.
-- **One user.** The gate is one email and one password hash. Real RBAC over the
-  admin console is a decision to raise, not to implement quietly.
+- **No self-registration, no password reset, no invitations.** Accounts are
+  created by `db:seed-users` or by hand. That is deliberate for four accounts
+  and the obvious next thing to build for forty.
+- **No per-field permissions inside a role.** §4.4 eventually wants finer
+  control than "admins see everything".
 
 ## Run it
 
@@ -110,6 +130,8 @@ is missing, and never pretends. `/integrations` is the live inventory:
 pnpm install
 pnpm db:migrate          # needs DATABASE_URL
 pnpm db:seed             # realistic Jaipur data — never against production
+pnpm db:seed-users       # the four role accounts; prints passwords once
+CONFIRM_RESET=yes pnpm db:reset   # wipes every table but the audit log
 pnpm dev
 ```
 
