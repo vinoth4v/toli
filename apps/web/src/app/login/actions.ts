@@ -7,6 +7,9 @@ import { signIn } from "@/auth"
 export async function signInAction(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "")
   const password = String(formData.get("password") ?? "")
+  // Which step the attempt was made on, so a rejection returns there rather
+  // than dumping the person back at "who is signing in?" to start again.
+  const as = String(formData.get("as") ?? "").trim()
 
   try {
     // Redirect to "/" and let the front page route by role: it already
@@ -17,7 +20,7 @@ export async function signInAction(formData: FormData): Promise<void> {
     // A successful sign-in also throws — NEXT_REDIRECT — so only auth errors
     // are ours to handle. Anything else has to keep travelling.
     if (error instanceof AuthError) {
-      redirect("/login?error=invalid")
+      redirect(as ? `/login?as=${encodeURIComponent(as)}&error=invalid` : "/login?error=invalid")
     }
     throw error
   }
