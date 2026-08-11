@@ -112,6 +112,7 @@ Everything is behind the operator gate unless stated otherwise.
 | `/account` | Every signed-in role — avatar upload, language, sign out |
 | `/portal`, `/portal/new`, `/portal/trips/[id]` | **customer** — trips, ask for a vehicle, compare quotes and book |
 | `/partner`, `/partner/quotes/[id]`, `/partner/fleet`, `/partner/earnings` | **operator** — quote inbox, the §7.1 form, fleet paperwork, settlements |
+| `/partner/team` | **operator** — their drivers: add one, and issue their driver-app sign-in, password shown once |
 | `/drive`, `/drive/[id]` | **driver** — today's trip, start, stops, expenses, finish, SOS |
 | `/console` | **admin** — control tower: §13 metrics, live trips, RFQs with no quotes, quotes awaiting a decision |
 | `/console/rfqs`, `/console/rfqs/new`, `/console/rfqs/[id]` | The RFQ desk: requirement builder, operator fan-out, quote comparison, acceptance |
@@ -123,6 +124,7 @@ Everything is behind the operator gate unless stated otherwise.
 | `/console/integrations` | What is wired up and what is not, per variable; device enrolment; the outbox |
 | `/partner/rates` | **operator** — standing rates, which is what makes instant booking possible |
 | `/login` | The gate |
+| **`/register`** | **Public.** Self-registration: customers self-serve, operators apply (created `pending_verification`), drivers are told their operator issues their sign-in |
 | **`/track/[token]`** | **Public.** The guest tracking page — no app, no login |
 | **`POST /api/ingest/ping`** | **Public.** Driver-app positions, one or a replayed batch. Device bearer token |
 | **`POST /api/ingest/vltd`** | **Public.** AIS-140 telematics feed. Device bearer token |
@@ -207,12 +209,20 @@ is the single place that decides whether one is configured, and
   tokens, the whole app re-skinned from one definition; the CSS "brand" layer
   only sets posture (weight, tracking, stickiness, motion). The logo is a route
   mark — dot, road, pin — drawn in currentColor so it inverts in the footer.
-- **The hero illustration is artwork, not UI.** A hand-drawn SVG of the
-  Madurai–Kodaikanal ghat road, animated in CSS (clouds, wheels, road dashes,
-  a pulsing destination pin), stilled by `prefers-reduced-motion`. Its palette
-  is internal to the image — the same standing a photograph would have — and
-  is the one deliberate exception to the tokens-only rule, so the UI can stay
-  monochrome while the world it depicts is not.
+- **The accent is terracotta, not ink.** An all-black interface read as an
+  Uber clone, which a marketplace asking for trust cannot afford. The accent
+  token is now the terracotta the hero's gopuram already wore — so buttons,
+  links, eyebrows and step numbers warmed across every surface in one token
+  change, and the identity became "ink, terracotta, hand-drawn south-Indian
+  scenes", which nobody else owns.
+- **The illustrations are artwork, not UI.** Three hand-drawn SVG scenes —
+  the Madurai–Kodaikanal ghat road in the hero, the Pamban bridge crossing to
+  Rameswaram above "How it works", a sleeper coach on a night leg with the
+  fleet owners — all animated in CSS (clouds, wheels, waves, a crossing bus,
+  twinkling stars), all stilled by `prefers-reduced-motion`. Their palettes
+  are internal to the images — the same standing a photograph would have —
+  and are the one deliberate exception to the tokens-only rule, so the UI can
+  stay two-colour while the world it depicts is not.
 - **Avatars upload like vehicle photos.** Presigned PUT to `avatars/<userId>/…`,
   recorded on `app_user` (migration `0008`); initials are the designed default,
   not a failure state. `/account` is the one surface every role shares — face,
@@ -326,8 +336,18 @@ is the single place that decides whether one is configured, and
 - **Deviation is measured to the nearest planned stop, not to the road line.**
   Coarser than route-geometry matching, and it needs no stored polyline; it
   still catches the case that matters.
-- **No self-registration, password reset, or invitation flow.** Accounts are
-  created by a script. Correct for four; the first thing to build for forty.
+- **Registration exists; password reset does not.** Customers self-register
+  and are served immediately; operators apply (row created
+  `pending_verification`, sellable only after ops verifies); drivers get their
+  sign-in from their operator on `/partner/team`, password shown exactly once
+  and stored only as a hash. Three different shapes on purpose — a
+  self-registered driver with no operator behind them is the unverified
+  stranger this marketplace exists to remove. A forgotten password is still a
+  call to Toli ops.
+- **A customer row created by ops cannot be claimed online.** Registering with
+  a phone number that already exists is refused, because attaching a new
+  sign-in to an existing customer's trips on the strength of knowing their
+  phone number is account takeover. Linking is a human's job until OTP exists.
 - **No per-field permissions within a role**, which §4.4 eventually wants.
 - **No session revocation.** Disabling an account stops the next sign-in, not
   the current session, because the role lives in the token.

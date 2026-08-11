@@ -87,6 +87,7 @@ export function mayAccess(role: Role, path: string): boolean {
 export const PUBLIC_PREFIXES = [
   "/",
   "/login",
+  "/register",
   "/track",
   "/api/auth",
   "/api/ingest",

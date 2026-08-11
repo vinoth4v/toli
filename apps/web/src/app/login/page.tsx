@@ -85,6 +85,11 @@ export default async function LoginPage({
         </div>
 
         <p className="muted small">
+          New to Toli? <Link href="/register">Create an account</Link> — as a group organiser or a
+          fleet operator.
+        </p>
+
+        <p className="muted small">
           Looking for a trip somebody is on? The tracking link you were sent needs no sign-in.{" "}
           <Link href="/">Back to Toli</Link>.
         </p>
@@ -138,6 +143,12 @@ export default async function LoginPage({
         </div>
         <button type="submit">Sign in</button>
       </form>
+
+      {chosen === "customer" || chosen === "operator" ? (
+        <p className="muted small">
+          No account yet? <Link href={`/register?as=${chosen}`}>Create one</Link>.
+        </p>
+      ) : null}
 
       <p className="muted small">
         Your account decides where you land, so if you picked the wrong card here you will still end

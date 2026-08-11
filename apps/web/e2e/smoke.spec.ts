@@ -50,6 +50,27 @@ test("choosing a role reveals the form, named for that surface", async ({ page }
   await expect(page.getByRole("heading", { name: "Who is signing in?" })).toBeVisible()
 })
 
+test("registration is public, and shaped like sign-in: who first, then the form", async ({
+  page,
+}) => {
+  await page.goto("/register")
+
+  await expect(page).not.toHaveURL(/\/login/)
+  await expect(page.getByRole("heading", { name: "New to Toli?" })).toBeVisible()
+
+  // Two forms and one explanation: customers self-serve, operators apply, and
+  // drivers are told the truth — their operator issues their sign-in.
+  await expect(page.locator('a[href="/register?as=customer"]')).toBeVisible()
+  await expect(page.locator('a[href="/register?as=operator"]')).toBeVisible()
+  await expect(page.locator('a[href="/login?as=driver"]')).toBeVisible()
+
+  await page.goto("/register?as=customer")
+  await expect(page.getByLabel("Choose a password")).toBeVisible()
+
+  await page.goto("/register?as=operator")
+  await expect(page.getByLabel("Travels / business name")).toBeVisible()
+})
+
 test("an unauthenticated visitor cannot reach the console", async ({ page }) => {
   await page.goto("/console")
 

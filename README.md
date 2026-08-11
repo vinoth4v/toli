@@ -4,11 +4,12 @@ India's charter marketplace for vans, tempo travellers and buses. Book a whole
 vehicle for a whole group — transparent quotes, verified operators, live
 tracking. Launching in **Madurai and south Tamil Nadu**; selling to all of India.
 
-The brand is the `toli` theme in `packages/tokens` — ink on paper, one bold
-weight, colour only where it means something. The logo is a route mark: dot,
-road, pin. The hero is a hand-drawn animated SVG of the ghat road to
-Kodaikanal, because the product is the software and the software is what the
-front page shows.
+The brand is the `toli` theme in `packages/tokens` — ink on paper, a
+terracotta accent, one bold weight, colour only where it means something. The
+logo is a route mark: dot, road, pin. The illustrations are hand-drawn
+animated SVGs of the launch corridor itself — the ghat road to Kodaikanal,
+the Pamban bridge to Rameswaram, a sleeper coach at night — because the
+product is the software and the software is what the front page shows.
 
 **Live:** https://toli-flame.vercel.app
 
@@ -55,7 +56,7 @@ src/app/           routes only; they compose the layers and hold no arithmetic
 ```
 
 If you are about to write a calculation inside a page, it belongs in
-`src/domain` with a test. That is where the 198 unit tests live, and why they
+`src/domain` with a test. That is where the 201 unit tests live, and why they
 run in two seconds without a database.
 
 **To understand the product, read in this order:** `src/domain/quote.ts` (why
@@ -83,6 +84,12 @@ Authorisation is one tested module (`src/domain/roles.ts`) enforced at the edge,
 so a role never reaches another surface even for the instant before a layout
 could redirect. It is an allow-list: a route added tomorrow is closed to
 everyone until somebody says otherwise.
+
+**Getting in** is shaped per role, at `/register`: customers self-register and
+are served immediately; operators apply and can load their fleet at once but
+sell nothing until Toli verifies them; drivers never self-register — their
+operator adds them on `/partner/team` and issues their sign-in there, with a
+generated password shown exactly once and stored only as a hash.
 
 ### Two ways to book
 
@@ -155,7 +162,7 @@ pnpm dev
 
 ```bash
 pnpm build         # must exit 0 — the gate that matters
-pnpm test          # 198 unit tests, no database needed
+pnpm test          # 201 unit tests, no database needed
 pnpm test:e2e      # Playwright smoke; needs pnpm build first
 pnpm typecheck
 pnpm lint / pnpm format
@@ -217,8 +224,9 @@ the full list with reasoning.
 - **The `hi`, `te`, `ml` and `kn` translations have had no native-speaker
   review.** Careful but unverified. A mistranslated SOS hint is worse than
   English.
-- **No self-registration, password reset or invitations.** Accounts are created
-  by script. Correct for four; the first thing to build for forty.
+- **No password reset.** Registration now exists — customers self-serve,
+  operators apply, drivers are issued credentials by their operator — but a
+  forgotten password is still a call to Toli ops.
 - **No session revocation.** The role lives in the JWT, so disabling an account
   stops the next sign-in, not the current session.
 - **No SMS fallback, no cloud-telephony number masking, no 90-day GPS

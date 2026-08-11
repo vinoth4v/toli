@@ -2,7 +2,7 @@ import Link from "next/link"
 import { LAUNCH_CITIES, STATE_NAMES } from "@/domain/india"
 import { SEGMENT_INFO, SEGMENTS } from "@/domain/segment"
 import { TRIP_EXTRAS, TRIP_TYPE_INFO } from "@/domain/trip"
-import { VEHICLE_CLASS_INFO, VEHICLE_FEATURES } from "@/domain/vehicle"
+import { seatRange, VEHICLE_CLASS_INFO, VEHICLE_FEATURES } from "@/domain/vehicle"
 import { LANGUAGE_LABEL, LOCALES } from "@/i18n"
 import { createOwnRequestAction } from "../actions"
 
@@ -150,7 +150,7 @@ export default async function NewRequestPage({
               <select id="vehicleClass" name="vehicleClass" defaultValue="tempo_traveller" required>
                 {Object.values(VEHICLE_CLASS_INFO).map((info) => (
                   <option key={info.key} value={info.key}>
-                    {info.label} — {info.seatOptions.join("/")} seats
+                    {info.label} · {seatRange(info)}
                   </option>
                 ))}
               </select>
@@ -179,7 +179,7 @@ export default async function NewRequestPage({
             <select id="segment" name="segment" defaultValue="premium">
               {SEGMENTS.map((option) => (
                 <option key={option} value={option}>
-                  {SEGMENT_INFO[option].label} — {SEGMENT_INFO[option].promise}
+                  {SEGMENT_INFO[option].label} — {SEGMENT_INFO[option].short}
                 </option>
               ))}
             </select>

@@ -252,9 +252,27 @@ label {
   color: var(--color-muted);
 }
 
-label .hint {
+label .hint,
+legend .hint {
   display: block;
   font-weight: var(--font-weight-normal);
+  color: var(--color-muted);
+}
+
+/* Inside a panel form a fieldset is a labelled group of controls, not a boxed
+   section — strip the browser's frame and let the legend behave like the
+   labels around it. (.ask-form fieldsets keep their frames; that is a design.) */
+.price-form fieldset {
+  padding: 0;
+  margin: 0 0 var(--space-4);
+  border: none;
+}
+
+.price-form legend {
+  padding: 0;
+  margin-bottom: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   color: var(--color-muted);
 }
 
@@ -273,6 +291,33 @@ textarea {
 textarea {
   min-height: 5rem;
   resize: vertical;
+}
+
+/* Native dropdowns arrive wearing the operating system's grey gradient, which
+   is the one part of a form the border/radius rules above cannot reach. Strip
+   that chrome and draw our own chevron — two tiny gradients meeting at a
+   point, in the muted token, so no image asset and no literal colour. */
+select {
+  padding-right: var(--space-8);
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--color-muted) 50%),
+    linear-gradient(135deg, var(--color-muted) 50%, transparent 50%);
+  background-repeat: no-repeat;
+  background-position:
+    right var(--space-4) top 50%,
+    right var(--space-3) top 50%;
+  background-size:
+    var(--space-2) var(--space-2),
+    var(--space-2) var(--space-2);
+}
+
+/* List-style selects (multiple, or an explicit size) have no closed state, so
+   a chevron would promise a popup that never comes. */
+select[multiple],
+select[size]:not([size="1"]) {
+  padding-right: var(--space-3);
+  background-image: none;
 }
 
 input[type="checkbox"] {
@@ -2389,6 +2434,7 @@ button.huge.sos {
 
 .lang {
   display: flex;
+  flex-wrap: wrap; /* six scripts do not fit one row on a phone */
   gap: var(--space-2);
   align-items: center;
 }
@@ -2448,9 +2494,40 @@ button.huge.sos {
   color: var(--color-muted);
 }
 
-.pick-go {
+/* Beats `.pick-card span`, which would otherwise mute the call to action. */
+.pick-card .pick-go {
   margin-top: var(--space-2);
   color: var(--color-accent);
+}
+
+/* The driver card on /register is information, not a door — it explains why
+   there is no driver form, so it neither lifts on hover nor pretends to go
+   anywhere as a whole. */
+.pick-note:hover {
+  border-color: var(--color-border);
+}
+
+.pick-note .pick-go a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+/* The once-only credential block on the partner team page. */
+.issued {
+  max-width: 28rem;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+}
+
+.issued p {
+  margin: 0 0 var(--space-2);
+}
+
+.issued code {
+  font-size: var(--font-size-base);
+  user-select: all;
 }
 
 .signin-page .crumb {
@@ -2804,6 +2881,78 @@ h1,
   }
 }
 
+/* ------------------------- the other scenes: Pamban bridge, night leg */
+
+.scene-banner {
+  margin-bottom: var(--space-10);
+}
+
+.scene-night {
+  margin-top: var(--space-8);
+}
+
+/* One full crossing takes as long as reading the section beside it. */
+.pamban-bus {
+  animation: scene-cross 26s linear infinite;
+}
+
+@keyframes scene-cross {
+  from {
+    transform: translateX(-70px);
+  }
+
+  to {
+    transform: translateX(790px);
+  }
+}
+
+.gull {
+  animation: scene-drift 18s ease-in-out infinite alternate-reverse;
+}
+
+.gull-b {
+  animation-duration: 24s;
+}
+
+.wave {
+  animation: scene-lap 7s linear infinite;
+}
+
+.wave-b {
+  animation-duration: 9s;
+  animation-direction: reverse;
+}
+
+@keyframes scene-lap {
+  to {
+    transform: translateX(80px);
+  }
+}
+
+.star {
+  animation: scene-twinkle 2.8s ease-in-out infinite;
+}
+
+.star:nth-child(2n) {
+  animation-delay: 1.1s;
+}
+
+.star:nth-child(3n) {
+  animation-delay: 1.9s;
+  animation-duration: 3.6s;
+}
+
+@keyframes scene-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.25;
+  }
+}
+
 /* The product, floating over the world it runs in. */
 
 .demo-card {
@@ -3055,6 +3204,7 @@ h1,
 
 .account-card {
   display: flex;
+  flex-wrap: wrap; /* the language row is wider than a phone; wrap, never clip */
   gap: var(--space-6);
   align-items: center;
   padding: var(--space-6);

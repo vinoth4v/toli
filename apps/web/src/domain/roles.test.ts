@@ -59,6 +59,7 @@ describe("isPublic", () => {
   it("opens the front page, sign-in, tracking and the machine endpoints", () => {
     expect(isPublic("/")).toBe(true)
     expect(isPublic("/login")).toBe(true)
+    expect(isPublic("/register")).toBe(true)
     expect(isPublic("/track/abc123")).toBe(true)
     expect(isPublic("/api/ingest/ping")).toBe(true)
     expect(isPublic("/api/webhooks/razorpay")).toBe(true)
