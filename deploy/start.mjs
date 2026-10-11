@@ -14,7 +14,8 @@ if (preview && !db.endsWith('_preview')) {
   process.exit(1)
 }
 console.log(`start: applying migrations to ${db} (${preview ? 'preview' : 'production'})`)
-const m = spawnSync('pnpm', ['run', 'db:migrate'], { stdio: 'inherit', cwd: '/app/apps/web' })
-if (m.status !== 0) { console.error(`start: migration failed (exit ${m.status}); not starting`); process.exit(m.status ?? 1) }
+// what `pnpm run db:migrate` runs (pnpm itself is only in the build stage of the image)
+const m = spawnSync('node', ['--experimental-strip-types', 'scripts/migrate.ts'], { stdio: 'inherit', cwd: '/app/apps/web' })
+if (m.status !== 0) { console.error(`start: migration failed (exit ${m.status ?? m.error?.message}); not starting`); process.exit(m.status ?? 1) }
 const s = spawnSync('node', ['node_modules/next/dist/bin/next', 'start', '-p', '3000', '-H', '0.0.0.0'], { stdio: 'inherit', cwd: '/app/apps/web' })
 process.exit(s.status ?? 1)
