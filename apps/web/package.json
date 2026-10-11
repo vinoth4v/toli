@@ -14,8 +14,7 @@
     "db:migrate": "node --experimental-strip-types scripts/migrate.ts",
     "db:seed": "node --experimental-strip-types scripts/seed.ts",
     "db:seed-users": "node --experimental-strip-types scripts/seed-users.ts",
-    "db:reset": "node --experimental-strip-types scripts/reset.ts",
-    "vercel-build": "node --experimental-strip-types scripts/vercel-build.ts"
+    "db:reset": "node --experimental-strip-types scripts/reset.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "1.1.0",

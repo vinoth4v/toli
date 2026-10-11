@@ -192,17 +192,18 @@ maps need no credentials at all.
 
 ## Deployment
 
-Merging to `main` deploys. Migrations run during that build, before it starts —
-a failed migration fails the build and the previous deployment keeps serving.
+Merging to `main` deploys (Coolify, on the home server). The new container
+migrates the database before it starts serving; a failed migration stops it and
+the previous deployment keeps serving.
 
-Gates on every PR: `gitleaks`, `typecheck`, `build`, `docs`,
-`neon-preview-branch` and `preview-smoke`. Each PR gets its own Neon database
-branch, deleted when it closes.
+Gates on every PR: `gitleaks`, `typecheck`, `build`, `docs` and `preview-smoke`.
+Each PR gets a preview at `https://pr<N>-<app>.vinothkannan.de` on a nightly copy
+of the production database, removed when the PR closes.
 
 ## Change it
 
 Comment `@claude` on an issue or PR, or say what you want on the app's
-[marketplace](https://werft-marketplace.vercel.app) page. Claude works on a
+[marketplace](https://werft-marketplace.vinothkannan.de) page. Claude works on a
 branch and opens a pull request; a human merges. Nothing reaches production on
 its own.
 

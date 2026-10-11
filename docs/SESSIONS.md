@@ -737,3 +737,14 @@ on a throwaway Neon branch deleted the same hour).
 
 **Open:** native-speaker pass on hi/te/ml/kn; password reset is still a
 phone call; stale PR #4 remains for the operator to close.
+
+## 2026-10-11 — Off Vercel and Neon: Coolify on the home server
+
+Production deploys from the Dockerfile on every push to `main`; PRs get a
+Coolify preview at `pr<N>-toli.vinothkannan.de` on `toli_preview`, a nightly copy
+of production. Three source changes came with it: `proxy.ts` lets
+`/werft-commit.txt` through (CI compares it with the PR's head commit before
+running Playwright), the start script points sign-in at the preview's own host
+(Coolify otherwise hands previews the production `AUTH_URL`), and the booking
+integrations' callback origin defaults to `toli.vinothkannan.de` instead of the
+old Vercel address.

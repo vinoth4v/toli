@@ -16,6 +16,9 @@ export default NextAuth(authConfig).auth
  * (an API other services call, say) needs its own entry here too, or every
  * caller silently gets a redirect instead of the route.
  *
+ * werft-commit.txt is the commit this build was made from (public: the repo is
+ * public too); CI reads it to know a preview is up to date before testing it.
+ *
  * There are three deliberate holes, and each carries its own credential
  * because none of them can carry the operator's session.
  *
@@ -37,7 +40,7 @@ export const config = {
     // purpose. It decides for itself: a visitor sees the marketplace, and a
     // signed-in operator is redirected straight to /console, so nobody has to
     // click past a welcome page to reach the app they run.
-    "/((?!$|api/auth|api/ingest|api/webhooks|login|register|track|_next/static|_next/image|favicon.ico|icon.svg).*)",
+    "/((?!$|api/auth|api/ingest|api/webhooks|login|register|track|_next/static|_next/image|favicon.ico|icon.svg|werft-commit.txt).*)",
     // Every role surface is matched, so authorisation runs before any of them
     // renders. `authorized` in auth.config.ts decides which role may be where.
   ],

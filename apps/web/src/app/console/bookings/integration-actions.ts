@@ -122,7 +122,7 @@ export async function sendDriverDetailsAction(formData: FormData): Promise<void>
     )
   }
 
-  const origin = process.env.NEXT_PUBLIC_APP_URL ?? "https://toli-flame.vercel.app"
+  const origin = process.env.NEXT_PUBLIC_APP_URL ?? "https://toli.vinothkannan.de"
 
   try {
     const result = await queueAndSend(
@@ -179,7 +179,7 @@ export async function sendTrackingLinkAction(formData: FormData): Promise<void> 
   const detail = await getBooking(bookingId)
   if (!detail) return
 
-  const origin = process.env.NEXT_PUBLIC_APP_URL ?? "https://toli-flame.vercel.app"
+  const origin = process.env.NEXT_PUBLIC_APP_URL ?? "https://toli.vinothkannan.de"
 
   try {
     await queueAndSend(
