@@ -13,9 +13,12 @@ if (preview && !db.endsWith('_preview')) {
   console.error(`start: preview deployment (${host}) but DATABASE_URL points at "${db}", not a _preview database — refusing to start`)
   process.exit(1)
 }
+// Coolify falls back to the production AUTH_URL when a preview has none of its own; sign-in must stay on the preview's host.
+const env = { ...process.env }
+if (preview && process.env.COOLIFY_FQDN) env.AUTH_URL = env.NEXTAUTH_URL = `https://${process.env.COOLIFY_FQDN}`
 console.log(`start: applying migrations to ${db} (${preview ? 'preview' : 'production'})`)
 // what `pnpm run db:migrate` runs (pnpm itself is only in the build stage of the image)
-const m = spawnSync('node', ['--experimental-strip-types', 'scripts/migrate.ts'], { stdio: 'inherit', cwd: '/app/apps/web' })
+const m = spawnSync('node', ['--experimental-strip-types', 'scripts/migrate.ts'], { stdio: 'inherit', cwd: '/app/apps/web', env })
 if (m.status !== 0) { console.error(`start: migration failed (exit ${m.status ?? m.error?.message}); not starting`); process.exit(m.status ?? 1) }
-const s = spawnSync('node', ['node_modules/next/dist/bin/next', 'start', '-p', '3000', '-H', '0.0.0.0'], { stdio: 'inherit', cwd: '/app/apps/web' })
+const s = spawnSync('node', ['node_modules/next/dist/bin/next', 'start', '-p', '3000', '-H', '0.0.0.0'], { stdio: 'inherit', cwd: '/app/apps/web', env })
 process.exit(s.status ?? 1)
